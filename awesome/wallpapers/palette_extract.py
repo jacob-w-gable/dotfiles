@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 from colorthief import ColorThief
 
@@ -17,7 +19,7 @@ def main(image_path):
     color_thief = ColorThief(image_path)
     # Query 5 colors, but only use the first 3. This increases the chance of the colors being similar,
     # since multiple colors are often extracted from an image.
-    palette = color_thief.get_palette(color_count=5, quality=10)[0:3]
+    palette = color_thief.get_palette(color_count=7, quality=10)[0:4]
 
     # sort pallette by brightness
     palette.sort(key=lambda rgb: sum(rgb))
