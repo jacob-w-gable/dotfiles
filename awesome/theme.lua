@@ -11,19 +11,19 @@ local dpi = require("beautiful.xresources").apply_dpi
 
 -- {{{ Main
 local theme = {}
-theme.wallpaper = config_path .. settings.wallpaper
+theme.wallpaper = config_path .. settings.style.wallpaper
 -- }}}
 
 -- {{{ Styles
 theme.font = "sans 8"
 
 -- {{{ Colors
-theme.fg_normal = settings.secondary_color
-theme.fg_focus = settings.primary_color
-theme.fg_urgent = settings.secondary_color
-theme.bg_normal = settings.background_color
-theme.bg_focus = settings.highlight_color
-theme.bg_urgent = settings.secondary_background_color
+theme.fg_normal = settings.style.secondary_color
+theme.fg_focus = settings.style.primary_color
+theme.fg_urgent = settings.style.secondary_color
+theme.bg_normal = settings.style.background_color
+theme.bg_focus = settings.style.highlight_color
+theme.bg_urgent = settings.style.highlight_color
 theme.bg_systray = theme.bg_normal
 theme.prompt_bg = "#00000000" -- Transparent
 -- }}}
@@ -31,17 +31,17 @@ theme.prompt_bg = "#00000000" -- Transparent
 -- {{{ Borders
 theme.useless_gap = dpi(3)
 theme.border_width = dpi(1)
-theme.border_normal = settings.background_color
-theme.border_focus = settings.highlight_color
-theme.border_marked = settings.highlight_color
+theme.border_normal = settings.style.background_color
+theme.border_focus = settings.style.highlight_color
+theme.border_marked = settings.style.highlight_color
 -- }}}
 
 -- {{{ Titlebars
-theme.titlebar_bg_focus = settings.secondary_background_color
+theme.titlebar_bg_focus = settings.style.highlight_color
 if settings.opacity then
 	theme.titlebar_bg_focus = theme.titlebar_bg_focus .. "D9"
 end
-theme.titlebar_bg_normal = settings.background_color
+theme.titlebar_bg_normal = settings.style.background_color
 if settings.opacity then
 	theme.titlebar_bg_normal = theme.titlebar_bg_normal .. "D9"
 end
