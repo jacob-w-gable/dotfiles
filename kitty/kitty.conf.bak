@@ -1478,7 +1478,7 @@ background_opacity 0.85
 #: See rc_custom_auth <https://sw.kovidgoyal.net/kitty/remote-
 #: control/#rc-custom-auth> for details.
 
-allow_remote_control yes
+# allow_remote_control no
 
 #: Allow other programs to control kitty. If you turn this on, other
 #: programs can control all aspects of kitty, including sending text
@@ -2667,7 +2667,7 @@ map alt+page_down scroll_end
 
 #: }}}
 
-map ctrl+shift+e launch --cwd=current
+map ctrl+shift+e launch
 
 map alt+up neighboring_window up
 map alt+down neighboring_window down
@@ -2687,6 +2687,6 @@ map ctrl+backspace send_text all \x17
 
 
 # BEGIN_KITTY_THEME
-# Adwaita darker
+# Ubuntu
 include current-theme.conf
 # END_KITTY_THEME
