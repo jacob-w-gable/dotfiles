@@ -60,3 +60,11 @@ bindkey '^H' backward-kill-word
 # Custom aliases
 alias e='nvim .'
 
+# Use gnome keyring. Without a proper DE, you can use `secret-tool` to add passwords to the keyring.
+# See https://wiki.archlinux.org/title/GNOME/Keyring
+# and https://bbs.archlinux.org/viewtopic.php?pid=2217761#p2217761
+# Make sure you do not run ssh-agent in your system, as it will conflict with gnome-keyring-daemon.
+if ! pgrep -u "$USER" -f gnome-keyring-daemon > /dev/null; then
+  eval $(gnome-keyring-daemon --start 2>/dev/null)
+fi
+export SSH_AUTH_SOCK
