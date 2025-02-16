@@ -1035,9 +1035,9 @@ end)
 
 -- Run applets for system tray.
 -- Make sure `nm-tray` is installed. Network manager applet.
-awful.spawn.with_shell("nm-tray")
+awful.spawn.with_shell("pkill nm-tray; nm-tray")
 -- Make sure `pasystray` is installed. Pulse audio control.
-awful.spawn.with_shell("pasystray")
+awful.spawn.with_shell("pkill pasystray; pasystray")
 -- Make sure `blueman` is installed. Bluetooth control.
 awful.spawn.with_shell("blueman-applet")
 -- configure timeout with `xset s <timeout>`
