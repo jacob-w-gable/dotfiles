@@ -18,9 +18,15 @@ local beautiful = require("beautiful")
 local naughty = require("naughty")
 local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup")
+-- Widgets
+local widgets = require("widgets")
+
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
-require("awful.hotkeys_popup.keys")
+if settings.vim_keys then
+	require("awful.hotkeys_popup.keys.vim")
+end
+-- require("awful.hotkeys_popup.keys")
 
 -- Load Debian menu entries
 local debian = require("debian.menu")
@@ -28,13 +34,13 @@ local has_fdo, freedesktop = pcall(require, "freedesktop")
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
-beautiful.init(config_path .. "theme.lua")
+beautiful.init(config_path .. "theme/theme.lua")
 
 -- Configure lock screen and lock screen wallpaper
 local lock_screen_fg = beautiful.fg_focus:sub(2)
 local lock_screen_hl = beautiful.bg_focus:sub(2)
 local lock_screen_bg = beautiful.bg_normal:sub(2)
-local lock_screen_wp_path = "/usr/share/wallpapers/jacob-w-gable/contents/images_dark/wallpaper1.png"
+local lock_screen_wp_path = settings.lock_screen_wallpaper
 
 local lock_command = "i3lock -i "
 	.. lock_screen_wp_path
@@ -166,250 +172,11 @@ else
 	})
 end
 
--- Create the RAM graph widget
-ramwidget = awful.widget.graph()
-ramwidget:set_width(50)
-ramwidget:set_background_color("#00000000") -- Transparent background
-ramwidget:set_color({
-	type = "linear",
-	from = { 0, 0 },
-	to = { 50, 0 },
-	stops = {
-		{ 0, "#56A3FF" },
-		{ 0.5, "#75A188" },
-		{ 1, "#96CFAE" },
-	},
-})
-
--- Register RAM widget with vicious
-vicious.register(ramwidget, vicious.widgets.mem, "$1", 3) -- $1 is the percentage of RAM used
-
--- Tooltip for RAM widget
-local ram_tooltip = awful.tooltip({
-	objects = { ramwidget }, -- Attach the tooltip to the RAM widget
-	timeout = 1, -- Update interval for the tooltip
-})
-
--- Update the tooltip content dynamically
-vicious.register(ramwidget, vicious.widgets.mem, function(widget, args)
-	local ram_details = string.format(
-		"RAM: %d%% (%d MiB / %d MiB)\nSwap: %d%% (%d MiB / %d MiB)",
-		args[1], -- RAM usage percentage
-		args[2], -- RAM used in MiB
-		args[3], -- Total RAM in MiB
-		args[5], -- Swap usage percentage
-		args[6], -- Swap used in MiB
-		args[7] -- Total Swap in MiB
-	)
-	ram_tooltip.text = ram_details
-	return args[1] -- Return the value for the graph
-end, 3) -- Update every 3 seconds
-
-cpuwidget = awful.widget.graph()
-cpuwidget:set_width(50)
-cpuwidget:set_background_color("#00000000") -- Transparent background
-cpuwidget:set_color({
-	type = "linear",
-	from = { 0, 0 },
-	to = { 50, 0 },
-	stops = {
-		{ 0, "#FF5656" },
-		{ 0.5, "#88A175" },
-		{ 1, "#AECF96" },
-	},
-})
-vicious.register(cpuwidget, vicious.widgets.cpu, "$1", 3)
-
--- Tooltip for CPU widget
-local cpu_tooltip = awful.tooltip({
-	objects = { cpuwidget }, -- Attach the tooltip to the CPU widget
-	timeout = 1, -- Update interval for the tooltip
-})
-
--- Update the tooltip content dynamically
-vicious.register(cpuwidget, vicious.widgets.cpu, function(widget, args)
-	local cpu_usage = "CPU Usage: " .. args[1] .. "%"
-	cpu_tooltip.text = cpu_usage
-	return args[1] -- Return the value for the graph
-end, 3) -- Update every 3 seconds
-
--- Create a text widget for the battery
-batwidget = wibox.widget.textbox()
--- Add margin around the battery widget
-batwidget_with_margin = wibox.container.margin(batwidget, 5, 5, 0, 0) -- Left, Right, Top, Bottom margins
--- Register the battery widget with vicious
-vicious.register(batwidget, vicious.widgets.bat, "Bat: $2%", 61, "BAT0") -- $2 for battery percentage, %% to display %
-
--- Create a weather widget
-local weather_widget = wibox.widget.textbox()
-weather_widget_with_margin = wibox.container.margin(weather_widget, 5, 5, 0, 0)
-
-vicious.register(weather_widget, vicious.widgets.weather, "${tempf}°F (HSV)", 600, "KHSV")
-
 mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon, menu = mymainmenu })
 
 -- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
-
--- Keyboard map indicator and switcher
-mykeyboardlayout = awful.widget.keyboardlayout()
-
--- {{{ Wibar
--- Create a textclock widget
-mytextclock = wibox.widget.textclock("%a %b %d, %I:%M %p")
-
--- Create the volume widget
-local volume_widget = wibox.widget({
-	widget = wibox.container.background,
-	{
-		widget = wibox.container.margin,
-		margins = 4,
-		{
-			widget = wibox.widget.textbox,
-			id = "volume_text",
-			text = "Vol: 0%", -- Initial placeholder
-		},
-	},
-})
-
--- Function to update volume
-local function update_volume(widget)
-	awful.spawn.easy_async_with_shell("pactl get-sink-volume @DEFAULT_SINK@", function(stdout)
-		local volume = stdout:match("(%d+)%%")
-		widget:get_children_by_id("volume_text")[1].text = "Vol: " .. (volume or "0") .. "%"
-	end)
-end
-
--- Update volume on creation and when the volume changes
-update_volume(volume_widget)
-awesome.connect_signal("volume::update", function()
-	update_volume(volume_widget)
-end)
-
--- Bind keys or buttons to control volume
-volume_widget:buttons(gears.table.join(
-	awful.button({}, 4, function() -- Scroll up
-		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%", false)
-		awesome.emit_signal("volume::update")
-	end),
-	awful.button({}, 5, function() -- Scroll down
-		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%", false)
-		awesome.emit_signal("volume::update")
-	end),
-	awful.button({}, 1, function() -- Left click to toggle mute
-		awful.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle", false)
-		awesome.emit_signal("volume::update")
-	end)
-))
-
--- Automatically update the widget periodically
-gears.timer({
-	timeout = 5,
-	autostart = true,
-	callback = function()
-		awesome.emit_signal("volume::update")
-	end,
-})
-
-local prompt_popup_bg = beautiful.bg_normal
-local prompt_popup_border = beautiful.border_focus
-if settings.opacity then
-	prompt_popup_bg = prompt_popup_bg .. "B3"
-	prompt_popup_border = prompt_popup_border .. "B3"
-end
-
--- Create a floating popup wibox
-local prompt_popup = wibox({
-	width = 500, -- Adjust width as needed
-	height = 60, -- Adjust height as needed
-	ontop = true,
-	visible = false,
-	bg = prompt_popup_bg,
-	border_color = prompt_popup_border,
-	border_width = beautiful.border_width,
-	shape = function(cr, width, height)
-		gears.shape.rounded_rect(cr, width, height, 20) -- Rounded corners
-	end,
-})
-
--- Create the prompt widget
-local promptbox = awful.widget.prompt()
-
--- Add the promptbox to the wibox
-prompt_popup:setup({
-	{
-		promptbox,
-		widget = wibox.container.margin,
-		margins = 10,
-	},
-	layout = wibox.layout.fixed.horizontal,
-})
-
--- Function to show the prompt at the center of the screen
-local function show_prompt()
-	local screen_geo = awful.screen.focused().geometry
-	prompt_popup.x = screen_geo.x + (screen_geo.width - prompt_popup.width) / 2
-	prompt_popup.y = screen_geo.y + (screen_geo.height - prompt_popup.height) / 3
-	prompt_popup.visible = true
-	awful.prompt.run({
-		prompt = "Run: ",
-		textbox = promptbox.widget,
-		exe_callback = function(cmd)
-			if cmd and cmd ~= "" then
-				awful.spawn(cmd)
-			end
-			prompt_popup.visible = false -- Hide after command
-		end,
-		history_path = awful.util.get_cache_dir() .. "/history_run",
-		done_callback = function()
-			prompt_popup.visible = false
-		end, -- Hide when dismissed
-	})
-end
-
--- Create a wibox for each screen and add it
-local taglist_buttons = gears.table.join(
-	awful.button({}, 1, function(t)
-		t:view_only()
-	end),
-	awful.button({ modkey }, 1, function(t)
-		if client.focus then
-			client.focus:move_to_tag(t)
-		end
-	end),
-	awful.button({}, 3, awful.tag.viewtoggle),
-	awful.button({ modkey }, 3, function(t)
-		if client.focus then
-			client.focus:toggle_tag(t)
-		end
-	end),
-	awful.button({}, 4, function(t)
-		awful.tag.viewnext(t.screen)
-	end),
-	awful.button({}, 5, function(t)
-		awful.tag.viewprev(t.screen)
-	end)
-)
-
-local tasklist_buttons = gears.table.join(
-	awful.button({}, 1, function(c)
-		if c == client.focus then
-			c.minimized = true
-		else
-			c:emit_signal("request::activate", "tasklist", { raise = true })
-		end
-	end),
-	awful.button({}, 3, function()
-		awful.menu.client_list({ theme = { width = 250 } })
-	end),
-	awful.button({}, 4, function()
-		awful.client.focus.byidx(1)
-	end),
-	awful.button({}, 5, function()
-		awful.client.focus.byidx(-1)
-	end)
-)
 
 local function set_wallpaper(s)
 	-- Wallpaper
@@ -440,115 +207,11 @@ awful.screen.connect_for_each_screen(function(s)
 	s.mypromptbox = awful.widget.prompt()
 	-- Create an imagebox widget which will contain an icon indicating which layout we're using.
 	-- We need one layoutbox per screen.
-	s.mylayoutbox = wibox.widget({
-		{
-			awful.widget.layoutbox(s),
-			margins = 3,
-			widget = wibox.container.margin,
-		},
-		widget = wibox.container.place,
-	})
-	s.mylayoutbox:buttons(gears.table.join(
-		awful.button({}, 1, function()
-			awful.layout.inc(1)
-		end),
-		awful.button({}, 3, function()
-			awful.layout.inc(-1)
-		end),
-		awful.button({}, 4, function()
-			awful.layout.inc(1)
-		end),
-		awful.button({}, 5, function()
-			awful.layout.inc(-1)
-		end)
-	))
+	s.mylayoutbox = widgets.layoutbox(s)
 	-- Create a taglist widget
-	s.mytaglist = awful.widget.taglist({
-		screen = s,
-		filter = awful.widget.taglist.filter.all,
-		style = {
-			shape = gears.shape.powerline,
-		},
-		layout = {
-			spacing = -12,
-			spacing_widget = {
-				color = "#000000",
-				shape = gears.shape.powerline,
-				widget = wibox.widget.separator,
-			},
-			layout = wibox.layout.fixed.horizontal,
-		},
-		widget_template = {
-			{
-				{
-					id = "text_role",
-					widget = wibox.widget.textbox,
-				},
-				left = 20,
-				right = 20,
-				widget = wibox.container.margin,
-			},
-			id = "background_role",
-			widget = wibox.container.background,
-		},
-		buttons = taglist_buttons,
-	})
-
+	s.mytaglist = widgets.taglist(s)
 	-- Create a tasklist widget
-	s.mytasklist = awful.widget.tasklist({
-		screen = s,
-		filter = awful.widget.tasklist.filter.currenttags,
-		buttons = tasklist_buttons,
-		style = {
-			shape = function(cr, width, height)
-				gears.shape.parallelogram(cr, width, height, width - height / 3)
-			end,
-		},
-		layout = {
-			spacing = 10,
-			spacing_widget = {
-				color = "#000000",
-				shape = function(cr, width, height)
-					gears.shape.parallelogram(cr, width, height, width - height / 3)
-				end,
-				widget = wibox.widget.separator,
-			},
-			layout = wibox.layout.fixed.horizontal,
-		},
-		widget_template = {
-			{
-				{
-					{
-						{
-							{
-								id = "icon_role",
-								widget = wibox.widget.imagebox,
-							},
-							margins = 5,
-							widget = wibox.container.margin,
-						},
-						{
-							{
-								id = "text_role",
-								widget = wibox.widget.textbox,
-							},
-							left = 8,
-							widget = wibox.container.margin,
-						},
-						layout = wibox.layout.fixed.horizontal,
-					},
-					left = 15,
-					right = 15,
-					widget = wibox.container.margin,
-				},
-				id = "background_role",
-				widget = wibox.container.background,
-			},
-			widget = wibox.container.margin,
-			left = -8,
-			right = -8,
-		},
-	})
+	s.mytasklist = widgets.tasklist(s)
 
 	local awful_bg = beautiful.bg_normal
 	if settings.opacity then
@@ -598,8 +261,8 @@ awful.screen.connect_for_each_screen(function(s)
 				margins = 5,
 				widget = wibox.container.margin,
 			},
-			ramwidget,
-			cpuwidget,
+			widgets.ramgraph,
+			widgets.cpugraph,
 			{
 				margins = 5,
 				widget = wibox.container.margin,
@@ -621,11 +284,12 @@ awful.screen.connect_for_each_screen(function(s)
 				widget = wibox.widget.separator,
 			},
 			powerline_left_primary(wibox.widget.systray()),
-			powerline_left_secondary(volume_widget),
-			powerline_left_primary(batwidget_with_margin),
-			powerline_left_secondary(weather_widget_with_margin),
-			powerline_left_primary(mytextclock),
-			powerline_left_secondary(s.mylayoutbox),
+			powerline_left_secondary(widgets.caffeine),
+			powerline_left_primary(widgets.volume),
+			powerline_left_secondary(widgets.battery),
+			powerline_left_primary(widgets.weather),
+			powerline_left_secondary(widgets.clock),
+			powerline_left_primary(s.mylayoutbox),
 		},
 	})
 end)
@@ -718,12 +382,6 @@ globalkeys = gears.table.join(
 			c:emit_signal("request::activate", "key.unminimize", { raise = true })
 		end
 	end, { description = "restore minimized", group = "client" }),
-
-	-- Prompt
-	awful.key({ modkey }, "r", show_prompt, { description = "run prompt", group = "launcher" }),
-	-- awful.key({ modkey }, "r", function()
-	-- 	awful.screen.focused().mypromptbox:run()
-	-- end, { description = "run prompt", group = "launcher" }),
 
 	awful.key({ modkey }, "x", function()
 		awful.prompt.run({
@@ -874,6 +532,9 @@ clientbuttons = gears.table.join(
 		awful.mouse.client.resize(c)
 	end)
 )
+
+-- Connect promptbox toggle event
+globalkeys = widgets.promptbox(beautiful, globalkeys)
 
 -- Set keys
 root.keys(globalkeys)
@@ -1057,3 +718,4 @@ awful.spawn.with_shell("feh --bg-fill " .. beautiful.wallpaper)
 if settings.compositor then
 	awful.spawn.with_shell("/usr/local/bin/picom --config ~/.config/picom/picom.conf &")
 end
+-- awful.spawn.with_shell("tuxedo-control-center")
