@@ -16,6 +16,8 @@ local vicious = require("vicious")
 local beautiful = require("beautiful")
 -- Notification library
 local naughty = require("naughty")
+local dpi = require("beautiful.xresources").apply_dpi
+
 local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup")
 -- Widgets
@@ -35,6 +37,12 @@ local has_fdo, freedesktop = pcall(require, "freedesktop")
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
 beautiful.init(config_path .. "theme/theme.lua")
+
+-- Configure naughty to center in the top right with some outer padding
+naughty.config.defaults.position = "bottom_right"
+naughty.config.defaults.margin = 15
+naughty.config.padding = dpi(25)
+naughty.config.spacing = dpi(10)
 
 -- Configure lock screen and lock screen wallpaper
 local lock_screen_fg = beautiful.fg_focus:sub(2)
