@@ -1,5 +1,6 @@
 local settings = require("../settings")
 
+local gears = require("gears")
 local themes_path = require("gears.filesystem").get_themes_dir()
 local config_path = require("gears.filesystem").get_configuration_dir()
 local dpi = require("beautiful.xresources").apply_dpi
@@ -33,6 +34,14 @@ theme.border_normal = settings.style.background_color
 theme.border_focus = settings.style.highlight_color
 theme.border_marked = settings.style.highlight_color
 -- }}}
+
+theme.notification_shape = gears.shape.rounded_rect
+theme.notification_bg = settings.style.background_color
+theme.notification_border_color = settings.style.highlight_color
+if settings.opacity then
+	theme.notification_bg = theme.notification_bg .. "B3"
+	theme.notification_border_color = theme.notification_border_color .. "B3"
+end
 
 -- {{{ Titlebars
 theme.titlebar_bg_focus = settings.style.highlight_color
