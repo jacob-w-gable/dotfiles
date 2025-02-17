@@ -163,13 +163,23 @@ if has_fdo then
 		after = { menu_terminal },
 	})
 else
-	mymainmenu = awful.menu({
-		items = {
-			menu_awesome,
-			{ "Debian", debian.menu.Debian_menu.Debian },
-			menu_terminal,
-		},
-	})
+	-- If `debian.menu` exists, use it to build the menu
+	if debian and debian.menu.Debian_menu then
+		mymainmenu = awful.menu({
+			items = {
+				menu_awesome,
+				{ "Debian", debian.menu.Debian_menu.Debian },
+				menu_terminal,
+			},
+		})
+	else
+		mymainmenu = awful.menu({
+			items = {
+				menu_awesome,
+				menu_terminal,
+			},
+		})
+	end
 end
 
 mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon, menu = mymainmenu })

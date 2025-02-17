@@ -74,7 +74,7 @@ rm -rf i3lock-color
 
 # Install wallpapers for sddm
 sudo mkdir -p /usr/share/wallpapers/jacob-w-gable/contents/images_dark
-sudo cp ./awesome/wallpapers/* /usr/share/wallpapers/jacob-w-gable/contents/images_dark
+sudo cp ./awesome/theme/wallpapers/* /usr/share/wallpapers/jacob-w-gable/contents/images_dark
 
 # Install reactivex luarocks library, for the Docker nvim extension
 sudo luarocks install reactivex
@@ -87,4 +87,9 @@ echo "source ~/.zshrc-core" >>~/.zshrc
 # Set up simple sddm theme
 git clone https://github.com/JaKooLit/simple-sddm.git
 sudo mv simple-sddm /usr/share/sddm/themes
-sudo cp awesome/wallpapers/wallpaper1.png /usr/share/sddm/themes/simple-sddm/Backgrounds
+sudo cp awesome/theme/wallpapers/wallpaper1.png /usr/share/sddm/themes/simple-sddm/Backgrounds
+
+# Set up picom
+git clone https://github.com/yshui/picom.git
+(cd picom && git checkout v12.5 && meson setup --buildtype=release build && ninja -C build install)
+rm -rf picom
