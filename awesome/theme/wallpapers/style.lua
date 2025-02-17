@@ -34,6 +34,17 @@ return {
 		-- Should be close to white
 		secondary_color = "#d3dae3",
 	},
+	wallpaper12 = {
+		wallpaper = wallpaper_base_path .. "wallpaper12.jpeg",
+		-- bright and colorful
+		primary_color = "#e2c3c4",
+		-- medium color
+		highlight_color = "#353c64",
+		-- Should be a dark color
+		background_color = "#1c2746",
+		-- Should be close to white
+		secondary_color = "#d3dae3",
+	},
 	wallpaper13 = {
 		wallpaper = wallpaper_base_path .. "wallpaper13.jpg",
 		-- bright and colorful
