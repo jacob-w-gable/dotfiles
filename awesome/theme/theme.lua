@@ -14,7 +14,7 @@ theme.wallpaper = config_path .. settings.style.wallpaper
 -- }}}
 
 -- {{{ Styles
-theme.font = "sans 8"
+theme.font = "Hack Nerd Font 8"
 
 -- {{{ Colors
 theme.fg_normal = settings.style.secondary_color
