@@ -1,6 +1,7 @@
 local wibox = require("wibox")
 local awful = require("awful")
 local gears = require("gears")
+local theme = require("theme.theme")
 
 local volume_widget = wibox.widget({
 	widget = wibox.container.background,
@@ -10,7 +11,7 @@ local volume_widget = wibox.widget({
 		{
 			widget = wibox.widget.textbox,
 			id = "volume_text",
-			text = "Vol: 0%", -- Initial placeholder
+			markup = string.format('<span font="%s">Vol: 0%%</span>', theme.font),
 		},
 	},
 })
@@ -19,7 +20,8 @@ local volume_widget = wibox.widget({
 local function update_volume(widget)
 	awful.spawn.easy_async_with_shell("pactl get-sink-volume @DEFAULT_SINK@", function(stdout)
 		local volume = stdout:match("(%d+)%%")
-		widget:get_children_by_id("volume_text")[1].text = "Vol: " .. (volume or "0") .. "%"
+		widget:get_children_by_id("volume_text")[1].markup =
+			string.format('<span font="%s">Vol: %s%%</span>', theme.font, volume or "0")
 	end)
 end
 
