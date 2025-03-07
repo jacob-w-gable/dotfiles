@@ -49,7 +49,7 @@ volume_widget:buttons(gears.table.join(
 
 -- Automatically update the widget periodically
 gears.timer({
-	timeout = 5,
+	timeout = 1,
 	autostart = true,
 	callback = function()
 		awesome.emit_signal("volume::update")
