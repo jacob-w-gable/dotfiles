@@ -330,6 +330,11 @@ globalkeys = gears.table.join(
 	awful.key({ modkey }, "Right", awful.tag.viewnext, { description = "view next", group = "tag" }),
 	awful.key({ modkey }, "Escape", awful.tag.history.restore, { description = "go back", group = "tag" }),
 
+	-- Refresh displays
+	awful.key({ modkey }, "d", function()
+		awful.spawn("/home/jacob/display_fix.sh")
+	end, { description = "refresh displays", group = "hotkeys" }),
+
 	awful.key({ modkey }, "j", function()
 		awful.client.focus.byidx(-1)
 	end, { description = "focus next by index", group = "client" }),
@@ -342,10 +347,10 @@ globalkeys = gears.table.join(
 
 	-- Layout manipulation
 	awful.key({ modkey, "Shift" }, "j", function()
-		awful.client.swap.byidx(1)
+		awful.client.swap.byidx(-1)
 	end, { description = "swap with next client by index", group = "client" }),
 	awful.key({ modkey, "Shift" }, "k", function()
-		awful.client.swap.byidx(-1)
+		awful.client.swap.byidx(1)
 	end, { description = "swap with previous client by index", group = "client" }),
 	awful.key({ modkey, "Control" }, "j", function()
 		awful.screen.focus_relative(1)
