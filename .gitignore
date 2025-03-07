@@ -4,3 +4,4 @@ nvim/pack/github
 ranger/.mypy_cache
 gtk-3.0/servers
 awesome/vicious
+__pycache__
