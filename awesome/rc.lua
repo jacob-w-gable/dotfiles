@@ -480,6 +480,10 @@ clientkeys = gears.table.join(
 	awful.key({ modkey }, "t", function(c)
 		c.ontop = not c.ontop
 	end, { description = "toggle keep on top", group = "client" }),
+	-- toggle keep on bottom
+	awful.key({ modkey, "Shift" }, "t", function(c)
+		c.below = not c.below
+	end, { description = "toggle keep on bottom", group = "client" }),
 	awful.key({ modkey }, "n", function(c)
 		-- The client currently has the input focus, so it cannot be
 		-- minimized, since minimized clients can't have the focus.
@@ -617,7 +621,26 @@ awful.rules.rules = {
 	},
 
 	-- Add titlebars to normal clients and dialogs, if in vm_mode
-	{ rule_any = { type = { "normal", "dialog" } }, properties = { titlebars_enabled = settings.vm_mode } },
+	{
+		rule_any = { type = { "normal", "dialog" } },
+		except = { name = "Wallpaper Pop-out" },
+		properties = { titlebars_enabled = settings.vm_mode },
+	},
+
+	-- Keep wallpaper engine popout always on the bottom
+	{
+		rule = { name = "Wallpaper Pop-out" },
+		properties = {
+			floating = false,
+			maximized = true,
+			sticky = true,
+			below = true,
+			skip_taskbar = true,
+			focusable = false,
+			titlebars_enabled = false,
+			border_width = 0,
+		},
+	},
 
 	-- Set Firefox to always map on the tag named "2" on screen 1.
 	-- { rule = { class = "Firefox" },
