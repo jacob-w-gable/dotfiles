@@ -415,15 +415,15 @@ globalkeys = gears.table.join(
 	end, { description = "show the menubar", group = "launcher" }),
 
 	awful.key({}, "XF86AudioRaiseVolume", function()
-		awful.spawn("amixer -q sset Master 5%+")
+		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ +2%")
 	end, { description = "increase volume", group = "media" }),
 
 	awful.key({}, "XF86AudioLowerVolume", function()
-		awful.spawn("amixer -q sset Master 5%-")
+		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ -2%")
 	end, { description = "decrease volume", group = "media" }),
 
 	awful.key({}, "XF86AudioMute", function()
-		awful.spawn("amixer -q sset Master toggle")
+		awful.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")
 	end, { description = "mute volume", group = "media" }),
 
 	-- Media playback
