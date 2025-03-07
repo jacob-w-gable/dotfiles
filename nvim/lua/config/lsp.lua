@@ -1,6 +1,7 @@
 local lspconfig = require("lspconfig")
 
 lspconfig.rust_analyzer.setup({
+  capabilities = require("cmp_nvim_lsp").default_capabilities(),
   handlers = {
     ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
       border = "rounded",
