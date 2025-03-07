@@ -39,7 +39,8 @@ sudo pacman -S \
   feh \
   qt5-graphicaleffects \
   qt5-quickcontrols \
-  qt5-quickcontrols2
+  qt5-quickcontrols2 \
+  eza
 
 yay -S \
   nm-tray \

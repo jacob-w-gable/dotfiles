@@ -59,6 +59,7 @@ bindkey '^H' backward-kill-word
 
 # Custom aliases
 alias e='nvim .'
+alias ls='eza'
 
 # Use gnome keyring. Without a proper DE, you can use `secret-tool` to add passwords to the keyring.
 # See https://wiki.archlinux.org/title/GNOME/Keyring

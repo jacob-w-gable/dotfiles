@@ -32,6 +32,7 @@ sudo apt install \
   qml-module-qtgraphicaleffects \
   libqt5svg5-dev \
   qml-module-qtquick-controls2 \
+  eza \
   -y
 
 # For building i3loc-color:
