@@ -58,6 +58,7 @@ export NVM_DIR="$HOME/.nvm"
 bindkey '^H' backward-kill-word
 
 # Custom aliases
+alias ef='nvim'
 alias e='nvim .'
 alias ls='eza'
 
