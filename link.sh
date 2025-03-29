@@ -11,6 +11,9 @@ ln -s $(pwd)/awesome $HOME/.config/awesome
 rm -rf $HOME/.config/gtk-3.0 || true
 ln -s $(pwd)/gtk-3.0 $HOME/.config/gtk-3.0
 
+ra -rf $HOME/.config/gtk-4.0 || true
+ln -s $(pwd)/gtk-4.0 $HOME/.config/gtk-4.0
+
 rm -rf $HOME/.config/kitty || true
 ln -s $(pwd)/kitty $HOME/.config/kitty
 
