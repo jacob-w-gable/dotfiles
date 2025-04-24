@@ -33,6 +33,9 @@ sudo apt install \
   libqt5svg5-dev \
   qml-module-qtquick-controls2 \
   eza \
+  curl \
+  wget \
+  git \
   -y
 
 # For building i3loc-color:
@@ -83,4 +86,5 @@ sudo apt install \
   libxcb-xfixes0-dev \
   meson \
   ninja-build \
-  uthash-dev
+  uthash-dev \
+  -y
