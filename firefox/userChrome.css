@@ -2,8 +2,8 @@
 /* This styles the top of firefox to be transparent, meant to be used with picom blur. */
 
 /* To figure out where to place this file, go to about:profiles and see where the default-release root directory is.
-* It would look something like `/home/jacob/snap/firefox/common/.mozilla/firefox/4bhs76h5.default-release`.
-* Make a subdirectory called `chrome` in that directory and place this file there.
+ * It would look something like `/home/jacob/snap/firefox/common/.mozilla/firefox/4bhs76h5.default-release`.
+ * Make a subdirectory called `chrome` in that directory and place this file there. */
 /* Make sure to go to about:config and set `toolkit.legacyUserProfileCustomizations.stylesheets` to true */
 /* Quick command: `ln -s $(pwd)/firefox /home/jacob/snap/firefox/common/.mozilla/firefox/4bhs76h5.default-release/chrome` */
 

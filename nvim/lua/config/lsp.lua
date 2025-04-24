@@ -1,5 +1,7 @@
 local lspconfig = require("lspconfig")
 
+-- TODO: Condense this duplication into a function
+
 lspconfig.rust_analyzer.setup({
   capabilities = require("cmp_nvim_lsp").default_capabilities(),
   handlers = {
@@ -163,4 +165,71 @@ lspconfig.tsserver.setup({
       completeFunctionCalls = true,
     },
   },
+})
+
+lspconfig.pyright.setup({
+  handlers = {
+    ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+      border = "rounded",
+    }),
+  },
+  on_attach = function(client, bufnr)
+    -- Disable tsserver formatting if using something else like prettier
+    client.server_capabilities.documentFormattingProvider = false
+
+    -- Mappings for LSP (you can customize these)
+    local function buf_set_keymap(...)
+      vim.api.nvim_buf_set_keymap(bufnr, ...)
+    end
+
+    buf_set_keymap(
+      "n",
+      "gd",
+      "<Cmd>lua vim.lsp.buf.definition()<CR>",
+      { desc = "Go to Definition", noremap = true, silent = true }
+    )
+    buf_set_keymap("n", "K", "<Cmd>lua vim.lsp.buf.hover()<CR>", { desc = "Hover", noremap = true, silent = true })
+    buf_set_keymap(
+      "n",
+      "gI",
+      "<Cmd>lua vim.lsp.buf.implementation()<CR>",
+      { desc = "Implementation", noremap = true, silent = true }
+    )
+    buf_set_keymap(
+      "n",
+      "<C-k>",
+      "<Cmd>lua vim.lsp.buf.signature_help()<CR>",
+      { desc = "Signature Help", noremap = true, silent = true }
+    )
+    buf_set_keymap(
+      "n",
+      "<leader>cr",
+      "<Cmd>lua vim.lsp.buf.rename()<CR>",
+      { desc = "Rename", noremap = true, silent = true }
+    )
+    buf_set_keymap(
+      "n",
+      "<leader>ca",
+      "<Cmd>lua vim.lsp.buf.code_action()<CR>",
+      { desc = "Code Action", noremap = true, silent = true }
+    )
+    buf_set_keymap(
+      "n",
+      "gr",
+      "<Cmd>lua vim.lsp.buf.references()<CR>",
+      { desc = "References", noremap = true, silent = true }
+    )
+    buf_set_keymap(
+      "n",
+      "<leader>f",
+      "<Cmd>lua vim.lsp.buf.formatting()<CR>",
+      { desc = "Formatting", noremap = true, silent = true }
+    )
+    buf_set_keymap(
+      "n",
+      "<leader>R",
+      "<Cmd>LspRestart<CR>",
+      { desc = "Restart LSP Server", noremap = true, silent = true }
+    )
+  end,
 })
