@@ -11,11 +11,29 @@ lspconfig.rust_analyzer.setup({
   },
   settings = {
     ["rust-analyzer"] = {
-      numThreads = 1,
+      -- numThreads = 1,
       inlayHints = {
         enable = true,
       },
       hoverActions = {
+        enable = true,
+      },
+      imports = {
+        group = { enable = false },
+        granularity = { enforce = true },
+        prefix = "crate",
+      },
+      cargo = {
+        features = "all",
+        allTargets = true,
+        extraEnv = {
+          CARGO_TARGET_DIR = vim.env.HOME .. "/.cargo/nvim-target",
+        },
+      },
+      rustfmt = {
+        -- overrideCommand = { "leptosfmt", "--stdin", "--rustfmt", "e" },
+      },
+      procMacro = {
         enable = true,
       },
     },
