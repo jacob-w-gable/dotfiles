@@ -59,7 +59,7 @@ bindkey '^H' backward-kill-word
 
 # Custom aliases
 # Editor
-alaas ef='$EDITOR'
+alias ef='$EDITOR'
 alias e='$EDITOR .'
 alias edot='$EDITOR $HOME/dotfiles'
 alias elsp='$EDITOR $HOME/dotfiles/nvim/lua/config/lsp.lua'
