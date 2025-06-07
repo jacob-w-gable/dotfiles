@@ -53,6 +53,8 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 nvm install 20
 npm install -g typescript typescript-language-server neovim
+nam install -g @tailwindcss/language-server
+npm install -g neovim
 
 # Install Tela Tela-icon-theme
 wget -O tela-icon-theme.zip https://github.com/vinceliuice/Tela-icon-theme/archive/refs/tags/2024-09-04.zip
