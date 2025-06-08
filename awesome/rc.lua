@@ -76,8 +76,17 @@ local lock_command = "i3lock -i "
 	.. lock_screen_hl
 	.. " --keyhl-color="
 	.. lock_screen_fg
-	.. ' --time-str="%H:%M" --date-str="%A, %Y-%m-%d" --wrong-text="Incorrect" --noinput-text="No input" '
-	.. '--verif-text="Verifying..."'
+	.. ' --time-str="%H:%M" --date-str="%A, %Y-%m-%d" --wrong-text="Incorrect" --noinput-text="No input"'
+	.. ' --verif-text="Verifying..."'
+	.. " --custom-key-commands"
+	.. ' --cmd-media-play "playerctl play-pause"'
+	.. ' --cmd-media-next "playerctl next"'
+	.. ' --cmd-media-prev "playerctl previous"'
+	.. ' --cmd-volume-up "pactl set-sink-volume @DEFAULT_SINK@ +2%"'
+	.. ' --cmd-volume-down "pactl set-sink-volume @DEFAULT_SINK@ -2%"'
+	.. ' --cmd-audio-mute "pactl set-sink-mute @DEFAULT_SINK@ toggle"'
+	.. ' --cmd-brightness-up "xbacklight -inc 10"'
+	.. ' --cmd-brightness-down "xbacklight -dec 10"'
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -417,7 +426,7 @@ globalkeys = gears.table.join(
 	end, { description = "lua execute prompt", group = "awesome" }),
 	-- Menubar
 	awful.key({ modkey }, "p", function()
-		menubar.show()
+		awful.spawn("rofi -show drun")
 	end, { description = "show the menubar", group = "launcher" }),
 
 	awful.key({}, "XF86AudioRaiseVolume", function()
@@ -750,7 +759,7 @@ awful.spawn.with_shell("pkill pasystray; pasystray")
 awful.spawn.with_shell("blueman-applet")
 -- configure timeout with `xset s <timeout>`
 -- Make sure i3lock-color and xss-lock is installed. Automatic locking.
-awful.spawn.with_shell("xss-lock -l -- " .. lock_command)
+awful.spawn.with_shell("pkill xss-lock; xss-lock -l -- " .. lock_command)
 -- Make sure flameshot is installed. Screenshot tool.
 awful.spawn.with_shell("flameshot")
 -- Make sure dunst is installed. Notification daemon.
