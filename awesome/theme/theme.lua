@@ -3,7 +3,11 @@ local settings = require("../settings")
 local gears = require("gears")
 local themes_path = require("gears.filesystem").get_themes_dir()
 local config_path = require("gears.filesystem").get_configuration_dir()
-local dpi = require("beautiful.xresources").apply_dpi
+
+local dpi_base = require("beautiful.xresources").apply_dpi
+local function dpi(x)
+	return dpi_base(settings.dpi_scale * x)
+end
 
 local layout_icons_path = config_path .. "theme/icons/layout/"
 local titlebar_icons_path = config_path .. "theme/icons/titlebar/"
@@ -14,7 +18,7 @@ theme.wallpaper = config_path .. settings.style.wallpaper
 -- }}}
 
 -- {{{ Styles
-theme.font = "Hack Nerd Font 8"
+theme.font = settings.font
 
 -- {{{ Colors
 theme.fg_normal = settings.style.secondary_color

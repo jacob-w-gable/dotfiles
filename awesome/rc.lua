@@ -11,7 +11,6 @@ require("awful.autofocus")
 local config_path = require("gears.filesystem").get_configuration_dir()
 -- Widget and layout library
 local wibox = require("wibox")
-local vicious = require("vicious")
 -- Theme handling library
 local beautiful = require("beautiful")
 -- Notification library
@@ -31,7 +30,9 @@ end
 -- require("awful.hotkeys_popup.keys")
 
 -- Load Debian menu entries
-local debian = require("debian.menu")
+if settings.debian_base then
+	local debian = require("debian")
+end
 local has_fdo, freedesktop = pcall(require, "freedesktop")
 
 -- {{{ Variable definitions
