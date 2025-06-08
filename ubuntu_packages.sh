@@ -36,6 +36,7 @@ sudo apt install \
   curl \
   wget \
   git \
+  rofi \
   -y
 
 # For building i3loc-color:
