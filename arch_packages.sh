@@ -16,6 +16,10 @@ sudo pacman -S \
   sddm \
   awesome \
   pasystray \
+  paprefs \
+  pavucontrol \
+  alsa-utils \
+  alsa-ucm-conf \
   blueman \
   xss-lock \
   flameshot \
@@ -41,11 +45,13 @@ sudo pacman -S \
   qt5-quickcontrols \
   qt5-quickcontrols2 \
   eza \
-  rofi
+  rofi \
+  fzf
 
 yay -S \
   nm-tray \
-  breeze-gtk
+  breeze-gtk \
+  vicious
 
 # For building i3loc-color:
 sudo pacman -S \
