@@ -1,0 +1,10 @@
+"""Summary of {{ name }} class.
+
+{% if bases %}
+Base Classes:
+{%- for b in bases %}
+    {{ b }}
+{%- endfor %}
+{% endif -%}
+"""
+

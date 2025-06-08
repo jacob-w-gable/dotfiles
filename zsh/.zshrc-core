@@ -58,9 +58,29 @@ export NVM_DIR="$HOME/.nvm"
 bindkey '^H' backward-kill-word
 
 # Custom aliases
-alias ef='nvim'
-alias e='nvim .'
+# Editor
+alias ef='$EDITOR'
+alias e='$EDITOR .'
+alias edot='$EDITOR $HOME/dotfiles'
+alias elsp='$EDITOR $HOME/dotfiles/nvim/lua/config/lsp.lua'
+# File management
 alias ls='eza'
+alias ll='eza -l --group-directories-first --icons'
+alias la='eza -a --group-directories-first --icons'
+alias lal='eza -la --group-directories-first --icons'
+alias lla='lal'
+# Print files in order of size
+alias lss='eza -l --group-directories-first --icons --sort=size'
+alias lssr='eza -l --group-directories-first --icons --sort=size --reverse'
+alias lssa='eza -la --group-directories-first --icons --sort=size'
+alias lssar='eza -la --group-directories-first --icons --sort=size --reverse'
+# Print files in order of modification time
+alias lsm='eza -l --group-directories-first --icons --sort=modified --time-style=long-iso'
+alias lsma='eza -la --group-directories-first --icons --sort=modified --time-style=long-iso'
+alias lsmr='eza -l --group-directories-first --icons --sort=modified --reverse --time-style=long-iso'
+alias lsmar='eza -la --group-directories-first --icons --sort=modified --reverse --time-style=long-iso'
+
+
 
 # Use gnome keyring. Without a proper DE, you can use `secret-tool` to add passwords to the keyring.
 # See https://wiki.archlinux.org/title/GNOME/Keyring

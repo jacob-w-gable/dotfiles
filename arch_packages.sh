@@ -40,7 +40,8 @@ sudo pacman -S \
   qt5-graphicaleffects \
   qt5-quickcontrols \
   qt5-quickcontrols2 \
-  eza
+  eza \
+  rofi
 
 yay -S \
   nm-tray \
