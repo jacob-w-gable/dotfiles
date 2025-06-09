@@ -79,6 +79,9 @@ alias lsm='eza -l --group-directories-first --icons --sort=modified --time-style
 alias lsma='eza -la --group-directories-first --icons --sort=modified --time-style=long-iso'
 alias lsmr='eza -l --group-directories-first --icons --sort=modified --reverse --time-style=long-iso'
 alias lsmar='eza -la --group-directories-first --icons --sort=modified --reverse --time-style=long-iso'
+# Other coreutils alternatives
+alias cat="batcat"
+
 
 
 

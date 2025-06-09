@@ -46,7 +46,8 @@ sudo pacman -S \
   qt5-quickcontrols2 \
   eza \
   rofi \
-  fzf
+  fzf \
+  bat
 
 yay -S \
   nm-tray \
