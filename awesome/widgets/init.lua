@@ -3,6 +3,7 @@ return {
 	caffeine = require("widgets.caffeine"),
 	clock = require("widgets.clock"),
 	cpugraph = require("widgets.cpugraph"),
+	cputemp = require("widgets.cputemp"),
 	layoutbox = require("widgets.layoutbox"),
 	promptbox = require("widgets.promptbox"),
 	ramgraph = require("widgets.ramgraph"),

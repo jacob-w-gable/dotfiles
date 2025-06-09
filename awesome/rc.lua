@@ -291,6 +291,7 @@ awful.screen.connect_for_each_screen(function(s)
 			},
 			widgets.ramgraph,
 			widgets.cpugraph,
+			widgets.cputemp,
 			{
 				margins = 5,
 				widget = wibox.container.margin,
