@@ -768,6 +768,8 @@ awful.spawn.with_shell("flameshot")
 awful.spawn.with_shell('xinput set-prop "UNIW0001:00 093A:0255 Touchpad" "libinput Tapping Enabled" 1')
 -- Enable natural scrolling
 awful.spawn.with_shell('xinput set-prop "UNIW0001:00 093A:0255 Touchpad" "libinput Natural Scrolling Enabled" 1')
+-- Configure repeat rate and delay for keyboard ('xset r rate <delay-ms> <rate-ms>')
+awful.spawn.with_shell("xset r rate 200 60")
 -- Resize wallpaper using fill, so that it fits the screen
 awful.spawn.with_shell("feh --bg-fill " .. beautiful.wallpaper)
 -- Enable compositor
