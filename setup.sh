@@ -80,6 +80,7 @@ sudo cp ./awesome/theme/wallpapers/* /usr/share/wallpapers/jacob-w-gable/content
 
 # Install reactivex luarocks library, for the Docker nvim extension
 sudo luarocks install reactivex
+luarocks install dkjson --local
 
 # Reset .zshrc
 rm ~/.zshrc
