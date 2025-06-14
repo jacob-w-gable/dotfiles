@@ -48,7 +48,7 @@ sudo pacman -S \
   rofi \
   fzf \
   bat \
-  pipx \
+  python-pipx \
   lua-dkjson \
   nsxiv
 
