@@ -120,7 +120,7 @@ end
 -- }}}
 
 -- This is used later as the default terminal and editor to run.
-terminal = "kitty"
+terminal = "kitty --single-instance"
 editor = os.getenv("EDITOR") or "nvim"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -770,7 +770,7 @@ awful.spawn.with_shell('xinput set-prop "UNIW0001:00 093A:0255 Touchpad" "libinp
 -- Enable natural scrolling
 awful.spawn.with_shell('xinput set-prop "UNIW0001:00 093A:0255 Touchpad" "libinput Natural Scrolling Enabled" 1')
 -- Configure repeat rate and delay for keyboard ('xset r rate <delay-ms> <rate-ms>')
-awful.spawn.with_shell("xset r rate 200 60")
+awful.spawn.with_shell("xset r rate 250 60")
 -- Resize wallpaper using fill, so that it fits the screen
 awful.spawn.with_shell("feh --bg-fill " .. beautiful.wallpaper)
 -- Enable compositor

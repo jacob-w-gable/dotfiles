@@ -38,6 +38,9 @@ sudo apt install \
   git \
   rofi \
   bat \
+  pipx \
+  lua-dkjson \
+  nsxiv \
   -y
 
 # For building i3loc-color:

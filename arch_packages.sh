@@ -47,7 +47,10 @@ sudo pacman -S \
   eza \
   rofi \
   fzf \
-  bat
+  bat \
+  pipx \
+  lua-dkjson \
+  nsxiv
 
 yay -S \
   nm-tray \

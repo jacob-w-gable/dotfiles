@@ -1,8 +1,10 @@
 local settings = require("../settings")
+local colors = require("theme.colors")
 
 local gears = require("gears")
 local themes_path = require("gears.filesystem").get_themes_dir()
 local config_path = require("gears.filesystem").get_configuration_dir()
+local naughty = require("naughty")
 
 local dpi_base = require("beautiful.xresources").apply_dpi
 local function dpi(x)
@@ -14,19 +16,19 @@ local titlebar_icons_path = config_path .. "theme/icons/titlebar/"
 
 -- {{{ Main
 local theme = {}
-theme.wallpaper = config_path .. settings.style.wallpaper
+theme.wallpaper = config_path .. colors.wallpaper
 -- }}}
 
 -- {{{ Styles
 theme.font = settings.font
 
 -- {{{ Colors
-theme.fg_normal = settings.style.secondary_color
-theme.fg_focus = settings.style.primary_color
-theme.fg_urgent = settings.style.secondary_color
-theme.bg_normal = settings.style.background_color
-theme.bg_focus = settings.style.highlight_color
-theme.bg_urgent = settings.style.highlight_color
+theme.fg_normal = colors.secondary_color
+theme.fg_focus = colors.primary_color
+theme.fg_urgent = colors.secondary_color
+theme.bg_normal = colors.background_color
+theme.bg_focus = colors.highlight_color
+theme.bg_urgent = colors.highlight_color
 theme.bg_systray = theme.bg_normal
 theme.prompt_bg = "#00000000" -- Transparent
 -- }}}
@@ -34,29 +36,31 @@ theme.prompt_bg = "#00000000" -- Transparent
 -- {{{ Borders
 theme.useless_gap = dpi(3)
 theme.border_width = dpi(1)
-theme.border_normal = settings.style.background_color
-theme.border_focus = settings.style.highlight_color
-theme.border_marked = settings.style.highlight_color
+theme.border_normal = colors.background_color
+theme.border_focus = colors.highlight_color
+theme.border_marked = colors.highlight_color
 -- }}}
 
 -- {{{ Notifications
 theme.notification_shape = gears.shape.rounded_rect
 theme.notification_max_width = dpi(450)
 theme.notification_max_height = dpi(200)
-theme.notification_bg = settings.style.background_color
-theme.notification_border_color = settings.style.highlight_color
+theme.notification_bg = colors.background_color
+theme.notification_border_color = colors.highlight_color
 if settings.opacity then
 	theme.notification_bg = theme.notification_bg .. "B3"
 	theme.notification_border_color = theme.notification_border_color .. "B3"
 end
+naughty.config.presets.critical.bg = theme.notification_bg
+naughty.config.presets.critical.border_color = theme.notification_border_color
 -- }}}
 
 -- {{{ Titlebars
-theme.titlebar_bg_focus = settings.style.highlight_color
+theme.titlebar_bg_focus = colors.highlight_color
 if settings.opacity then
 	theme.titlebar_bg_focus = theme.titlebar_bg_focus .. "D9"
 end
-theme.titlebar_bg_normal = settings.style.background_color
+theme.titlebar_bg_normal = colors.background_color
 if settings.opacity then
 	theme.titlebar_bg_normal = theme.titlebar_bg_normal .. "D9"
 end

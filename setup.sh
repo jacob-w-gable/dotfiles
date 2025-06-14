@@ -95,3 +95,6 @@ sudo cp awesome/theme/wallpapers/wallpaper1.png /usr/share/sddm/themes/simple-sd
 git clone https://github.com/yshui/picom.git
 (cd picom && git checkout v12.5 && meson setup --buildtype=release build && ninja -C build install)
 rm -rf picom
+
+# Set up wal
+pipx install pywal16

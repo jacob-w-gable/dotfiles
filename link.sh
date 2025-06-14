@@ -35,6 +35,13 @@ ln -s $(pwd)/picom $HOME/.config/picom
 rm -rf $HOME/.config/rofi || true
 ln -s $(pwd)/rofi $HOME/.config/rofi
 
+rm -rf $HOME/.config/wal || true
+ln -s $(pwd)/wal $HOME/.config/wal
+
+rm -rf $HOME/Scripts/wallpaper || true
+mkdir -p $HOME/Scripts
+ln -s $(pwd)/awesome/theme/wallpaper $HOME/Scripts/wallpaper
+
 sudo rm /etc/sddm.conf || true
 sudo ln -s $(pwd)/sddm/sddm.conf /etc/sddm.conf
 

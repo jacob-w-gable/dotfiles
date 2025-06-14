@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# Use nsxiv to select a file or directory
+mkdir -p "$HOME/Pictures/Wallpapers"
+IMAGE=$(nsxiv -otbn 1 ~/Pictures/Wallpapers/*)
+
+# Use wal to generate a color scheme from the selected image
+if [ -n "$IMAGE" ]; then
+  echo "Selected image: $IMAGE"
+  wal -i "$IMAGE" --cols16 lighten
+else
+  echo "No image selected."
+  exit 1
+fi
+
+sleep 1
+
+# Generate chromium theme
+(cd $HOME/dotfiles/chromium && ./pywal-theme.sh)
+
+# Restart AwesomeWM
+awesome-client 'awesome.restart()'
