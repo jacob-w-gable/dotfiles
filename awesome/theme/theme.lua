@@ -34,7 +34,7 @@ theme.prompt_bg = "#00000000" -- Transparent
 -- }}}
 
 -- {{{ Borders
-theme.useless_gap = dpi(3)
+theme.useless_gap = dpi(5)
 theme.border_width = dpi(1)
 theme.border_normal = colors.background_color
 theme.border_focus = colors.highlight_color
