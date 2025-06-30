@@ -692,6 +692,21 @@ client.connect_signal("manage", function(c)
 		-- Prevent clients from being unreachable after screen count changes.
 		awful.placement.no_offscreen(c)
 	end
+
+	if c.class == "Nsxiv" then
+		local screen_geometry = c.screen.workarea
+		local width = screen_geometry.width / 2
+		local height = screen_geometry.height / 2
+
+		c.floating = true
+		c.width = width
+		c.height = height
+		c.x = screen_geometry.x + (screen_geometry.width - width) / 2
+		c.y = screen_geometry.y + (screen_geometry.height - height) / 2
+		c:raise()
+
+		awful.titlebar.hide(c)
+	end
 end)
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
@@ -778,3 +793,6 @@ if settings.compositor then
 	awful.spawn.with_shell("/usr/local/bin/picom --config ~/.config/picom/picom.conf &")
 end
 -- awful.spawn.with_shell("tuxedo-control-center")
+-- awful.spawn.with_shell(
+-- 	"/usr/local/bin/xwinwrap -g 5120x1440 -ni -fdt -b -un -argb -fs -- /usr/games/steam -applaunch 431960"
+-- )

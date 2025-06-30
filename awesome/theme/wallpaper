@@ -2,7 +2,7 @@
 
 # Use nsxiv to select a file or directory
 mkdir -p "$HOME/Pictures/Wallpapers"
-IMAGE=$(nsxiv -otbn 1 ~/Pictures/Wallpapers/*)
+IMAGE=$(nsxiv -obtn 1 -z 120 ~/Pictures/Wallpapers/*)
 
 # Use wal to generate a color scheme from the selected image
 if [ -n "$IMAGE" ]; then
@@ -13,6 +13,7 @@ else
   exit 1
 fi
 
+# Need to sleep to avoid race condition
 sleep 1
 
 # Generate chromium theme
