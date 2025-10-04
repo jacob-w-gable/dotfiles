@@ -19,23 +19,6 @@ require("cmp").setup({
   },
 })
 
-require("nvim-treesitter.configs").setup({
-  ensure_installed = { "rust", "toml" },
-  auto_install = true,
-  highlight = {
-    enable = true,
-    additional_vim_regex_highlighting = false,
-  },
-  indent = {
-    enable = true,
-  },
-  rainbow = {
-    enable = true,
-    extended_mode = true,
-    max_file_lines = nil,
-  },
-})
-
 -- Temporary suppression of the `rust_analyzer: -32802: server cancelled the request` error message,
 -- which happens when rust_analyzer can't keep up with keystrokes and starts debouncing.
 -- See https://github.com/neovim/neovim/issues/30985
@@ -49,3 +32,32 @@ for _, method in ipairs({ "textDocument/diagnostic", "workspace/diagnostic" }) d
     return default_diagnostic_handler(err, result, context, config)
   end
 end
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "vimwiki",
+  callback = function()
+    vim.bo.filetype = "markdown"
+  end,
+})
+
+vim.api.nvim_create_autocmd("BufNewFile", {
+  pattern = "*/diary/*.md",
+  callback = function()
+    local template_path = vim.fn.expand("~/Nextcloud/Documents/Notes/WorkDiary.md")
+    if vim.fn.filereadable(template_path) == 1 then
+      local lines = vim.fn.readfile(template_path)
+
+      -- Generate a formatted header like "Monday, July 14, 2025"
+      local date = os.date("*t")
+      local formatted = os.date("%A, %B %d, %Y") -- e.g. "Monday, July 14, 2025"
+
+      -- Replace first line (assumes it's the header)
+      if #lines > 0 then
+        lines[1] = "# " .. formatted
+      end
+
+      -- Insert lines into the buffer
+      vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
+    end
+  end,
+})
