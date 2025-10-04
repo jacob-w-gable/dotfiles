@@ -314,11 +314,12 @@ awful.screen.connect_for_each_screen(function(s)
 			},
 			powerline_left_primary(wibox.widget.systray()),
 			powerline_left_secondary(widgets.caffeine),
-			powerline_left_primary(widgets.volume),
-			powerline_left_secondary(widgets.battery),
-			powerline_left_primary(widgets.weather),
-			powerline_left_secondary(widgets.clock),
-			powerline_left_primary(s.mylayoutbox),
+			powerline_left_primary(widgets.mpris),
+			powerline_left_secondary(widgets.volume),
+			powerline_left_primary(widgets.battery),
+			powerline_left_secondary(widgets.weather),
+			powerline_left_primary(widgets.clock),
+			powerline_left_secondary(s.mylayoutbox),
 		},
 	})
 end)

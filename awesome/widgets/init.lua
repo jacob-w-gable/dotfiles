@@ -5,6 +5,7 @@ return {
 	cpugraph = require("widgets.cpugraph"),
 	cputemp = require("widgets.cputemp"),
 	layoutbox = require("widgets.layoutbox"),
+	mpris = require("widgets.mpris"),
 	promptbox = require("widgets.promptbox"),
 	ramgraph = require("widgets.ramgraph"),
 	taglist = require("widgets.taglist"),
