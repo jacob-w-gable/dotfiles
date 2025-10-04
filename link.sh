@@ -25,6 +25,7 @@ ln -s $(pwd)/ranger $HOME/.config/ranger
 
 ln -s $(pwd)/zsh/.zshrc-core $HOME/.zshrc-core
 ln -s $(pwd)/zsh/.p10k.zsh $HOME/.p10k.zsh
+ln -s $(pwd)/zsh/.p10k-tty.zsh $HOME/.p10k-tty.zsh
 
 rm -rf $HOME/.config/btop || true
 ln -s $(pwd)/btop $HOME/.config/btop
