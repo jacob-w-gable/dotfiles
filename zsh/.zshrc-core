@@ -112,8 +112,8 @@ alias lsmar='eza -la --group-directories-first --icons --sort=modified --reverse
 # Other coreutils alternatives
 alias cat="batcat"
 
-
-
+# Find files
+alias fd="fdfind"
 
 # Use gnome keyring. Without a proper DE, you can use `secret-tool` to add passwords to the keyring.
 # See https://wiki.archlinux.org/title/GNOME/Keyring

@@ -41,6 +41,7 @@ sudo apt install \
   pipx \
   lua-dkjson \
   nsxiv \
+  fd-find \
   -y
 
 # For building i3loc-color:
