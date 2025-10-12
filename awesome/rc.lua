@@ -344,8 +344,12 @@ globalkeys = gears.table.join(
 
 	-- Refresh displays
 	awful.key({ modkey }, "d", function()
-		awful.spawn("/home/jacob/display_fix.sh")
+		awful.spawn(os.getenv("HOME") .. "/display_fix.sh")
 	end, { description = "refresh displays", group = "hotkeys" }),
+
+	awful.key({ modkey }, "w", function()
+		awful.spawn.with_shell(os.getenv("HOME") .. "/dotfiles/awesome/theme/wallpaper")
+	end, { description = "change wallpaper", group = "hotkeys" }),
 
 	awful.key({ modkey }, "j", function()
 		awful.client.focus.byidx(-1)
@@ -353,7 +357,7 @@ globalkeys = gears.table.join(
 	awful.key({ modkey }, "k", function()
 		awful.client.focus.byidx(1)
 	end, { description = "focus previous by index", group = "client" }),
-	awful.key({ modkey }, "w", function()
+	awful.key({ modkey }, "a", function()
 		mymainmenu:show()
 	end, { description = "show main menu", group = "awesome" }),
 

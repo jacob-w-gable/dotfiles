@@ -1,23 +1,51 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-# Use nsxiv to select a file or directory
+# Ensure your user bin is visible when started from Awesome (non-interactive env)
+export PATH="$HOME/.local/bin:$PATH"
+
+# Optional: log to see what actually happens when launched via Awesome
+exec >/tmp/wallpaper.log 2>&1
+
 mkdir -p "$HOME/Pictures/Wallpapers"
-IMAGE=$(nsxiv -obtn 1 -z 120 ~/Pictures/Wallpapers/*)
 
-# Use wal to generate a color scheme from the selected image
-if [ -n "$IMAGE" ]; then
-  echo "Selected image: $IMAGE"
-  wal -i "$IMAGE" --cols16 lighten
-else
+# Let nsxiv print the selected path to stdout (works w/o a TTY)
+IMAGE="$(nsxiv -obtn 1 -z 120 "$HOME"/Pictures/Wallpapers/* || true)"
+if [ -z "${IMAGE:-}" ]; then
   echo "No image selected."
   exit 1
 fi
+echo "Selected image: $IMAGE"
 
-# Need to sleep to avoid race condition
-sleep 1
+# Generate pywal cache (colors.json, templates, etc.)
+wal -i "$IMAGE" --cols16 lighten
 
-# Generate chromium theme
+# Need to sleep to wait for the wallpaper to set
+sleep 2
+
+# Update Chromium theme
 (cd $HOME/dotfiles/chromium && ./pywal-theme.sh)
 
-# Restart AwesomeWM
-awesome-client 'awesome.restart()'
+# Update GTK theme
+python3 $HOME/dotfiles/awesome/theme/gtk2css.py -f $HOME/.cache/wal/gtk.json
+
+# Update QT theme
+awk '
+/_colors=$/ {                               # start of a colors block
+  if (key) print key line "\n"               # flush previous
+  key=$0; line=""; next
+}
+/^#/ && key {                               # color lines inside block
+  sub(/^[[:space:]]+|[[:space:]]+$/, "")
+  gsub(/,$/, ",")                            # ensure commas stay
+  line = line $0
+  next
+}
+/^\[/ {                                     # section header
+  if (key) print key line "\n"; key=""; line=""
+  print $0; next
+}
+END { if (key) print key line "\n" }' $HOME/.cache/wal/qt5ct.conf >$HOME/.config/qt5ct/colors/awesomewm.conf
+
+# Detach the restart so Awesome doesn't kill this script early
+setsid bash -lc 'sleep 0.15; awesome-client "awesome.restart()"' >/dev/null 2>&1 &
