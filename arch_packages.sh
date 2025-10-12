@@ -49,7 +49,9 @@ sudo pacman -S \
   fzf \
   bat \
   python-pipx \
+  imagemagick \
   lua-dkjson \
+  lua53-filesystem \
   nsxiv
 
 yay -S \
