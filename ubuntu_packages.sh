@@ -42,6 +42,8 @@ sudo apt install \
   lua-dkjson \
   nsxiv \
   fd-find \
+  kitty-terminfo \
+  ncurses-term \
   -y
 
 # For building i3loc-color:
