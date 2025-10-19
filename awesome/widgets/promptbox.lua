@@ -63,7 +63,7 @@ local function build_promptbox(beautiful)
 	-- Return keys to show the prompt
 	return gears.table.join(
 		globalkeys,
-		awful.key({ modkey }, "r", show_prompt, { description = "run prompt", group = "launcher" })
+		awful.key({ modkey, "Control" }, "r", show_prompt, { description = "run prompt", group = "launcher" })
 	)
 end
 
