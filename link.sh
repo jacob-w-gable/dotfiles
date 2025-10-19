@@ -42,6 +42,9 @@ ln -s $(pwd)/wal $HOME/.config/wal
 rm -f $HOME/.tmux.conf || true
 ln -s $(pwd)/tmux/.tmux.conf $HOME/.tmux.conf
 
+rm -f $HOME/.tmux/tmux-power.tmux || true
+ln -s $(pwd)/tmux/tmux-power.tmux $HOME/.tmux/tmux-power.tmux
+
 rm -rf $HOME/Scripts/wallpaper || true
 mkdir -p $HOME/Scripts
 ln -s $(pwd)/awesome/theme/wallpaper $HOME/Scripts/wallpaper
