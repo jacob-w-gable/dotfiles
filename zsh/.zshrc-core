@@ -58,11 +58,26 @@ setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
-bindkey -e
 bindkey '^p' history-search-backward
 bindkey '^n' history-search-forward
 
-# User configuration
+# Fix navigation keys inside tmux / kitty
+# Detect termcap codes
+bindkey -e
+
+# Home / End
+bindkey "${terminfo[khome]}" beginning-of-line
+bindkey "${terminfo[kend]}" end-of-line
+
+# Ctrl + Left / Right for word jumps
+bindkey "${terminfo[kLFT5]}" backward-word
+bindkey "${terminfo[kRIT5]}" forward-word
+
+# Fallbacks for terminals that don't populate terminfo
+bindkey "^[[1;5D" backward-word   # Ctrl+Left
+bindkey "^[[1;5C" forward-word    # Ctrl+Right
+bindkey "^[[H" beginning-of-line  # Home
+bindkey "^[[F" end-of-line        # End
 
 # Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
