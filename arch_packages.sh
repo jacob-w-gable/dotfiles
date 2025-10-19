@@ -52,7 +52,8 @@ sudo pacman -S \
   imagemagick \
   lua-dkjson \
   lua53-filesystem \
-  nsxiv
+  nsxiv \
+  ueberzug
 
 yay -S \
   nm-tray \

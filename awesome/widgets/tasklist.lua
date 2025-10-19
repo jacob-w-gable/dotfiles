@@ -72,9 +72,9 @@ local function build_tasklist(s)
 				id = "background_role",
 				widget = wibox.container.background,
 			},
-			widget = wibox.container.margin,
-			left = -8,
-			right = -8,
+			widget = wibox.container.constraint,
+			width = 200,
+			strategy = "max",
 		},
 	})
 end

@@ -42,6 +42,7 @@ ln -s $(pwd)/wal $HOME/.config/wal
 rm -f $HOME/.tmux.conf || true
 ln -s $(pwd)/tmux/.tmux.conf $HOME/.tmux.conf
 
+mkdir -p $HOME/.tmux
 rm -f $HOME/.tmux/tmux-power.tmux || true
 ln -s $(pwd)/tmux/tmux-power.tmux $HOME/.tmux/tmux-power.tmux
 

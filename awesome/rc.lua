@@ -135,17 +135,17 @@ modkey = "Mod4"
 awful.layout.layouts = {
 	awful.layout.suit.floating,
 	awful.layout.suit.tile,
-	awful.layout.suit.tile.left,
-	awful.layout.suit.tile.bottom,
-	awful.layout.suit.tile.top,
+	-- awful.layout.suit.tile.left,
+	-- awful.layout.suit.tile.bottom,
+	-- awful.layout.suit.tile.top,
 	awful.layout.suit.fair,
 	awful.layout.suit.fair.horizontal,
-	awful.layout.suit.spiral,
-	awful.layout.suit.spiral.dwindle,
+	-- awful.layout.suit.spiral,
+	-- awful.layout.suit.spiral.dwindle,
 	awful.layout.suit.max,
-	awful.layout.suit.max.fullscreen,
-	awful.layout.suit.magnifier,
-	awful.layout.suit.corner.nw,
+	-- awful.layout.suit.max.fullscreen,
+	-- awful.layout.suit.magnifier,
+	-- awful.layout.suit.corner.nw,
 	-- awful.layout.suit.corner.ne,
 	-- awful.layout.suit.corner.sw,
 	-- awful.layout.suit.corner.se,
@@ -228,7 +228,7 @@ awful.screen.connect_for_each_screen(function(s)
 	-- Each screen has its own tag table.
 	local names = { "Dev", "Comm", "Media", "Free" }
 	local l = awful.layout.suit
-	local layouts = { l.tile, l.tile, l.tile, l.floating }
+	local layouts = { l.tile, l.tile, l.tile, l.tile }
 	awful.tag(names, s, layouts)
 
 	-- Create a promptbox for each screen
@@ -335,6 +335,128 @@ root.buttons(gears.table.join(
 ))
 -- }}}
 
+local function is_max_like_layout(t)
+	local l = t and t.layout
+	return l == awful.layout.suit.max or l == awful.layout.suit.max.fullscreen
+end
+
+-- Decide if we should be in "solo mode" on a tag:
+-- Either the tag is a max-like layout, or the *focused* client on that tag is fullscreen/maximized.
+local function tag_wants_solo(t)
+	if not t then
+		return false
+	end
+	if is_max_like_layout(t) then
+		return true
+	end
+	local f = client.focus
+	if f and (f.first_tag == t or f.sticky) then
+		if f.fullscreen or f.maximized then
+			return true
+		end
+	end
+	return false
+end
+
+-- Optional: apps to never auto-minimize (dock, trays, your wallpaper popout, etc.)
+local function exempt_from_solo(c)
+	-- honor a per-client flag you can set in rules or manage:
+	if c._never_auto_minimize_in_solo then
+		return true
+	end
+	-- keep desktop/dock type alone; also your "Wallpaper Pop-out"
+	if c.type == "dock" or c.type == "desktop" then
+		return true
+	end
+	if c.name == "Wallpaper Pop-out" then
+		return true
+	end
+	return false
+end
+
+-- Minimize all non-focused clients on the tag when in solo;
+-- restore what we minimized when exiting solo.
+local function enforce_solo_view(t)
+	t = t or (client.focus and client.focus.first_tag) or awful.screen.focused().selected_tag
+	if not t then
+		return
+	end
+
+	local in_solo = tag_wants_solo(t)
+	local focused = client.focus
+
+	for _, c in ipairs(t:clients()) do
+		if exempt_from_solo(c) then
+		-- leave alone
+		elseif in_solo then
+			if c == focused then
+				-- ensure focused is visible
+				if c._auto_minimized_by_solo then
+					c._auto_minimized_by_solo = nil
+				end
+				if c.minimized then
+					c.minimized = false
+				end
+			else
+				-- hide others (remember only our own changes)
+				if not c.minimized then
+					c.minimized = true
+					c._auto_minimized_by_solo = true
+				end
+			end
+		else
+			-- leaving solo: restore only what we minimized
+			if c._auto_minimized_by_solo then
+				c._auto_minimized_by_solo = nil
+				if c.minimized then
+					c.minimized = false
+				end
+			end
+		end
+	end
+end
+
+local function focus_next_in_max(delta)
+	local s = awful.screen.focused()
+	local t = s and s.selected_tag
+	if not t then
+		return
+	end
+
+	-- We treat "solo mode" generically (max layout OR focused client fullscreen/maximized)
+	local solo = tag_wants_solo(t)
+
+	if not solo then
+		-- Normal behavior if not in solo
+		awful.client.focus.byidx(delta)
+		return
+	end
+
+	local list = t:clients()
+	if #list == 0 then
+		return
+	end
+
+	local cur = client.focus
+	local idx = 1
+	for i, c in ipairs(list) do
+		if c == cur then
+			idx = i
+			break
+		end
+	end
+	local nexti = ((idx - 1 + delta) % #list) + 1
+	local target = list[nexti]
+
+	if target.minimized then
+		target.minimized = false
+	end
+	client.focus = target
+	target:raise()
+
+	enforce_solo_view(t)
+end
+
 -- {{{ Key bindings
 globalkeys = gears.table.join(
 	awful.key({ modkey }, "s", hotkeys_popup.show_help, { description = "show help", group = "awesome" }),
@@ -352,10 +474,10 @@ globalkeys = gears.table.join(
 	end, { description = "change wallpaper", group = "hotkeys" }),
 
 	awful.key({ modkey }, "j", function()
-		awful.client.focus.byidx(-1)
+		focus_next_in_max(-1)
 	end, { description = "focus next by index", group = "client" }),
 	awful.key({ modkey }, "k", function()
-		awful.client.focus.byidx(1)
+		focus_next_in_max(1)
 	end, { description = "focus previous by index", group = "client" }),
 	awful.key({ modkey }, "a", function()
 		mymainmenu:show()
@@ -414,7 +536,7 @@ globalkeys = gears.table.join(
 		awful.layout.inc(-1)
 	end, { description = "select previous", group = "layout" }),
 
-	awful.key({ modkey, "Control" }, "n", function()
+	awful.key({ modkey, "Shift" }, "n", function()
 		local c = awful.client.restore()
 		-- Focus restored client
 		if c then
@@ -590,6 +712,7 @@ awful.rules.rules = {
 	{
 		rule = {},
 		properties = {
+			floating = false,
 			border_width = beautiful.border_width,
 			border_color = beautiful.border_normal,
 			focus = awful.client.focus.filter,
@@ -662,6 +785,66 @@ awful.rules.rules = {
 	-- { rule = { class = "Firefox" },
 	--   properties = { screen = 1, tag = "2" } },
 }
+
+-- Re-enforce on important events
+client.connect_signal("focus", function(c)
+	local t = c and (c.first_tag or c.screen.selected_tag)
+	if t then
+		enforce_solo_view(t)
+	end
+end)
+
+client.connect_signal("property::fullscreen", function(c)
+	local t = c.first_tag or c.screen.selected_tag
+	if t then
+		enforce_solo_view(t)
+	end
+end)
+
+client.connect_signal("property::maximized", function(c)
+	local t = c.first_tag or c.screen.selected_tag
+	if t then
+		enforce_solo_view(t)
+	end
+end)
+
+tag.connect_signal("property::layout", function(t)
+	enforce_solo_view(t)
+end)
+
+tag.connect_signal("property::selected", function(t)
+	if t.selected then
+		enforce_solo_view(t)
+	end
+end)
+
+client.connect_signal("manage", function(c)
+	local t = c.first_tag or c.screen.selected_tag
+	if t then
+		gears.timer.delayed_call(function()
+			enforce_solo_view(t)
+		end)
+	end
+end)
+
+client.connect_signal("unmanage", function(c)
+	local s = c.screen or awful.screen.focused()
+	local t = s and s.selected_tag
+	if t then
+		gears.timer.delayed_call(function()
+			enforce_solo_view(t)
+		end)
+	end
+end)
+
+-- Remove borders on maximized / fullscreen clients
+client.connect_signal("property::maximized", function(c)
+	if c.maximized or c.maximized_horizontal or c.maximized_vertical then
+		c.border_width = 0
+	else
+		c.border_width = beautiful.border_width
+	end
+end)
 
 -- If not in vm_mode, add titlebars dynamically based on floating status
 if not settings.vm_mode then
@@ -782,7 +965,7 @@ awful.spawn.with_shell("blueman-applet")
 -- Make sure i3lock-color and xss-lock is installed. Automatic locking.
 awful.spawn.with_shell("pkill xss-lock; xss-lock -l -- " .. lock_command)
 -- Make sure flameshot is installed. Screenshot tool.
-awful.spawn.with_shell("flameshot")
+awful.spawn.with_shell("pkill flameshot; flameshot")
 -- Make sure dunst is installed. Notification daemon.
 -- awful.spawn.with_shell("dunst")
 -- Enable touch to tap on touch pad
