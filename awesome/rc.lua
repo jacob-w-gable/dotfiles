@@ -313,7 +313,7 @@ awful.screen.connect_for_each_screen(function(s)
 				widget = wibox.widget.separator,
 			},
 			powerline_left_primary(wibox.widget.systray()),
-			powerline_left_secondary(widgets.caffeine),
+			powerline_left_secondary(widgets.caffeine.widget),
 			powerline_left_primary(widgets.mpris),
 			powerline_left_secondary(widgets.volume),
 			powerline_left_primary(widgets.battery),
@@ -464,14 +464,16 @@ globalkeys = gears.table.join(
 	awful.key({ modkey }, "Right", awful.tag.viewnext, { description = "view next", group = "tag" }),
 	awful.key({ modkey }, "Escape", awful.tag.history.restore, { description = "go back", group = "tag" }),
 
-	-- Refresh displays
+	-- Personal hotkeys
 	awful.key({ modkey }, "d", function()
 		awful.spawn(os.getenv("HOME") .. "/display_fix.sh")
 	end, { description = "refresh displays", group = "hotkeys" }),
-
 	awful.key({ modkey }, "w", function()
 		awful.spawn.with_shell(os.getenv("HOME") .. "/dotfiles/awesome/theme/wallpaper")
 	end, { description = "change wallpaper", group = "hotkeys" }),
+	awful.key({ modkey }, "c", function()
+		widgets.caffeine.toggle()
+	end, { description = "toggle caffeine", group = "hotkeys" }),
 
 	awful.key({ modkey }, "j", function()
 		focus_next_in_max(-1)

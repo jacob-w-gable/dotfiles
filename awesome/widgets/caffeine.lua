@@ -17,7 +17,7 @@ local caffeine_widget = wibox.widget({
 
 local caffeine_enabled = false
 
-caffeine_widget:buttons(gears.table.join(awful.button({}, 1, function() -- Left click to toggle mute
+local toggle = function()
 	local text_widget = caffeine_widget:get_children_by_id("caffeine_text")[1]
 	if caffeine_enabled then
 		awful.spawn("xset s on +dpms", false)
@@ -30,6 +30,9 @@ caffeine_widget:buttons(gears.table.join(awful.button({}, 1, function() -- Left 
 		naughty.notify({ title = "Caffeine", text = "Enabled (No Sleep)", timeout = 2 })
 	end
 	caffeine_enabled = not caffeine_enabled
-end)))
+end
 
-return caffeine_widget
+-- Left click to toggle caffeine
+caffeine_widget:buttons(gears.table.join(awful.button({}, 1, toggle)))
+
+return { widget = caffeine_widget, toggle = toggle }
