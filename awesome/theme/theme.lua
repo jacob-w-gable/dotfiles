@@ -82,6 +82,7 @@ theme.menu_submenu_icon = themes_path .. "default/submenu.png"
 
 -- {{{ Layout
 -- Theses are sourced from the multicolor theme
+theme.lain_icons = os.getenv("HOME") .. "/.config/awesome/lain/icons/layout/default/"
 theme.layout_tile = layout_icons_path .. "tile.png"
 theme.layout_tileleft = layout_icons_path .. "tileleft.png"
 theme.layout_tilebottom = layout_icons_path .. "tilebottom.png"
@@ -98,6 +99,12 @@ theme.layout_cornernw = themes_path .. "zenburn/layouts/cornernw.png"
 theme.layout_cornerne = themes_path .. "zenburn/layouts/cornerne.png"
 theme.layout_cornersw = themes_path .. "zenburn/layouts/cornersw.png"
 theme.layout_cornerse = themes_path .. "zenburn/layouts/cornerse.png"
+theme.layout_termfair = theme.lain_icons .. "termfair.png"
+theme.layout_centerfair = theme.lain_icons .. "centerfair.png" -- termfair.center
+theme.layout_cascade = theme.lain_icons .. "cascade.png"
+theme.layout_cascadetile = theme.lain_icons .. "cascadetile.png" -- cascade.tile
+theme.layout_centerwork = theme.lain_icons .. "centerwork.png"
+theme.layout_centerworkh = theme.lain_icons .. "centerworkh.png" -- centerwork.horizontal
 -- }}}
 
 -- {{{ Titlebar

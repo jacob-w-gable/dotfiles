@@ -22,6 +22,9 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 -- Widgets
 local widgets = require("widgets")
 
+local lain = require("lain")
+local centered = lain.layout.centerwork
+
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
 if settings.vim_keys then
@@ -134,8 +137,9 @@ modkey = "Mod4"
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
 	awful.layout.suit.floating,
+	centered,
 	awful.layout.suit.tile,
-	-- awful.layout.suit.tile.left,
+	awful.layout.suit.tile.left,
 	-- awful.layout.suit.tile.bottom,
 	-- awful.layout.suit.tile.top,
 	awful.layout.suit.fair,
@@ -274,6 +278,17 @@ awful.screen.connect_for_each_screen(function(s)
 		}
 	end
 
+	local clock = widgets.clock
+	lain.widget.cal({
+		attach_to = { clock },
+		followtag = true,
+		notification_preset = {
+			font = beautiful.font,
+			bg = beautiful.notification_bg,
+			fg = beautiful.fg_normal,
+		},
+	})
+
 	-- Add widgets to the wibox
 	s.mywibox:setup({
 		layout = wibox.layout.align.horizontal,
@@ -318,7 +333,7 @@ awful.screen.connect_for_each_screen(function(s)
 			powerline_left_secondary(widgets.volume),
 			powerline_left_primary(widgets.battery),
 			powerline_left_secondary(widgets.weather),
-			powerline_left_primary(widgets.clock),
+			powerline_left_primary(clock),
 			powerline_left_secondary(s.mylayoutbox),
 		},
 	})
@@ -457,6 +472,8 @@ local function focus_next_in_max(delta)
 	enforce_solo_view(t)
 end
 
+local redshift_enabled = false
+
 -- {{{ Key bindings
 globalkeys = gears.table.join(
 	awful.key({ modkey }, "s", hotkeys_popup.show_help, { description = "show help", group = "awesome" }),
@@ -474,6 +491,14 @@ globalkeys = gears.table.join(
 	awful.key({ modkey }, "c", function()
 		widgets.caffeine.toggle()
 	end, { description = "toggle caffeine", group = "hotkeys" }),
+	awful.key({ modkey }, "e", function()
+		redshift_enabled = not redshift_enabled
+		if not redshift_enabled then
+			awful.spawn("redshift -x")
+			return
+		end
+		awful.spawn("redshift -O 3500")
+	end, { description = "toggle eye saver mode", group = "hotkeys" }),
 
 	awful.key({ modkey }, "j", function()
 		focus_next_in_max(-1)

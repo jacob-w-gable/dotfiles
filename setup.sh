@@ -70,6 +70,10 @@ sudo cp ./awesome/theme/wallpapers/* /usr/share/wallpapers/jacob-w-gable/content
 sudo luarocks install reactivex
 luarocks install dkjson --local
 
+# Install lain
+rm -rf ~/.config/awesome/lain
+git clone https://github.com/lcpz/lain.git ~/.config/awesome/lain
+
 # Reset .zshrc
 rm ~/.zshrc
 touch ~/.zshrc
