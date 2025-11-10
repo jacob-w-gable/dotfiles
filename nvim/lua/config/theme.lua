@@ -1,6 +1,11 @@
 -- Set the theme here
 vim.cmd("colorscheme cyberdream")
--- vim.cmd("colorscheme catppuccin")
+-- vim.cmd("colorscheme catppuccin") -- pink and purple pastel tints
 -- vim.cmd("colorscheme synthwave84")
 -- vim.cmd("colorscheme tokyonight")
 -- vim.cmd("colorscheme habamax")
+-- vim.cmd("colorscheme kanagawa") -- colorful, yellow vintage tint
+-- vim.cmd("colorscheme carbonfox") -- blue-based theme
+-- vim.cmd("colorscheme nightfox") -- colorful, but darker and more desaturated
+-- vim.cmd("colorscheme aura-dark") -- bright green/teal/blues, some dark purples
+-- vim.cmd("colorscheme onedark") -- solid generic colors
