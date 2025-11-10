@@ -77,8 +77,8 @@ sudo pacman -S \
   xcb-util-xrm
 
 # Need to manually install vicious library
-git clone https://github.com/vicious-widgets/vicious.git
-mv vicious ~/.config/awesome
+rm -rf ~/.config/awesome/vicious
+git clone https://github.com/vicious-widgets/vicious.git ~/.config/awesome/vicious
 
 # This doesn't seem to automatically happen in Arch
 mkdir -p ~/.config/lazygit
