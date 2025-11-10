@@ -8,5 +8,6 @@ gtk-4.0/servers
 gtk-4.0/gtk.css
 qt5ct/colors/awesomewm.conf
 awesome/vicious
+awesome/lain
 chromium/Pywal
 __pycache__
