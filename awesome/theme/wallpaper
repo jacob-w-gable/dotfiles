@@ -20,6 +20,13 @@ echo "Selected image: $IMAGE"
 # Generate pywal cache (colors.json, templates, etc.)
 wal -i "$IMAGE" --cols16 lighten
 
+# Colorize keyboard
+COLOR_EXEC=/usr/local/bin/rgb_ctrl
+if [ -x "$COLOR_EXEC" ]; then
+  COLOR=$(jq -r '.colors.color4' $HOME/.cache/wal/colors.json)
+  $COLOR_EXEC hex $COLOR
+fi
+
 # Need to sleep to wait for the wallpaper to set
 sleep 2
 
