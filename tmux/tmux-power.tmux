@@ -61,13 +61,31 @@ LS+="#[fg=$G1,bg=$G0]$RARROW" # back to bar
 tmux_set status-left-length 120
 tmux_set status-left "$LS"
 
-# ---- RIGHT: time | date (simple) ----
+# ---- RIGHT: CPU | RAM | time | date via tmux-cpu scripts ----
+CPU_ICON=" "
+MEM_ICON=" "
 TIME_ICON=""
 DATE_ICON=""
-RS="#[fg=$G2]$LARROW#[fg=$THEME,bg=$G2] $TIME_ICON $TIME_FMT "
+
+# Paths
+TPM_DIR="$HOME/.tmux/plugins"
+TMUX_CPU_DIR="$TPM_DIR/tmux-cpu"
+
+# Use the plugin's scripts directly, and escape % -> %%
+CPU_CMD='#('"$TMUX_CPU_DIR"'/scripts/cpu_percentage.sh | sed "s/%/%%/g")'
+MEM_CMD='#('"$TMUX_CPU_DIR"'/scripts/ram_percentage.sh | sed "s/%/%%/g")'
+CPU_FG_COLOR='#('"$TMUX_CPU_DIR"'/scripts/cpu_fg_color.sh)'
+RAM_FG_COLOR='#('"$TMUX_CPU_DIR"'/scripts/ram_fg_color.sh)'
+
+RS=""
+RS+="#[fg=$G1]$LARROW#[fg=$THEME,bg=$G1]$CPU_FG_COLOR $CPU_ICON $CPU_CMD "
+RS+="#[fg=$THEME,bg=$G1]$RAM_FG_COLOR $MEM_ICON $MEM_CMD "
+RS+="#[fg=$G3]$LARROW#[fg=$THEME,bg=$G3] $TIME_ICON $TIME_FMT "
 RS+="#[fg=$THEME,bg=$G2]$LARROW#[fg=$G0,bg=$THEME] $DATE_ICON $DATE_FMT "
-tmux_set status-right-length 120
+
+tmux_set status-right-length 160
 tmux_set status-right "$RS"
+tmux refresh-client -S
 
 # ---- WINDOWS (center pills): active = primary, inactive = grey ----
 tmux_set window-status-style "fg=$THEME,bg=$G0,none"
