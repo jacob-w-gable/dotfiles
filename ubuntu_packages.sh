@@ -45,7 +45,6 @@ sudo apt install \
   fd-find \
   kitty-terminfo \
   ncurses-term \
-  fzf \
   vim \
   tmux \
   imagemagick \
