@@ -49,7 +49,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 nvm install 20
 npm install -g typescript typescript-language-server neovim
-nam install -g @tailwindcss/language-server
+npm install -g @tailwindcss/language-server
 npm install -g neovim
 
 # Install Tela Tela-icon-theme
@@ -72,15 +72,15 @@ rm -rf i3lock-color
 
 # Install wallpapers for sddm
 sudo mkdir -p /usr/share/wallpapers/jacob-w-gable/contents/images_dark
-sudo cp ./sddm/wallpaper.jpg /usr/share/wallpapers/jacob-w-gable/contents/images_dark
+sudo cp ./sddm/wallpaper.png /usr/share/wallpapers/jacob-w-gable/contents/images_dark
 
 # Install reactivex luarocks library, for the Docker nvim extension
 sudo luarocks install reactivex
 luarocks install dkjson --local
 
 # Install lain
-rm -rf ~/.config/awesome/lain
-git clone https://github.com/lcpz/lain.git ~/.config/awesome/lain
+rm -rf awesome/lain
+git clone https://github.com/lcpz/lain.git awesome/lain
 
 # Reset .zshrc
 rm -f ~/.zshrc
@@ -90,7 +90,7 @@ echo "source ~/.zshrc-core" >>~/.zshrc
 # Set up simple sddm theme
 git clone https://github.com/JaKooLit/simple-sddm.git
 sudo mv simple-sddm /usr/share/sddm/themes
-sudo cp sddm/wallpaper.jpg /usr/share/sddm/themes/simple-sddm/Backgrounds
+sudo cp sddm/wallpaper.png /usr/share/sddm/themes/simple-sddm/Backgrounds
 
 # Set up picom
 git clone https://github.com/yshui/picom.git picom-source

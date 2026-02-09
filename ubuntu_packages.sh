@@ -72,7 +72,7 @@ sudo apt install \
   libxkbcommon-dev \
   libxkbcommon-x11-dev \
   libjpeg-dev \
-  libgiv-dev \
+  libgif-dev \
   -y
 
 # For building picom
