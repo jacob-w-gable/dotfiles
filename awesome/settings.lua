@@ -8,5 +8,5 @@ return {
 	dpi_scale = 1,
 	font = "Hack Nerd Font 8",
 
-	lock_screen_wallpaper = os.getenv("HOME") .. "/dotfiles/awesome/theme/lockscreen.png",
+	lock_screen_wallpaper = os.getenv("HOME") .. "/.config/awesome/theme/lockscreen.png",
 }

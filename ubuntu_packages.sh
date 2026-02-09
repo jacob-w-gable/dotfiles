@@ -29,6 +29,7 @@ sudo apt install \
   libsecret-tools \
   btop \
   qtquickcontrols2-5-dev \
+  qml-module-qtquick-layouts \
   qml-module-qtgraphicaleffects \
   libqt5svg5-dev \
   qml-module-qtquick-controls2 \
@@ -44,6 +45,10 @@ sudo apt install \
   fd-find \
   kitty-terminfo \
   ncurses-term \
+  fzf \
+  vim \
+  tmux \
+  imagemagick \
   -y
 
 # For building i3loc-color:
@@ -67,6 +72,7 @@ sudo apt install \
   libxkbcommon-dev \
   libxkbcommon-x11-dev \
   libjpeg-dev \
+  libgiv-dev \
   -y
 
 # For building picom
@@ -93,6 +99,7 @@ sudo apt install \
   libxcb-util-dev \
   libxcb-xfixes0-dev \
   meson \
+  cmake \
   ninja-build \
   uthash-dev \
   -y

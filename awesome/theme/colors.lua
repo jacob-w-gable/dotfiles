@@ -1,9 +1,10 @@
+local config_path = require("gears.filesystem").get_configuration_dir()
 package.path = package.path .. ";" .. os.getenv("HOME") .. "/.luarocks/share/lua/5.4/?.lua"
 local json = require("dkjson")
 
 -- Default style
 local style = {
-	wallpaper = "theme/wallpaper.jpg",
+	wallpaper = config_path .. "theme/wallpaper.jpg",
 	primary_color = "#92d7f4", -- bright and colorful
 	highlight_color = "#1a5598", -- medium color
 	background_color = "#091a34", -- Should be a dark color

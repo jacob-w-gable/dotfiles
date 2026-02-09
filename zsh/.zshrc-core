@@ -94,7 +94,7 @@ else
 fi
 
 # Neovim path
-export PATH=/opt/nvim-linux64/bin:$PATH
+export PATH=/opt/nvim-linux-x86_64/bin:$PATH
 
 # Node
 export NVM_DIR="$HOME/.nvm"

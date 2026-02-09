@@ -16,7 +16,7 @@ local titlebar_icons_path = config_path .. "theme/icons/titlebar/"
 
 -- {{{ Main
 local theme = {}
-theme.wallpaper = config_path .. colors.wallpaper
+theme.wallpaper = colors.wallpaper
 -- }}}
 
 -- {{{ Styles
