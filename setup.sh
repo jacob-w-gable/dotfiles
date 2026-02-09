@@ -99,3 +99,8 @@ rm -rf picom-source
 
 # Set up wal
 pipx install pywal16
+
+# Set up fzf with zsh integration
+git clone --depth 1 https://github.com/junegunn/fzf.git
+fzf/install --bin
+rm -rf fzf
