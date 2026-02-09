@@ -102,5 +102,10 @@ pipx install pywal16
 
 # Set up fzf with zsh integration
 git clone --depth 1 https://github.com/junegunn/fzf.git
-fzf/install --bin
+fzf/install --all
 rm -rf fzf
+
+# Setup wallpapers
+mkdir -p ~/Pictures/Wallpapers
+cp ./awesome/theme/wallpaper.jpg ~/Pictures/Wallpapers/wallpaper1.jpg
+cp ./sddm/wallpaper.png ~/Pictures/Wallpapers/wallpaper2.png

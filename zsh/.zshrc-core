@@ -140,6 +140,3 @@ if ! pgrep -u "$USER" -f gnome-keyring-daemon > /dev/null; then
   eval $(gnome-keyring-daemon --start 2>/dev/null)
 fi
 export SSH_AUTH_SOCK
-
-# fzf zsh integration
-eval "$(fzf --zsh)"
