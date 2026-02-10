@@ -2,6 +2,12 @@
 
 set -eu
 
+if [[ $EUID -eq 0 ]]; then
+  echo "This script should not be run as root" >&2
+  exit 1
+fi
+sudo -v
+
 # Core system dependencies
 sudo pacman -S \
   sudo \
@@ -56,6 +62,7 @@ sudo pacman -S \
   lua53-filesystem \
   nsxiv \
   ueberzug \
+  tmux \
   --noconfirm
 
 git clone https://aur.archlinux.org/yay.git
