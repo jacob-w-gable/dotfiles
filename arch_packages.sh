@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eu
+
 # Core system dependencies
 sudo pacman -S \
   sudo \
@@ -8,7 +10,7 @@ sudo pacman -S \
   openssh \
   man-db \
   networkmanager \
-  wpa_supplicanta \
+  wpa_supplicant \
   --noconfirm
 # ...
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -eo pipefail
 
 if [[ $EUID -eq 0 ]]; then
   echo "This script should not be run as root" >&2
@@ -112,3 +112,6 @@ mkdir -p ~/Pictures/Wallpapers
 cp ./awesome/theme/wallpaper.jpg ~/Pictures/Wallpapers/wallpaper1.jpg
 cp ./sddm/wallpaper.png ~/Pictures/Wallpapers/wallpaper2.png
 cp ./awesome/theme/lockscreen.png ~/Pictures/Wallpapers/wallpaper3.png
+
+# Enable services
+sudo systemctl enable sddm
