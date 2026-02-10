@@ -46,7 +46,6 @@ sudo pacman -S \
   qt5-quickcontrols2 \
   eza \
   rofi \
-  fzf \
   bat \
   python-pipx \
   imagemagick \
