@@ -8,7 +8,8 @@ sudo pacman -S \
   openssh \
   man-db \
   networkmanager \
-  wpa_supplicant
+  wpa_supplicanta \
+  --noconfirm
 # ...
 
 sudo pacman -S \
@@ -52,12 +53,18 @@ sudo pacman -S \
   lua-dkjson \
   lua53-filesystem \
   nsxiv \
-  ueberzug
+  ueberzug \
+  --noconfirm
+
+git clone https://aur.archlinux.org/yay.git
+(cd yay && makepkg -si --noconfirm)
+rm -rf yay
 
 yay -S \
   nm-tray \
   breeze-gtk \
-  vicious
+  vicious \
+  --noconfirm
 
 # For building i3loc-color:
 sudo pacman -S \
@@ -73,20 +80,45 @@ sudo pacman -S \
   pam \
   pkgconf \
   xcb-util-image \
-  xcb-util-xrm
+  xcb-util-xrm \
+  --noconfirm
 
 # Need to manually install vicious library
-rm -rf ~/.config/awesome/vicious
-git clone https://github.com/vicious-widgets/vicious.git ~/.config/awesome/vicious
+rm -rf awesome/vicious
+git clone https://github.com/vicious-widgets/vicious.git awesome/vicious
 
 # This doesn't seem to automatically happen in Arch
 mkdir -p ~/.config/lazygit
 touch ~/.config/lazygit/config.yml
 
 # For building picom
-sudo pacman -S --needed libx11 libxcb xorgproto xcb-util xcb-util-image xcb-util-renderutil \
-  xcb-util-wm xcb-util-keysyms xcb-util-cursor xcb-util-errors xcb-util-xrm \
-  libxdamage libxfixes libxrender libxrandr libxcursor libxcomposite \
-  pixman libconfig dbus-glib \
-  libglvnd libegl libepoxy pcre2 libev \
-  meson cmake uthash
+sudo pacman -S --needed \
+  libx11 \
+  libxcb \
+  xorgproto \
+  xcb-util \
+  xcb-util-image \
+  xcb-util-renderutil \
+  xcb-util-wm \
+  xcb-util-keysyms \
+  xcb-util-cursor \
+  xcb-util-errors \
+  xcb-util-xrm \
+  libxdamage \
+  libxfixes \
+  libxrender \
+  libxrandr \
+  libxcursor \
+  libxcomposite \
+  pixman \
+  libconfig \
+  dbus-glib \
+  libglvnd \
+  libegl \
+  libepoxy \
+  pcre2 \
+  libev \
+  meson \
+  cmake \
+  uthash \
+  --noconfirm

@@ -63,7 +63,10 @@ rm -rf Tela-icon-theme-2024-09-04/ tela-icon-theme.zip
 echo "QT_QPA_PLATFORMTHEME=qt5ct" | sudo tee -a /etc/environment
 
 # Set lock screen timeout
-xset s 300
+# if there is a display
+if [[ -n "$DISPLAY" ]]; then
+  xset s 300
+fi
 
 # Install i3lock-color
 git clone https://github.com/Raymo111/i3lock-color.git
@@ -75,7 +78,7 @@ sudo mkdir -p /usr/share/wallpapers/jacob-w-gable/contents/images_dark
 sudo cp ./sddm/wallpaper.png /usr/share/wallpapers/jacob-w-gable/contents/images_dark
 
 # Install reactivex luarocks library, for the Docker nvim extension
-sudo luarocks install reactivex
+sudo luarocks --lua-version=5.3 install reactivex
 luarocks install dkjson --local
 
 # Install lain
