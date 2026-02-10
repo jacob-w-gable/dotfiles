@@ -18,11 +18,15 @@ local volume_widget = wibox.widget({
 
 -- Function to update volume
 local function update_volume(widget)
-	awful.spawn.easy_async_with_shell("pactl get-sink-volume @DEFAULT_SINK@", function(stdout)
-		local volume = stdout:match("(%d+)%%")
-		widget:get_children_by_id("volume_text")[1].markup =
-			string.format('<span font="%s">Vol: %s%%</span>', theme.font, volume or "0")
-	end)
+	local f = io.popen("pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null")
+	local stdout = f and f:read("*a") or ""
+	if f then
+		f:close()
+	end
+
+	local volume = stdout:match("(%d+)%%")
+	widget:get_children_by_id("volume_text")[1].markup =
+		string.format('<span font="%s">Vol: %s%%</span>', theme.font, volume or "0")
 end
 
 -- Update volume on creation and when the volume changes

@@ -78,7 +78,7 @@ sudo mkdir -p /usr/share/wallpapers/jacob-w-gable/contents/images_dark
 sudo cp ./sddm/wallpaper.png /usr/share/wallpapers/jacob-w-gable/contents/images_dark
 
 # Install reactivex luarocks library, for the Docker nvim extension
-sudo luarocks --lua-version=5.3 install reactivex
+sudo luarocks --lua-version=5.1 install reactivex
 luarocks install dkjson --local
 
 # Install lain
@@ -114,4 +114,5 @@ cp ./sddm/wallpaper.png ~/Pictures/Wallpapers/wallpaper2.png
 cp ./awesome/theme/lockscreen.png ~/Pictures/Wallpapers/wallpaper3.png
 
 # Enable services
-sudo systemctl enable sddm
+sudo systemctl enable sddm --force
+sudo systemctl set-default graphical.target
