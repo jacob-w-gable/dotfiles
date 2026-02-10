@@ -101,11 +101,11 @@ rm -rf picom-source
 pipx install pywal16
 
 # Set up fzf with zsh integration
-git clone --depth 1 https://github.com/junegunn/fzf.git
-fzf/install --all
-rm -rf fzf
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install --all
 
 # Setup wallpapers
 mkdir -p ~/Pictures/Wallpapers
 cp ./awesome/theme/wallpaper.jpg ~/Pictures/Wallpapers/wallpaper1.jpg
 cp ./sddm/wallpaper.png ~/Pictures/Wallpapers/wallpaper2.png
+cp ./awesome/theme/lockscreen.png ~/Pictures/Wallpapers/wallpaper3.png
