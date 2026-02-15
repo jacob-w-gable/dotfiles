@@ -3,6 +3,7 @@ return {
   lazy = false,
   priority = 1000,
   opts = {
-    transparent = true,
+    transparent = false,
+    dim_inactive = true,
   },
 }

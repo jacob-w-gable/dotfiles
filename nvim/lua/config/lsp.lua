@@ -36,6 +36,11 @@ lspconfig.rust_analyzer.setup({
       procMacro = {
         enable = true,
       },
+      checkOnSave = false,
+      check = {
+        -- command = "clippy",
+        onSave = false,
+      },
     },
   },
   on_attach = function(client, bufnr)
@@ -46,7 +51,7 @@ lspconfig.rust_analyzer.setup({
     vim.api.nvim_create_autocmd("BufWritePre", {
       pattern = "*.rs",
       callback = function()
-        vim.lsp.buf.format({ async = false })
+        vim.lsp.buf.format({ async = true })
       end,
     })
 
@@ -60,6 +65,39 @@ lspconfig.rust_analyzer.setup({
 
     local function buf_set_keymap(...)
       vim.api.nvim_buf_set_keymap(bufnr, ...)
+    end
+
+    _G.ra_flycheck = function(bufnr)
+      local clients = (vim.lsp.get_clients and vim.lsp.get_clients({ bufnr = bufnr, name = "rust_analyzer" }))
+        or vim.lsp.get_active_clients({ bufnr = bufnr, name = "rust_analyzer" })
+
+      local client = clients and clients[1]
+      if not client then
+        vim.notify("rust-analyzer is not attached to this buffer", vim.log.levels.WARN)
+        return
+      end
+
+      local params = vim.lsp.util.make_text_document_params(bufnr)
+      client.notify("rust-analyzer/runFlycheck", params)
+    end
+
+    _G.ra_restart = function(bufnr)
+      local clients = (vim.lsp.get_clients and vim.lsp.get_clients({ bufnr = bufnr, name = "rust_analyzer" }))
+        or vim.lsp.get_active_clients({ bufnr = bufnr, name = "rust_analyzer" })
+
+      local client = clients and clients[1]
+      if not client then
+        vim.notify("rust-analyzer is not attached to this buffer", vim.log.levels.WARN)
+        return
+      end
+
+      -- Stop client
+      client.stop()
+
+      -- Restart after a tick
+      vim.defer_fn(function()
+        vim.cmd("LspStart rust_analyzer")
+      end, 100)
     end
 
     buf_set_keymap(
@@ -110,8 +148,15 @@ lspconfig.rust_analyzer.setup({
     buf_set_keymap(
       "n",
       "<leader>rb",
-      "<Cmd>lua require('rust-tools.proc-macro').rebuild()<CR>",
-      { desc = "Rebuild proc-macro", noremap = true, silent = true }
+      "<Cmd>lua _G.ra_restart(" .. bufnr .. ")<CR>",
+      { desc = "Restart rust-analyzer", noremap = true, silent = true }
+    )
+
+    buf_set_keymap(
+      "n",
+      "<leader>rc",
+      "<Cmd>lua _G.ra_flycheck(" .. bufnr .. ")<CR>",
+      { desc = "Run rust-analyzer flycheck", noremap = true, silent = true }
     )
   end,
 })
