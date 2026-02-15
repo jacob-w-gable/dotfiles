@@ -32,5 +32,7 @@ o.winblend = 10
 o.pumblend = 10 -- Popup menu transparency
 
 vim.g.ale_echo_cursor = 0 -- Don't show ALE messages in the command line when the cursor is on a line with an error or warning.
-
 vim.lsp.inlay_hint.enable(true)
+
+local term = vim.env.OUTER_TERM
+vim.g.no_glyphs = (term == "linux")

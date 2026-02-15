@@ -10,9 +10,6 @@ sudo -v
 
 mkdir -p $HOME/.config
 
-rm -rf $HOME/.config/nvim
-ln -s $(pwd)/nvim $HOME/.config/nvim
-
 rm -rf $HOME/.config/awesome
 ln -s $(pwd)/awesome $HOME/.config/awesome
 
@@ -28,16 +25,6 @@ ln -s $(pwd)/kitty $HOME/.config/kitty
 rm -rf $HOME/.config/qt5ct
 ln -s $(pwd)/qt5ct $HOME/.config/qt5ct
 
-rm -rf $HOME/.config/ranger
-ln -s $(pwd)/ranger $HOME/.config/ranger
-
-ln -s $(pwd)/zsh/.zshrc-core $HOME/.zshrc-core
-ln -s $(pwd)/zsh/.p10k.zsh $HOME/.p10k.zsh
-ln -s $(pwd)/zsh/.p10k-tty.zsh $HOME/.p10k-tty.zsh
-
-rm -rf $HOME/.config/btop
-ln -s $(pwd)/btop $HOME/.config/btop
-
 rm -rf $HOME/.config/picom
 ln -s $(pwd)/picom $HOME/.config/picom
 
@@ -46,13 +33,6 @@ ln -s $(pwd)/rofi $HOME/.config/rofi
 
 rm -rf $HOME/.config/wal
 ln -s $(pwd)/wal $HOME/.config/wal
-
-rm -f $HOME/.tmux.conf
-ln -s $(pwd)/tmux/.tmux.conf $HOME/.tmux.conf
-
-mkdir -p $HOME/.tmux
-rm -f $HOME/.tmux/tmux-power.tmux
-ln -s $(pwd)/tmux/tmux-power.tmux $HOME/.tmux/tmux-power.tmux
 
 rm -rf $HOME/Scripts/wallpaper
 mkdir -p $HOME/Scripts

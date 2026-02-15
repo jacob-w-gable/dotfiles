@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+OUTER_TERM="${OUTER_TERM:-}"
+
 tmux_get() {
   local v
   v="$(tmux show -gqv "$1")"
@@ -8,11 +10,30 @@ tmux_get() {
 tmux_set() { tmux set-option -gq "$1" "$2"; }
 
 # ---- Options you can change from tmux.conf ----
-RARROW="$(tmux_get '@tmux_power_right_arrow_icon' '')"
-LARROW="$(tmux_get '@tmux_power_left_arrow_icon' '')"
-THEME="$(tmux_get '@tmux_power_theme' 'colour14')" # accepts 'colour14', 'color14', or '#rrggbb'
 TIME_FMT="$(tmux_get '@tmux_power_time_format' '%T')"
 DATE_FMT="$(tmux_get '@tmux_power_date_format' '%F')"
+
+if [[ $OUTER_TERM == "linux" ]]; then
+  THEME="color13"
+  RARROW=">"
+  LARROW="<"
+  USER_ICON=""
+  SESSION_ICON=""
+  CPU_ICON="CPU"
+  MEM_ICON="RAM"
+  TIME_ICON=""
+  DATE_ICON=""
+else
+  THEME="$(tmux_get '@tmux_power_theme' 'colour14')" # accepts 'colour14', 'color14', or '#rrggbb'
+  RARROW="$(tmux_get '@tmux_power_right_arrow_icon' '')"
+  LARROW="$(tmux_get '@tmux_power_left_arrow_icon' '')"
+  USER_ICON=""
+  SESSION_ICON=""
+  CPU_ICON=" "
+  MEM_ICON=" "
+  TIME_ICON=""
+  DATE_ICON=""
+fi
 
 # map common values
 case "$THEME" in
@@ -46,8 +67,6 @@ tmux_set status-justify "centre"
 tmux_set window-status-separator " "
 
 # ---- LEFT: user@host (primary) → IP slice (attached) → session pill ----
-USER_ICON=""
-SESSION_ICON=""
 IP_CMD='#(ip route get 8.8.8.8 | awk "/src/ {for (i=1;i<=NF;i++) if (\$i==\"src\") print \$(i+1)}")'
 
 LS="" # primary pill
@@ -62,11 +81,6 @@ tmux_set status-left-length 120
 tmux_set status-left "$LS"
 
 # ---- RIGHT: CPU | RAM | time | date via tmux-cpu scripts ----
-CPU_ICON=" "
-MEM_ICON=" "
-TIME_ICON=""
-DATE_ICON=""
-
 # Paths
 TPM_DIR="$HOME/.tmux/plugins"
 TMUX_CPU_DIR="$TPM_DIR/tmux-cpu"

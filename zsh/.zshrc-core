@@ -69,28 +69,25 @@ bindkey -e
 bindkey "${terminfo[khome]}" beginning-of-line
 bindkey "${terminfo[kend]}" end-of-line
 
-# Ctrl + Left / Right for word jumps
-bindkey "${terminfo[kLFT5]}" backward-word
-bindkey "${terminfo[kRIT5]}" forward-word
-
 # Fallbacks for terminals that don't populate terminfo
 bindkey "^[[1;5D" backward-word   # Ctrl+Left
 bindkey "^[[1;5C" forward-word    # Ctrl+Right
 bindkey "^[[H" beginning-of-line  # Home
 bindkey "^[[F" end-of-line        # End
 
-# Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
-else
-  export EDITOR='nvim'
+export OUTER_TERM="${TERM:-}"
+if [ -n "${TMUX-}" ]; then
+  export OUTER_TERM="$(tmux display-message -p '#{client_termname}')"
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-if [[ $TERM == linux ]]; then
+if [[ $OUTER_TERM == "linux" ]]; then
   [[ ! -f ~/.p10k-tty.zsh ]] || source ~/.p10k-tty.zsh
 else
   [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+  # Ctrl + Left / Right for word jumps
+  bindkey "${terminfo[kLFT5]}" backward-word
+  bindkey "${terminfo[kRIT5]}" forward-word
 fi
 
 # Neovim path
@@ -104,6 +101,7 @@ export NVM_DIR="$HOME/.nvm"
 # Map Ctrl + Backspace to delete the previous word
 bindkey '^H' backward-kill-word
 
+export EDITOR='nvim'
 # Custom aliases
 # Editor
 alias ef='$EDITOR'

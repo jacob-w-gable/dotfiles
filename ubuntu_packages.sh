@@ -19,7 +19,6 @@ sudo apt install \
   kitty \
   breeze \
   breeze-gtk-theme \
-  neovim \
   unzip \
   qt5ct \
   zsh \
