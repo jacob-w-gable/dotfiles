@@ -23,44 +23,21 @@ sudo dnf install -y \
   breeze-gtk \
   breeze-icon-theme \
   plasma-breeze \
-  neovim \
-  unzip \
   qt5-qtstyleplugins \
-  zsh \
-  python3 \
-  ranger \
   python3-pillow \
   pulseaudio-utils \
   zathura \
   firefox \
   eom \
-  luarocks \
-  gnome-keyring \
-  libsecret \
-  btop \
   qt5-qtquickcontrols2 \
   qt5-qtdeclarative \
   qt5-qtsvg \
   qt6-qtsvg \
   qt6-qtvirtualkeyboard \
   qt6-qtmultimedia \
-  curl \
-  wget \
-  git \
   rofi \
-  bat \
-  pipx \
-  fd-find \
-  ncurses-term \
-  vim-enhanced \
-  tmux \
   ImageMagick \
   xset
-
-# Install eza
-wget https://github.com/eza-community/eza/releases/download/v0.23.4/eza_x86_64-unknown-linux-gnu.tar.gz
-sudo tar -xzf eza_x86_64-unknown-linux-gnu.tar.gz -C /usr/bin
-rm -f eza_x86_64-unknown-linux-gnu.tar.gz
 
 # Install simple-sddm-2 for qt6
 git clone https://github.com/JaKooLit/simple-sddm-2.git

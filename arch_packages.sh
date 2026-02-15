@@ -35,34 +35,20 @@ sudo pacman -S \
   dunst \
   kitty \
   breeze \
-  neovim \
-  unzip \
   qt5ct \
-  zsh \
-  python \
   python-pillow \
-  python-pip \
-  ranger \
   zathura \
   firefox \
   eom \
-  luarocks \
-  btop \
-  gnome-keyring \
   feh \
   qt5-graphicaleffects \
   qt5-quickcontrols \
   qt5-quickcontrols2 \
-  eza \
   rofi \
-  bat \
-  python-pipx \
   imagemagick \
   lua-dkjson \
-  lua53-filesystem \
   nsxiv \
   ueberzug \
-  tmux \
   --noconfirm
 
 git clone https://aur.archlinux.org/yay.git

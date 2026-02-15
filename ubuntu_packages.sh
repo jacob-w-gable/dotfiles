@@ -19,39 +19,22 @@ sudo apt install \
   kitty \
   breeze \
   breeze-gtk-theme \
-  unzip \
   qt5ct \
-  zsh \
-  python3 \
-  ranger \
   python3-pillow \
   pulseaudio-utils \
   zathura \
   firefox \
   eom \
-  luarocks \
-  gnome-keyring \
-  libsecret-tools \
-  btop \
   qtquickcontrols2-5-dev \
   qml-module-qtquick-layouts \
   qml-module-qtgraphicaleffects \
   libqt5svg5-dev \
   qml-module-qtquick-controls2 \
-  eza \
-  curl \
-  wget \
-  git \
   rofi \
-  bat \
-  pipx \
   lua-dkjson \
   nsxiv \
-  fd-find \
   kitty-terminfo \
   ncurses-term \
-  vim \
-  tmux \
   imagemagick \
   -y
 
