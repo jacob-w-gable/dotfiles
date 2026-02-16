@@ -10,6 +10,25 @@ if [[ $EUID -eq 0 ]]; then
 fi
 sudo -v
 
+DEVEL=true
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+  --devel)
+    DEVEL="$2"
+    shift 2
+    ;;
+  -h | --help)
+    echo "Usage: $0 [--devel true|false]"
+    exit 0
+    ;;
+  *)
+    echo "Unknown argument: $1"
+    exit 1
+    ;;
+  esac
+done
+
 # Set the default shell to zsh
 chsh -s $(which zsh)
 
@@ -29,24 +48,6 @@ tar xf lazygit.tar.gz lazygit
 sudo install lazygit /usr/local/bin
 rm lazygit lazygit.tar.gz
 
-# Install Rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-
-# Install node
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
-
-# Install rust-analyzer
-~/.cargo/bin/rustup component add rust-analyzer
-
-# Install typescript and typescript-language-server
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
-nvm install 20
-npm install -g typescript typescript-language-server neovim
-npm install -g @tailwindcss/language-server
-npm install -g neovim
-
 # Install reactivex luarocks library, for the Docker nvim extension
 sudo luarocks --lua-version=5.1 install reactivex
 
@@ -58,3 +59,23 @@ echo "source ~/.zshrc-core" >>~/.zshrc
 # Set up fzf with zsh integration
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install --all
+
+if [[ "$DEVEL" == "true" ]]; then
+  # Install Rust
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+  # Install rust-analyzer
+  ~/.cargo/bin/rustup component add rust-analyzer
+
+  # Install node
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+
+  # Install typescript and typescript-language-server
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+  nvm install 20
+  npm install -g typescript typescript-language-server neovim
+  npm install -g @tailwindcss/language-server
+  npm install -g neovim
+fi
