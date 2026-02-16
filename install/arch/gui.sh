@@ -38,7 +38,6 @@ sudo pacman -S \
   qt5ct \
   python-pillow \
   zathura \
-  firefox \
   eom \
   feh \
   qt5-graphicaleffects \

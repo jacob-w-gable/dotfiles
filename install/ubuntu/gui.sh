@@ -23,7 +23,6 @@ sudo apt install \
   python3-pillow \
   pulseaudio-utils \
   zathura \
-  firefox \
   eom \
   qtquickcontrols2-5-dev \
   qml-module-qtquick-layouts \

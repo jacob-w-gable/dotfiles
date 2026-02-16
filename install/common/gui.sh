@@ -47,7 +47,9 @@ rm -rf awesome/lain
 git clone https://github.com/lcpz/lain.git awesome/lain
 
 # Set up simple sddm theme
+rm -rf simple-sddm
 git clone https://github.com/JaKooLit/simple-sddm.git
+sudo rm -rf /usr/share/sddm/themes/simple-sddm
 sudo mv simple-sddm /usr/share/sddm/themes
 sudo cp sddm/wallpaper.png /usr/share/sddm/themes/simple-sddm/Backgrounds
 

@@ -68,5 +68,5 @@ fi
 if [[ "$GUI" == true ]]; then
   ./install/$DISTRO/gui.sh
   ./install/common/gui.sh
-  ./install/common/link-gui.sh
+  ./install/common/link_gui.sh
 fi

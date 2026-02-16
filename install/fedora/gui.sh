@@ -27,7 +27,6 @@ sudo dnf install -y \
   python3-pillow \
   pulseaudio-utils \
   zathura \
-  firefox \
   eom \
   qt5-qtquickcontrols2 \
   qt5-qtdeclarative \
