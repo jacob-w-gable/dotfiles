@@ -16,8 +16,11 @@ ln -s $(pwd)/nvim $HOME/.config/nvim
 rm -rf $HOME/.config/ranger
 ln -s $(pwd)/ranger $HOME/.config/ranger
 
+rm -f $HOME/.zshrc-core
 ln -s $(pwd)/zsh/.zshrc-core $HOME/.zshrc-core
+rm -f $HOME/.p10k.zsh
 ln -s $(pwd)/zsh/.p10k.zsh $HOME/.p10k.zsh
+rm -f $HOME/.p10k-tty.zsh
 ln -s $(pwd)/zsh/.p10k-tty.zsh $HOME/.p10k-tty.zsh
 
 rm -rf $HOME/.config/btop
