@@ -33,7 +33,9 @@ done
 chsh -s $(which zsh)
 
 # Download tmux plugin manager
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+if [[ ! -d ~/.tmux/plugins/tpm ]]; then
+  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+fi
 
 # Install neovim
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
@@ -57,8 +59,10 @@ touch ~/.zshrc
 echo "source ~/.zshrc-core" >>~/.zshrc
 
 # Set up fzf with zsh integration
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install --all
+if [[ ! -d ~/.fzf ]]; then
+  git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+  ~/.fzf/install --all
+fi
 
 if [[ "$DEVEL" == "true" ]]; then
   # Install Rust
