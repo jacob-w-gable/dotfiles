@@ -326,9 +326,6 @@ awful.screen.connect_for_each_screen(function(s)
 				{
 					layout = wibox.layout.fixed.horizontal,
 					clock,
-				orientation = "vertical",
-				forced_width = 2,
-				color = beautiful.bg_focus .. "88",
 					{
 						widget = wibox.container.margin,
 						right = 12,
@@ -336,17 +333,31 @@ awful.screen.connect_for_each_screen(function(s)
 						s.mylayoutbox,
 					},
 				},
-		right_widgets(),
 			}
 		end
 
 		return { -- Right widgets
 			layout = wibox.layout.fixed.horizontal,
-			{
+			spacing = 12,
+			style = {
+				shape = gears.shape.powerline,
+			},
+			spacing_widget = {
+				color = "#000000",
+				shape = function(cr, width, height)
+					gears.shape.powerline(cr, width, height, -height / 2)
+				end,
 				widget = wibox.widget.separator,
 			},
 			powerline_left_secondary(pomo.widget()),
-			s.mytasklist,
+			powerline_left_primary(wibox.widget.systray()),
+			powerline_left_secondary(widgets.caffeine.widget),
+			powerline_left_primary(widgets.mpris),
+			powerline_left_secondary(widgets.volume),
+			powerline_left_primary(widgets.battery),
+			powerline_left_secondary(widgets.weather),
+			powerline_left_primary(clock),
+			powerline_left_secondary(s.mylayoutbox),
 		}
 	end
 
@@ -356,13 +367,13 @@ awful.screen.connect_for_each_screen(function(s)
 		{ -- Left widgets
 			layout = wibox.layout.fixed.horizontal,
 			{
-				margins = 10,
+				margins = 5,
 				widget = wibox.container.margin,
 			},
 			-- mylauncher,
 			s.mytaglist,
 			{
-				margins = 5,
+				margins = 10,
 				widget = wibox.container.margin,
 			},
 			widgets.ramgraph,
@@ -376,26 +387,15 @@ awful.screen.connect_for_each_screen(function(s)
 		},
 		{
 			layout = wibox.layout.fixed.horizontal,
-			spacing = 12,
-			style = {
-				shape = gears.shape.powerline,
-			},
-			spacing_widget = {
-				color = "#000000",
-				shape = function(cr, width, height)
-					gears.shape.powerline(cr, width, height, -height / 2)
-				end,
+			{
 				widget = wibox.widget.separator,
+				orientation = "vertical",
+				forced_width = 2,
+				color = beautiful.bg_focus .. "88",
 			},
-			powerline_left_primary(wibox.widget.systray()),
-			powerline_left_secondary(widgets.caffeine.widget),
-			powerline_left_primary(widgets.mpris),
-			powerline_left_secondary(widgets.volume),
-			powerline_left_primary(widgets.battery),
-			powerline_left_secondary(widgets.weather),
-			powerline_left_primary(clock),
-			powerline_left_secondary(s.mylayoutbox),
+			s.mytasklist,
 		},
+		right_widgets(),
 	})
 end)
 -- }}}
@@ -776,7 +776,6 @@ clientbuttons = gears.table.join(
 		c:emit_signal("request::activate", "mouse_click", { raise = true })
 	end),
 	awful.button({ modkey }, 1, function(c)
-				"Open Files",
 		c:emit_signal("request::activate", "mouse_click", { raise = true })
 		awful.mouse.client.move(c)
 	end),
@@ -837,6 +836,7 @@ awful.rules.rules = {
 			-- and the name shown there might not match defined rules here.
 			name = {
 				"Event Tester", -- xev.
+				"Open Files",
 			},
 			role = {
 				"AlarmWindow", -- Thunderbird's calendar.
