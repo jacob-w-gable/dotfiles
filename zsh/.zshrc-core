@@ -36,7 +36,8 @@ zinit snippet OMZP::command-not-found
 zinit snippet OMZP::web-search
 
 # Load completions
-autoload -U compinit && compinit
+autoload -Uz compinit
+compinit -C
 # Case insensitive completion
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 # Completion coloring
@@ -110,20 +111,13 @@ alias edot='$EDITOR $HOME/dotfiles'
 alias elsp='$EDITOR $HOME/dotfiles/nvim/lua/config/lsp.lua'
 # File management
 alias ls='eza'
-alias ll='eza -l --group-directories-first --icons'
-alias la='eza -a --group-directories-first --icons'
-alias lal='eza -la --group-directories-first --icons'
-alias lla='lal'
 # Print files in order of size
-alias lss='eza -l --group-directories-first --icons --sort=size'
-alias lssr='eza -l --group-directories-first --icons --sort=size --reverse'
-alias lssa='eza -la --group-directories-first --icons --sort=size'
-alias lssar='eza -la --group-directories-first --icons --sort=size --reverse'
+alias lss='eza -l --group-directories-first --icons --time-style=long-iso --total-size --sort=size'
 # Print files in order of modification time
-alias lsm='eza -l --group-directories-first --icons --sort=modified --time-style=long-iso'
-alias lsma='eza -la --group-directories-first --icons --sort=modified --time-style=long-iso'
-alias lsmr='eza -l --group-directories-first --icons --sort=modified --reverse --time-style=long-iso'
-alias lsmar='eza -la --group-directories-first --icons --sort=modified --reverse --time-style=long-iso'
+alias lsm='eza -l --group-directories-first --icons --time-style=long-iso --total-size --sort=modified'
+alias lsn='eza -l --group-directories-first --icons --time-style=long-iso --total-size --sort=name'
+alias lse='eza -l --group-directories-first --icons --time-style=long-iso --total-size --sort=extension'
+alias lst='eza -l --group-directories-first --icons --time-style=long-iso --total-size --sort=type'
 # Other coreutils alternatives
 alias cat="batcat"
 
