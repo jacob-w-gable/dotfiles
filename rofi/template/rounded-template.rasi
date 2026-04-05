@@ -12,18 +12,17 @@
 window {
     location:       north;
     y-offset:       calc(50% - 176px);
-    width:          480;
-    border-radius:  24px;
-
+    width:          620;
+    border-radius:  14px;
 }
 
 mainbox {
     padding:    12px;
+    background-color: transparent;
+    children: [ inputbar, listview, mode-switcher ];
 }
 
 inputbar {
-
-    border:         2px;
     border-radius:  16px;
 
     padding:    8px 16px;
@@ -32,10 +31,12 @@ inputbar {
 }
 
 prompt {
+    background-color: transparent;
 }
 
 entry {
     placeholder:        "Search";
+    background-color: transparent;
 }
 
 message {
@@ -48,9 +49,10 @@ textbox {
 }
 
 listview {
+    border: 0;
     background-color:   transparent;
 
-    margin:     12px 0 0;
+    margin:     14px 0 0;
     lines:      8;
     columns:    1;
 
@@ -60,10 +62,44 @@ listview {
 element {
     padding:        8px 16px;
     spacing:        8px;
-    border-radius:  16px;
+    border-radius:  8px;
 }
 
 element-icon {
     size:           1em;
     vertical-align: 0.5;
+    background-color: transparent;
+}
+
+element-text {
+    background-color: transparent;
+  }
+
+scrollbar {
+    width: 4px;
+    handle-width: 4px;
+    handle-color: @active-background;
+    border-radius: 999px;
+    background-color: @bg2;
+    margin: 0 0 0 4px;
+}
+
+mode-switcher {
+    background-color: transparent;
+    spacing: 8px;
+    margin: 14px 0 0 0;
+}
+
+button {
+    padding: 10px 16px;
+    border-radius: 8px;
+    background-color: @bg1;
+    text-color: @foreground;
+    border-color: @border-color;
+    margin: 2px;
+}
+
+button selected {
+    background-color: @active-background;
+    text-color: @foreground;
 }

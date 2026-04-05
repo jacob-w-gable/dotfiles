@@ -3,6 +3,15 @@
 
 @import "~/.cache/wal/colors-rofi-dark"
 
+configuration {
+    modi: "drun,window,filebrowser";
+    show-icons: true;
+    display-drun: " Apps ";
+    display-window: " Windows ";
+    display-filebrowser: " Files ";
+    sidebar-mode: true;
+}
+
 * {
     bg0:    #2E3440F2;
     bg1:    #3B4252;
