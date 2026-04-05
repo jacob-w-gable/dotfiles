@@ -1066,7 +1066,7 @@ awful.spawn.with_shell("xset r rate 250 60")
 awful.spawn.with_shell("feh --bg-fill " .. beautiful.wallpaper)
 -- Enable compositor
 if settings.compositor then
-	awful.spawn.with_shell("/usr/local/bin/picom --config ~/.config/picom/picom.conf &")
+	awful.spawn.with_shell("/usr/local/bin/picom --config ~/.config/picom/picom.conf --animations &")
 end
 -- awful.spawn.with_shell("tuxedo-control-center")
 -- awful.spawn.with_shell(

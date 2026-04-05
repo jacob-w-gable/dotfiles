@@ -88,4 +88,6 @@ sudo apt install \
   cmake \
   ninja-build \
   uthash-dev \
+  libxcb-dpms0-dev \
+  libxext-dev \
   -y

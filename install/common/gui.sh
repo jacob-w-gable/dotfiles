@@ -54,8 +54,8 @@ sudo mv simple-sddm /usr/share/sddm/themes
 sudo cp sddm/wallpaper.png /usr/share/sddm/themes/simple-sddm/Backgrounds
 
 # Set up picom
-git clone https://github.com/yshui/picom.git picom-source
-(cd picom-source && git checkout v12.5 && meson setup --buildtype=release build && ninja -C build install)
+git clone https://github.com/r0-zero/picom.git picom-source
+(cd picom-source && meson setup --buildtype=release build && ninja -C build install)
 rm -rf picom-source
 
 # Set up wal
