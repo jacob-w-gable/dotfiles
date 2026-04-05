@@ -70,3 +70,9 @@ cp ./awesome/theme/lockscreen.png ~/Pictures/Wallpapers/wallpaper3.png
 # Enable services
 sudo systemctl enable sddm --force
 sudo systemctl set-default graphical.target
+
+# Configure xdg default applications
+xdg-mime default org.gnome.gThumb.desktop image/jpeg
+xdg-mime default org.gnome.gThumb.desktop image/png
+xdg-mime default org.gnome.gThumb.desktop image/webp
+xdg-mime default org.gnome.gThumb.desktop image/gif
