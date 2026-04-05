@@ -22,8 +22,15 @@ theme.wallpaper = colors.wallpaper
 -- {{{ Styles
 theme.font = settings.font
 
+local function brighten(color, amount)
+	local r = math.min(255, math.floor(tonumber(color:sub(2, 3), 16) * (1 + amount)))
+	local g = math.min(255, math.floor(tonumber(color:sub(4, 5), 16) * (1 + amount)))
+	local b = math.min(255, math.floor(tonumber(color:sub(6, 7), 16) * (1 + amount)))
+	return string.format("#%02X%02X%02X", r, g, b)
+end
+
 -- {{{ Colors
-theme.fg_normal = colors.secondary_color
+theme.fg_normal = brighten(colors.highlight_color, 0.4)
 theme.fg_focus = colors.primary_color
 theme.fg_urgent = colors.secondary_color
 theme.bg_normal = colors.background_color
@@ -31,6 +38,12 @@ theme.bg_focus = colors.highlight_color
 theme.bg_urgent = colors.highlight_color
 theme.bg_systray = theme.bg_normal
 theme.prompt_bg = "#00000000" -- Transparent
+theme.tasklist_bg_focus = "#00000000" -- Transparent
+theme.tasklist_fg_focus = brighten(colors.highlight_color, 0.4)
+-- }}}
+
+-- {{{ Taglist
+theme = require("widgets.taglist").theme(theme)
 -- }}}
 
 -- {{{ Borders

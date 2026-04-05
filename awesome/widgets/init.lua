@@ -12,4 +12,5 @@ return {
 	tasklist = require("widgets.tasklist"),
 	volume = require("widgets.volume"),
 	weather = require("widgets.weather"),
+	pomodoro = require("widgets.pomodoro"),
 }

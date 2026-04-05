@@ -8,5 +8,7 @@ return {
 	dpi_scale = 1,
 	font = "Hack Nerd Font 8",
 
+	theme = "squircle",
+
 	lock_screen_wallpaper = os.getenv("HOME") .. "/.config/awesome/theme/lockscreen.png",
 }

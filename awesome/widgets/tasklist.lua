@@ -25,22 +25,9 @@ local tasklist_buttons = gears.table.join(
 local function build_tasklist(s)
 	return awful.widget.tasklist({
 		screen = s,
-		filter = awful.widget.tasklist.filter.currenttags,
+		filter = awful.widget.tasklist.filter.focused,
 		buttons = tasklist_buttons,
-		style = {
-			shape = function(cr, width, height)
-				gears.shape.parallelogram(cr, width, height, width - height / 3)
-			end,
-		},
 		layout = {
-			spacing = 10,
-			spacing_widget = {
-				color = "#000000",
-				shape = function(cr, width, height)
-					gears.shape.parallelogram(cr, width, height, width - height / 3)
-				end,
-				widget = wibox.widget.separator,
-			},
 			layout = wibox.layout.fixed.horizontal,
 		},
 		widget_template = {
@@ -48,33 +35,28 @@ local function build_tasklist(s)
 				{
 					{
 						{
-							{
-								id = "icon_role",
-								widget = wibox.widget.imagebox,
-							},
-							margins = 5,
-							widget = wibox.container.margin,
+							id = "icon_role",
+							widget = wibox.widget.imagebox,
 						},
-						{
-							{
-								id = "text_role",
-								widget = wibox.widget.textbox,
-							},
-							left = 8,
-							widget = wibox.container.margin,
-						},
-						layout = wibox.layout.fixed.horizontal,
+						margins = 5,
+						widget = wibox.container.margin,
 					},
-					left = 15,
-					right = 15,
-					widget = wibox.container.margin,
+					{
+						{
+							id = "text_role",
+							widget = wibox.widget.textbox,
+						},
+						left = 8,
+						widget = wibox.container.margin,
+					},
+					layout = wibox.layout.fixed.horizontal,
 				},
-				id = "background_role",
-				widget = wibox.container.background,
+				left = 15,
+				right = 15,
+				widget = wibox.container.margin,
 			},
-			widget = wibox.container.constraint,
-			width = 200,
-			strategy = "max",
+			id = "background_role",
+			widget = wibox.container.background,
 		},
 	})
 end

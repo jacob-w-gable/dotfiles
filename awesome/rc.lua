@@ -230,7 +230,7 @@ awful.screen.connect_for_each_screen(function(s)
 	set_wallpaper(s)
 
 	-- Each screen has its own tag table.
-	local names = { "Dev", "Comm", "Media", "Free" }
+	local names = { "1", "2", "3", "4" }
 	local l = awful.layout.suit
 	local layouts = { l.tile, l.tile, l.tile, l.tile }
 	awful.tag(names, s, layouts)
@@ -241,7 +241,7 @@ awful.screen.connect_for_each_screen(function(s)
 	-- We need one layoutbox per screen.
 	s.mylayoutbox = widgets.layoutbox(s)
 	-- Create a taglist widget
-	s.mytaglist = widgets.taglist(s)
+	s.mytaglist = widgets.taglist.widget(s)
 	-- Create a tasklist widget
 	s.mytasklist = widgets.tasklist(s)
 
@@ -289,13 +289,74 @@ awful.screen.connect_for_each_screen(function(s)
 		},
 	})
 
+	local pomo = widgets.pomodoro.new({
+		work_minutes = 25,
+		short_break_minutes = 5,
+		long_break_minutes = 5,
+		long_break_every = 17,
+		auto_advance = true,
+		show_progress = true,
+		notify = true,
+		sound = {
+			enabled = true,
+			on_finish = os.getenv("HOME") .. "/.config/awesome/theme/alarm1.wav",
+			-- on_start = os.getenv("HOME") .. "/.config/awesome/sounds/chime.mp3",
+			player = "paplay",
+		},
+	})
+
+	local function right_widgets()
+		if settings.theme == "squircle" then
+			return {
+				layout = wibox.layout.fixed.horizontal,
+				spacing = 24,
+				spacing_widget = {
+					orientation = "vertical",
+					forced_width = 2,
+					color = beautiful.bg_focus .. "88",
+					widget = wibox.widget.separator,
+				},
+				pomo.widget(),
+				wibox.widget.systray(),
+				widgets.caffeine.widget,
+				widgets.mpris,
+				widgets.volume,
+				widgets.battery,
+				widgets.weather,
+				{
+					layout = wibox.layout.fixed.horizontal,
+					clock,
+				orientation = "vertical",
+				forced_width = 2,
+				color = beautiful.bg_focus .. "88",
+					{
+						widget = wibox.container.margin,
+						right = 12,
+						left = 12,
+						s.mylayoutbox,
+					},
+				},
+		right_widgets(),
+			}
+		end
+
+		return { -- Right widgets
+			layout = wibox.layout.fixed.horizontal,
+			{
+				widget = wibox.widget.separator,
+			},
+			powerline_left_secondary(pomo.widget()),
+			s.mytasklist,
+		}
+	end
+
 	-- Add widgets to the wibox
 	s.mywibox:setup({
 		layout = wibox.layout.align.horizontal,
 		{ -- Left widgets
 			layout = wibox.layout.fixed.horizontal,
 			{
-				margins = 5,
+				margins = 10,
 				widget = wibox.container.margin,
 			},
 			-- mylauncher,
@@ -313,8 +374,7 @@ awful.screen.connect_for_each_screen(function(s)
 			},
 			s.mypromptbox,
 		},
-		s.mytasklist,
-		{ -- Right widgets
+		{
 			layout = wibox.layout.fixed.horizontal,
 			spacing = 12,
 			style = {
@@ -716,6 +776,7 @@ clientbuttons = gears.table.join(
 		c:emit_signal("request::activate", "mouse_click", { raise = true })
 	end),
 	awful.button({ modkey }, 1, function(c)
+				"Open Files",
 		c:emit_signal("request::activate", "mouse_click", { raise = true })
 		awful.mouse.client.move(c)
 	end),

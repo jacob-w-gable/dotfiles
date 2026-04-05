@@ -21,10 +21,9 @@ echo "Selected image: $IMAGE"
 wal -i "$IMAGE" --cols16 lighten
 
 # Colorize keyboard
-COLOR_EXEC=/usr/local/bin/rgb_ctrl
-if [ -x "$COLOR_EXEC" ]; then
-  COLOR=$(jq -r '.colors.color4' $HOME/.cache/wal/colors.json)
-  $COLOR_EXEC hex $COLOR
+if command -v rgb_ctrl >/dev/null 2>&1; then
+  COLOR=$(jq -r '.colors.color4' "$HOME/.cache/wal/colors.json")
+  rgb_ctrl hex "$COLOR" || true
 fi
 
 # Need to sleep to wait for the wallpaper to set
