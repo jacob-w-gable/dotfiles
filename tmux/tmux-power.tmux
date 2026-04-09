@@ -92,8 +92,8 @@ CPU_FG_COLOR='#('"$TMUX_CPU_DIR"'/scripts/cpu_fg_color.sh)'
 RAM_FG_COLOR='#('"$TMUX_CPU_DIR"'/scripts/ram_fg_color.sh)'
 
 RS=""
-RS+="#[fg=$G1]$LARROW#[fg=$THEME,bg=$G1]$CPU_FG_COLOR $CPU_ICON $CPU_CMD "
-RS+="#[fg=$THEME,bg=$G1]$RAM_FG_COLOR $MEM_ICON $MEM_CMD "
+RS+="#[fg=$G1]$LARROW#[fg=$THEME,bg=$G1] $CPU_ICON $CPU_CMD "
+RS+="#[fg=$THEME,bg=$G1] $MEM_ICON $MEM_CMD "
 RS+="#[fg=$G3]$LARROW#[fg=$THEME,bg=$G3] $TIME_ICON $TIME_FMT "
 RS+="#[fg=$THEME,bg=$G2]$LARROW#[fg=$G0,bg=$THEME] $DATE_ICON $DATE_FMT "
 
