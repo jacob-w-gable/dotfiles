@@ -11,50 +11,66 @@ local volume_widget = wibox.widget({
 		{
 			widget = wibox.widget.textbox,
 			id = "volume_text",
-			markup = string.format('<span font="%s">Vol: 0%%</span>', theme.font),
+			markup = string.format('<span font="%s">Vol: --</span>', theme.font),
 		},
 	},
 })
 
--- Function to update volume
-local function update_volume(widget)
-	local f = io.popen("pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null")
-	local stdout = f and f:read("*a") or ""
-	if f then
-		f:close()
-	end
-
-	local volume = stdout:match("(%d+)%%")
-	widget:get_children_by_id("volume_text")[1].markup =
-		string.format('<span font="%s">Vol: %s%%</span>', theme.font, volume or "0")
+local function set_volume_text(widget, text)
+	widget:get_children_by_id("volume_text")[1].markup = string.format('<span font="%s">%s</span>', theme.font, text)
 end
 
--- Update volume on creation and when the volume changes
+local function update_volume(widget)
+	awful.spawn.easy_async({ "pactl", "get-sink-volume", "@DEFAULT_SINK@" }, function(stdout, stderr, reason, exit_code)
+		if exit_code ~= 0 then
+			set_volume_text(widget, "Vol: --")
+			return
+		end
+
+		local volume = stdout:match("(%d+)%%")
+
+		if not volume then
+			set_volume_text(widget, "Vol: --")
+			return
+		end
+
+		set_volume_text(widget, string.format("Vol: %s%%", volume))
+	end)
+end
+
+-- Initial update
 update_volume(volume_widget)
+
 awesome.connect_signal("volume::update", function()
 	update_volume(volume_widget)
 end)
 
--- Bind keys or buttons to control volume
 volume_widget:buttons(gears.table.join(
-	awful.button({}, 4, function() -- Scroll up
-		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%", false)
-		awesome.emit_signal("volume::update")
+	awful.button({}, 4, function()
+		awful.spawn.easy_async({ "pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%" }, function()
+			awesome.emit_signal("volume::update")
+		end)
 	end),
-	awful.button({}, 5, function() -- Scroll down
-		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%", false)
-		awesome.emit_signal("volume::update")
+
+	awful.button({}, 5, function()
+		awful.spawn.easy_async({ "pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%" }, function()
+			awesome.emit_signal("volume::update")
+		end)
 	end),
-	awful.button({}, 1, function() -- Left click to toggle mute
-		awful.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle", false)
-		awesome.emit_signal("volume::update")
+
+	awful.button({}, 1, function()
+		awful.spawn.easy_async({ "pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle" }, function()
+			awesome.emit_signal("volume::update")
+		end)
 	end)
 ))
 
--- Automatically update the widget periodically
+-- Keep in sync with external changes (e.g. keyboard media keys,
+-- pavucontrol, etc.)
 gears.timer({
-	timeout = 1,
+	timeout = 5,
 	autostart = true,
+	call_now = false,
 	callback = function()
 		awesome.emit_signal("volume::update")
 	end,

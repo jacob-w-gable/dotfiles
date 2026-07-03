@@ -1,5 +1,6 @@
 local wibox = require("wibox")
 local gears = require("gears")
+local awful = require("awful")
 local theme = require("theme.theme")
 
 local weather_widget = wibox.widget.textbox()
@@ -7,123 +8,176 @@ local weather_widget_with_margin = wibox.container.margin(weather_widget, 5, 5, 
 
 local lat = nil
 local lon = nil
+local forecast_url = nil
 
 local function set_text(text)
 	weather_widget.markup = string.format('<span font="%s">%s</span>', theme.font, text)
 end
 
-local function fetch_coordinates()
-	local cmd = [[
-		curl -fsSL -A 'awesomewm' 'https://ipapi.co/json/' 2>/dev/null \
-		| jq -r '[.latitude, .longitude, .city, .region_code] | @tsv'
-	]]
+local function forecast_to_icon(forecast)
+	forecast = forecast:lower()
 
-	local f = io.popen(cmd)
-	local output = f and f:read("*a") or ""
-	if f then
-		f:close()
-	end
-
-	output = output:gsub("%s+$", "")
-	if output == "" then
-		return false
-	end
-
-	local new_lat, new_lon = output:match("([^\t]+)\t([^\t]+)\t([^\t]*)\t([^\t]*)")
-	if not new_lat or not new_lon then
-		return false
-	end
-
-	lat = new_lat
-	lon = new_lon
-
-	return true
-end
-
-local function code_to_icon(code)
-	if code == 0 then
-		return "☀"
-	elseif code == 1 or code == 2 then
+	if forecast:find("thunder") then
+		return "⛈️"
+	elseif forecast:find("snow") then
+		return "🌨️"
+	elseif forecast:find("sleet") then
+		return "🌨️"
+	elseif forecast:find("rain") then
+		return "🌧️"
+	elseif forecast:find("shower") then
+		return "🌦️"
+	elseif forecast:find("fog") then
+		return "🌫️"
+	elseif forecast:find("mostly cloudy") then
+		return "☁️"
+	elseif forecast:find("partly cloudy") then
 		return "⛅"
-	elseif code == 3 then
-		return "☁"
-	elseif code == 45 or code == 48 then
-		return "🌫"
-	elseif
-		code == 51
-		or code == 53
-		or code == 55
-		or code == 56
-		or code == 57
-		or code == 61
-		or code == 63
-		or code == 65
-		or code == 66
-		or code == 67
-		or code == 80
-		or code == 81
-		or code == 82
-	then
-		return "🌧"
-	elseif code == 71 or code == 73 or code == 75 or code == 77 or code == 85 or code == 86 then
-		return "❄"
-	elseif code == 95 or code == 96 or code == 99 then
-		return "⛈"
+	elseif forecast:find("mostly sunny") then
+		return "🌤️"
+	elseif forecast:find("sunny") then
+		return "🌞"
+	elseif forecast:find("clear") then
+		return "🌞"
 	end
 
-	return "?"
+	return "❓"
 end
 
-local function update_weather()
-	if not lat or not lon then
-		if not fetch_coordinates() then
-			set_text("--°F")
+local function fetch_coordinates(callback)
+	local cmd = [[
+curl --silent --show-error --fail \
+  --connect-timeout 3 \
+  --max-time 10 \
+  -A 'AwesomeWM Weather Widget' \
+  'https://ipapi.co/json/' |
+jq -r '[.latitude, .longitude] | @tsv'
+]]
+
+	awful.spawn.easy_async_with_shell(cmd, function(stdout, stderr, _, exit_code)
+		if exit_code ~= 0 then
+			callback(false)
 			return
 		end
-	end
 
+		local new_lat, new_lon = stdout:match("^%s*([^%s]+)%s+([^%s]+)")
+
+		if not new_lat then
+			callback(false)
+			return
+		end
+
+		lat = new_lat
+		lon = new_lon
+
+		callback(true)
+	end)
+end
+
+local function fetch_forecast_url(callback)
 	local cmd = string.format(
 		[[
-		curl -fsSL -A 'awesomewm' \
-		'https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&current=temperature_2m,weather_code&temperature_unit=fahrenheit' \
-		2>/dev/null \
-		| jq -r '[.current.temperature_2m, .current.weather_code] | @tsv'
-	]],
+curl --silent --show-error --fail \
+  --connect-timeout 3 \
+  --max-time 10 \
+  -H 'User-Agent: AwesomeWM Weather Widget' \
+  'https://api.weather.gov/points/%s,%s' |
+jq -r '.properties.forecastHourly'
+]],
 		lat,
 		lon
 	)
 
-	local f = io.popen(cmd)
-	local output = f and f:read("*a") or ""
-	if f then
-		f:close()
-	end
+	awful.spawn.easy_async_with_shell(cmd, function(stdout, stderr, _, exit_code)
+		if exit_code ~= 0 then
+			callback(false)
+			return
+		end
 
-	output = output:gsub("%s+$", "")
-	if output == "" then
-		set_text("--°F")
-		return
-	end
+		stdout = stdout:gsub("%s+$", "")
 
-	local temp, code = output:match("([^\t]+)\t([^\t]+)")
-	temp = tonumber(temp)
-	code = tonumber(code)
+		if stdout == "" or stdout == "null" then
+			callback(false)
+			return
+		end
 
-	if not temp then
-		set_text("--°F")
-		return
-	end
-
-	local icon = code and code_to_icon(code) or "?"
-	local rounded = math.floor(temp + 0.5)
-
-	set_text(string.format("%s %d°F", icon, rounded))
+		forecast_url = stdout
+		callback(true)
+	end)
 end
 
--- initial fetch at startup
+local function fetch_weather()
+	local cmd = string.format(
+		[[
+curl --silent --show-error --fail \
+  --connect-timeout 3 \
+  --max-time 10 \
+  -H 'User-Agent: AwesomeWM Weather Widget' \
+  '%s' |
+jq -r '.properties.periods[0] | [.temperature, .shortForecast] | @tsv'
+]],
+		forecast_url
+	)
+
+	awful.spawn.easy_async_with_shell(cmd, function(stdout, stderr, _, exit_code)
+		if exit_code ~= 0 then
+			set_text("--°F")
+			return
+		end
+
+		stdout = stdout:gsub("%s+$", "")
+
+		local temp, forecast = stdout:match("^([^\t]+)\t(.+)$")
+
+		temp = tonumber(temp)
+
+		if not temp or not forecast then
+			set_text("--°F")
+			return
+		end
+
+		local icon = forecast_to_icon(forecast)
+		set_text(string.format("%s %d°F", icon, temp))
+	end)
+end
+
+local function update_weather()
+	if forecast_url then
+		fetch_weather()
+		return
+	end
+
+	if lat and lon then
+		fetch_forecast_url(function(success)
+			if success then
+				fetch_weather()
+			else
+				set_text("--°F")
+			end
+		end)
+		return
+	end
+
+	fetch_coordinates(function(success)
+		if not success then
+			set_text("--°F")
+			return
+		end
+
+		fetch_forecast_url(function(success2)
+			if success2 then
+				fetch_weather()
+			else
+				set_text("--°F")
+			end
+		end)
+	end)
+end
+
+-- Initial fetch
 update_weather()
 
--- refresh weather every 10 min
+-- Refresh weather every 10 minutes
 gears.timer({
 	timeout = 600,
 	autostart = true,
@@ -131,13 +185,15 @@ gears.timer({
 	callback = update_weather,
 })
 
--- refresh coordinates every 6 hours in case your public IP/location changes
+-- Refresh location every 12 hours
 gears.timer({
-	timeout = 21600,
+	timeout = 43200,
 	autostart = true,
 	call_now = false,
 	callback = function()
-		fetch_coordinates()
+		lat = nil
+		lon = nil
+		forecast_url = nil
 		update_weather()
 	end,
 })
