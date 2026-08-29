@@ -67,6 +67,9 @@ lspconfig.rust_analyzer.setup({
     client.server_capabilities.documentRangeFormattingProvider = true
 
     vim.api.nvim_create_autocmd("BufWritePre", {
+      -- Grouped and cleared: this runs inside on_attach, so without a group a
+      -- fresh copy was appended on every attach and every :LspRestart.
+      group = vim.api.nvim_create_augroup("RustFormatOnSave", { clear = true }),
       pattern = "*.rs",
       callback = function()
         vim.lsp.buf.format({ async = true })
@@ -157,8 +160,8 @@ lspconfig.rust_analyzer.setup({
     )
     buf_set_keymap(
       "n",
-      "<leader>f",
-      "<Cmd>lua vim.lsp.buf.formatting()<CR>",
+      "<leader>cf",
+      "<Cmd>lua vim.lsp.buf.format()<CR>",
       { desc = "Formatting", noremap = true, silent = true }
     )
 
@@ -233,8 +236,8 @@ lspconfig.tsserver.setup({
     )
     buf_set_keymap(
       "n",
-      "<leader>f",
-      "<Cmd>lua vim.lsp.buf.formatting()<CR>",
+      "<leader>cf",
+      "<Cmd>lua vim.lsp.buf.format()<CR>",
       { desc = "Formatting", noremap = true, silent = true }
     )
   end,
@@ -302,8 +305,8 @@ lspconfig.pyright.setup({
     )
     buf_set_keymap(
       "n",
-      "<leader>f",
-      "<Cmd>lua vim.lsp.buf.formatting()<CR>",
+      "<leader>cf",
+      "<Cmd>lua vim.lsp.buf.format()<CR>",
       { desc = "Formatting", noremap = true, silent = true }
     )
     buf_set_keymap(
