@@ -33,7 +33,6 @@ for s in screen do
 end
 screen.connect_signal("added", pin_screen_dpi)
 
-local config_path = require("gears.filesystem").get_configuration_dir()
 -- Widget and layout library
 local wibox = require("wibox")
 -- Theme handling library
@@ -60,7 +59,10 @@ local has_fdo, freedesktop = pcall(require, "freedesktop")
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
-beautiful.init(config_path .. "theme/theme.lua")
+-- Pass the theme table, not a path: beautiful.init uses dofile() for a
+-- string, which bypasses package.loaded and builds a second, separate
+-- theme table from the one the widgets already required.
+beautiful.init(require("theme.theme"))
 
 -- Configure naughty to center in the top right with some outer padding
 naughty.config.defaults.position = "bottom_right"
