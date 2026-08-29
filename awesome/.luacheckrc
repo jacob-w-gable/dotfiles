@@ -48,7 +48,6 @@ files["rc.lua"] = {
 		"editor_cmd",
 		"globalkeys",
 		"modkey",
-		"mylauncher",
 		"mymainmenu",
 		"myawesomemenu",
 		"terminal",

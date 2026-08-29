@@ -42,7 +42,6 @@ local beautiful = require("beautiful")
 local naughty = require("naughty")
 local dpi = require("beautiful.xresources").apply_dpi
 
-local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup")
 -- Widgets
 local widgets = require("widgets")
@@ -213,11 +212,6 @@ else
 		},
 	})
 end
-
-mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon, menu = mymainmenu })
-
--- Menubar configuration
-menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
 local function set_wallpaper(s)
@@ -381,7 +375,6 @@ awful.screen.connect_for_each_screen(function(s)
 				margins = 5,
 				widget = wibox.container.margin,
 			},
-			-- mylauncher,
 			s.mytaglist,
 			{
 				margins = 10,
@@ -656,10 +649,9 @@ globalkeys = gears.table.join(
 			history_path = awful.util.get_cache_dir() .. "/history_eval",
 		})
 	end, { description = "lua execute prompt", group = "awesome" }),
-	-- Menubar
 	awful.key({ modkey }, "p", function()
 		awful.spawn("rofi -show drun")
-	end, { description = "show the menubar", group = "launcher" }),
+	end, { description = "application launcher", group = "launcher" }),
 	-- Screenshot
 	awful.key({ modkey, "Shift" }, "s", function()
 		awful.spawn("flameshot gui")
