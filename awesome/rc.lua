@@ -517,87 +517,9 @@ local clientbuttons = gears.table.join(
 root.keys(globalkeys)
 -- }}}
 
--- {{{ Rules
--- Rules to apply to new clients (through the "manage" signal).
-awful.rules.rules = {
-	-- All clients will match this rule.
-	{
-		rule = {},
-		properties = {
-			floating = false,
-			border_width = beautiful.border_width,
-			border_color = beautiful.border_normal,
-			focus = awful.client.focus.filter,
-			raise = true,
-			keys = clientkeys,
-			buttons = clientbuttons,
-			screen = awful.screen.preferred,
-			placement = awful.placement.no_overlap + awful.placement.no_offscreen,
-		},
-	},
+awful.rules.rules = require("rules")(clientkeys, clientbuttons)
 
-	-- Floating clients.
-	{
-		rule_any = {
-			instance = {
-				"DTA", -- Firefox addon DownThemAll.
-				"copyq", -- Includes session name in class.
-				"pinentry",
-			},
-			class = {
-				"Arandr",
-				"Blueman-manager",
-				"Gpick",
-				"Kruler",
-				"MessageWin", -- kalarm.
-				"Sxiv",
-				"Tor Browser", -- Needs a fixed window size to avoid fingerprinting by screen size.
-				"Wpa_gui",
-				"veromix",
-				"xtightvncviewer",
-			},
-
-			-- Note that the name property shown in xprop might be set slightly after creation of the client
-			-- and the name shown there might not match defined rules here.
-			name = {
-				"Event Tester", -- xev.
-			},
-			role = {
-				"AlarmWindow", -- Thunderbird's calendar.
-				"ConfigManager", -- Thunderbird's about:config.
-				"pop-up", -- e.g. Google Chrome's (detached) Developer Tools.
-			},
-		},
-		properties = { floating = true },
-	},
-
-	-- Add titlebars to normal clients and dialogs, if in vm_mode
-	{
-		rule_any = { type = { "normal", "dialog" } },
-		except = { name = "Wallpaper Pop-out" },
-		properties = { titlebars_enabled = settings.vm_mode },
-	},
-
-	-- Keep wallpaper engine popout always on the bottom
-	{
-		rule = { name = "Wallpaper Pop-out" },
-		properties = {
-			floating = false,
-			maximized = true,
-			sticky = true,
-			below = true,
-			skip_taskbar = true,
-			focusable = false,
-			titlebars_enabled = false,
-			border_width = 0,
-		},
-	},
-
-	-- Set Firefox to always map on the tag named "2" on screen 1.
-	-- { rule = { class = "Firefox" },
-	--   properties = { screen = 1, tag = "2" } },
-}
-
+require("ui.titlebar")
 solo.connect()
 
 -- Remove borders on maximized / fullscreen clients
@@ -608,29 +530,6 @@ client.connect_signal("property::maximized", function(c)
 		c.border_width = beautiful.border_width
 	end
 end)
-
--- If not in vm_mode, add titlebars dynamically based on floating status
-if not settings.vm_mode then
-	-- Add titlebars dynamically based on floating status
-	client.connect_signal("manage", function(c)
-		-- Enable titlebars for floating windows
-		if c.floating then
-			awful.titlebar.show(c)
-		else
-			awful.titlebar.hide(c)
-		end
-	end)
-
-	-- Update titlebar visibility dynamically when floating state changes
-	client.connect_signal("property::floating", function(c)
-		if c.floating then
-			awful.titlebar.show(c)
-		else
-			awful.titlebar.hide(c)
-		end
-	end)
-	-- }}}
-end
 
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
@@ -661,50 +560,6 @@ client.connect_signal("manage", function(c)
 end)
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
-client.connect_signal("request::titlebars", function(c)
-	-- buttons for the titlebar
-	local buttons = gears.table.join(
-		awful.button({}, 1, function()
-			c:emit_signal("request::activate", "titlebar", { raise = true })
-			awful.mouse.client.move(c)
-		end),
-		awful.button({}, 3, function()
-			c:emit_signal("request::activate", "titlebar", { raise = true })
-			awful.mouse.client.resize(c)
-		end)
-	)
-
-	awful.titlebar(c):setup({
-		{ -- Left
-			{
-				awful.titlebar.widget.iconwidget(c),
-				margins = 6,
-				widget = wibox.container.margin,
-			},
-			buttons = buttons,
-			layout = wibox.layout.fixed.horizontal,
-		},
-		{ -- Middle
-			{ -- Title
-				align = "center",
-				widget = awful.titlebar.widget.titlewidget(c),
-			},
-			buttons = buttons,
-			layout = wibox.layout.flex.horizontal,
-		},
-		{ -- Right
-			awful.titlebar.widget.floatingbutton(c),
-			awful.titlebar.widget.ontopbutton(c),
-			-- awful.titlebar.widget.minimizebutton(c),
-			awful.titlebar.widget.maximizedbutton(c),
-			awful.titlebar.widget.closebutton(c),
-			layout = wibox.layout.fixed.horizontal(),
-		},
-		layout = wibox.layout.align.horizontal,
-	})
-end)
-
--- Enable sloppy focus, so that focus follows mouse.
 client.connect_signal("mouse::enter", function(c)
 	c:emit_signal("request::activate", "mouse_enter", { raise = false })
 end)
