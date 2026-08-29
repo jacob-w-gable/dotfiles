@@ -3,7 +3,6 @@ return {
 	opacity = true,
 	compositor = true,
 	vim_keys = false,
-	debian_base = false,
 
 	-- Base DPI for the UI. Pinned because the X server computes DPI from EDID
 	-- at server startup, before the external monitor's real mode is applied:

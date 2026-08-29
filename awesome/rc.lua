@@ -57,10 +57,6 @@ if settings.vim_keys then
 end
 -- require("awful.hotkeys_popup.keys")
 
--- Load Debian menu entries
-if settings.debian_base then
-	local debian = require("debian")
-end
 local has_fdo, freedesktop = pcall(require, "freedesktop")
 
 -- {{{ Variable definitions
@@ -210,23 +206,12 @@ if has_fdo then
 		after = { menu_terminal },
 	})
 else
-	-- If `debian.menu` exists, use it to build the menu
-	if debian and debian.menu.Debian_menu then
-		mymainmenu = awful.menu({
-			items = {
-				menu_awesome,
-				{ "Debian", debian.menu.Debian_menu.Debian },
-				menu_terminal,
-			},
-		})
-	else
-		mymainmenu = awful.menu({
-			items = {
-				menu_awesome,
-				menu_terminal,
-			},
-		})
-	end
+	mymainmenu = awful.menu({
+		items = {
+			menu_awesome,
+			menu_terminal,
+		},
+	})
 end
 
 mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon, menu = mymainmenu })
