@@ -1,9 +1,6 @@
--- ALE is a plugin that gives fine-grained control over linters and formatters
-
 return {
   "dense-analysis/ale",
-  config = function()
-    -- Configuration goes here.
+  init = function()
     local g = vim.g
 
     g.ale_linters = {
