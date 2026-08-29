@@ -4,6 +4,11 @@ return {
 	compositor = true,
 	vim_keys = false,
 
+	-- The modifier every binding hangs off. Lives here rather than in rc.lua
+	-- because widgets build their own click bindings at require time, before
+	-- rc.lua has run far enough to have defined it.
+	modkey = "Mod4",
+
 	-- Base DPI for the UI. Pinned because the X server computes DPI from EDID
 	-- at server startup, before the external monitor's real mode is applied:
 	-- the laptop panel yields 144, an external monitor winning the race at boot

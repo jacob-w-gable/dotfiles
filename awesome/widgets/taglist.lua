@@ -4,6 +4,8 @@ local gears = require("gears")
 local colors = require("theme.colors")
 local settings = require("settings")
 
+local modkey = settings.modkey
+
 local taglist_buttons = gears.table.join(
 	awful.button({}, 1, function(t)
 		t:view_only()
