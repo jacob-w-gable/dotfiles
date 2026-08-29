@@ -675,6 +675,13 @@ globalkeys = gears.table.join(
 	awful.key({ modkey }, "p", function()
 		awful.spawn("rofi -show drun")
 	end, { description = "show the menubar", group = "launcher" }),
+	-- Screenshot
+	awful.key({ modkey, "Shift" }, "s", function()
+		awful.spawn("flameshot gui")
+	end, {
+		description = "take screenshot with flameshot",
+		group = "launcher",
+	}),
 
 	awful.key({}, "XF86AudioRaiseVolume", function()
 		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ +2%")
