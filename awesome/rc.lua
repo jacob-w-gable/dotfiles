@@ -10,6 +10,7 @@ require("awful.autofocus")
 -- Personal settings, merged with any per-machine overrides. Requiring this
 -- also pins the UI scale -- see config/init.lua.
 local settings = require("config")
+local apps = require("config.apps")
 
 -- Widget and layout library
 local wibox = require("wibox")
@@ -48,49 +49,6 @@ naughty.config.defaults.margin = 15
 naughty.config.padding = dpi(25)
 naughty.config.spacing = dpi(10)
 
--- Configure lock screen and lock screen wallpaper
-local lock_screen_fg = beautiful.fg_focus:sub(2)
-local lock_screen_hl = beautiful.bg_focus:sub(2)
-local lock_screen_bg = beautiful.bg_normal:sub(2)
-local lock_screen_wp_path = settings.lock_screen_wallpaper
-
-local lock_command = "i3lock -i "
-	.. lock_screen_wp_path
-	.. " -F -f --indicator --clock"
-	.. " --ring-color="
-	.. lock_screen_bg
-	.. " --ringver-color="
-	.. lock_screen_fg
-	.. " --insidever-color="
-	.. lock_screen_bg
-	.. " --insidewrong-color="
-	.. lock_screen_bg
-	.. " --verif-color="
-	.. lock_screen_fg
-	.. " --wrong-color="
-	.. lock_screen_fg
-	.. " --time-color="
-	.. lock_screen_fg
-	.. " --date-color="
-	.. lock_screen_hl
-	.. " --greeter-color="
-	.. lock_screen_hl
-	.. " --layout-color="
-	.. lock_screen_hl
-	.. " --keyhl-color="
-	.. lock_screen_fg
-	.. ' --time-str="%H:%M" --date-str="%A, %Y-%m-%d" --wrong-text="Incorrect" --noinput-text="No input"'
-	.. ' --verif-text="Verifying..."'
-	.. " --custom-key-commands"
-	.. ' --cmd-media-play "playerctl play-pause"'
-	.. ' --cmd-media-next "playerctl next"'
-	.. ' --cmd-media-prev "playerctl previous"'
-	.. ' --cmd-volume-up "pactl set-sink-volume @DEFAULT_SINK@ +2%"'
-	.. ' --cmd-volume-down "pactl set-sink-volume @DEFAULT_SINK@ -2%"'
-	.. ' --cmd-audio-mute "pactl set-sink-mute @DEFAULT_SINK@ toggle"'
-	.. ' --cmd-brightness-up "xbacklight -inc 10"'
-	.. ' --cmd-brightness-down "xbacklight -dec 10"'
-
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -123,9 +81,8 @@ end
 -- }}}
 
 -- This is used later as the default terminal and editor to run.
-local terminal = "kitty --single-instance"
-local editor = os.getenv("EDITOR") or "nvim"
-local editor_cmd = terminal .. " -e " .. editor
+local terminal = apps.terminal
+local editor_cmd = apps.editor_cmd
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
@@ -1061,7 +1018,7 @@ if not os.getenv("AWESOME_NO_AUTOSTART") then
 	awful.spawn.with_shell("blueman-applet")
 	-- configure timeout with `xset s <timeout>`
 	-- Make sure i3lock-color and xss-lock is installed. Automatic locking.
-	awful.spawn.with_shell("pkill xss-lock; xss-lock -l -- " .. lock_command)
+	awful.spawn.with_shell("pkill xss-lock; xss-lock -l -- " .. apps.lock_command())
 	-- Make sure flameshot is installed. Screenshot tool.
 	awful.spawn.with_shell("pkill flameshot; flameshot")
 	-- Make sure dunst is installed. Notification daemon.
