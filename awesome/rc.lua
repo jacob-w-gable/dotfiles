@@ -530,10 +530,14 @@ local globalkeys = gears.table.join(
 
 	-- Personal hotkeys
 	awful.key({ modkey }, "d", function()
-		awful.spawn(os.getenv("HOME") .. "/display_fix.sh")
+		if settings.display_fix_command then
+			awful.spawn(settings.display_fix_command)
+		end
 	end, { description = "refresh displays", group = "hotkeys" }),
 	awful.key({ modkey }, "w", function()
-		awful.spawn.with_shell(os.getenv("HOME") .. "/dotfiles/awesome/theme/wallpaper")
+		-- Config-relative, so it follows the ~/.config/awesome symlink rather
+		-- than assuming the repo is checked out at ~/dotfiles.
+		awful.spawn.with_shell(require("gears.filesystem").get_configuration_dir() .. "theme/wallpaper")
 	end, { description = "change wallpaper", group = "hotkeys" }),
 	awful.key({ modkey }, "c", function()
 		widgets.caffeine.toggle()
@@ -1062,12 +1066,24 @@ if not os.getenv("AWESOME_NO_AUTOSTART") then
 	awful.spawn.with_shell("pkill flameshot; flameshot")
 	-- Make sure dunst is installed. Notification daemon.
 	-- awful.spawn.with_shell("dunst")
-	-- Enable touch to tap on touch pad
-	awful.spawn.with_shell('xinput set-prop "UNIW0001:00 093A:0255 Touchpad" "libinput Tapping Enabled" 1')
-	-- Enable natural scrolling
-	awful.spawn.with_shell('xinput set-prop "UNIW0001:00 093A:0255 Touchpad" "libinput Natural Scrolling Enabled" 1')
+	-- Per-device input tweaks. The device name is hardware-specific, so it
+	-- lives in config/machine.lua.
+	local touchpad = settings.touchpad
+	if touchpad and touchpad.device then
+		local function set_prop(prop, value)
+			awful.spawn.with_shell(
+				string.format('xinput set-prop "%s" "%s" %d', touchpad.device, prop, value)
+			)
+		end
+		set_prop("libinput Tapping Enabled", touchpad.tapping and 1 or 0)
+		set_prop("libinput Natural Scrolling Enabled", touchpad.natural_scrolling and 1 or 0)
+	end
 	-- Configure repeat rate and delay for keyboard ('xset r rate <delay-ms> <rate-ms>')
 	awful.spawn.with_shell("xset r rate 250 60")
+	-- Anything this particular machine wants started, from config/machine.lua.
+	for _, command in ipairs(settings.extra_autostart or {}) do
+		awful.spawn.with_shell(command)
+	end
 	-- Enable compositor
 	if settings.compositor then
 		awful.spawn.with_shell("/usr/local/bin/picom --config ~/.config/picom/picom.conf --animations &")
