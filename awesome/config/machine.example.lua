@@ -12,10 +12,11 @@ return {
 	-- boot, so this is pinned -- and the right value differs per machine.
 	-- dpi = 144,
 
-	-- Extra programs to autostart, as shell commands. Each is only run if its
-	-- binary is on PATH.
+	-- Extra programs to autostart. A plain string is run as-is; the table form
+	-- is skipped when `bin` is not installed, like the built-in entries.
 	-- extra_autostart = {
-	-- 	"nextcloud",
+	-- 	{ bin = "nextcloud", command = "pkill nextcloud; nextcloud" },
+	-- 	"some-command --that-always-runs",
 	-- },
 
 	-- Run at login, e.g. to fix up an external display's mode. Nil means the

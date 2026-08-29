@@ -59,9 +59,15 @@ end
 -- Keyboard repeat delay and rate, in milliseconds.
 run("xset", "xset r rate 250 60")
 
--- Anything this particular machine wants started.
-for _, command in ipairs(settings.extra_autostart or {}) do
-	commands[#commands + 1] = string.format("{ %s; } &", command)
+-- Anything this particular machine wants started. An entry is either a plain
+-- command string, run as-is, or { bin = ..., command = ... } to get the same
+-- command -v guard as everything above.
+for _, entry in ipairs(settings.extra_autostart or {}) do
+	if type(entry) == "table" then
+		run(entry.bin, entry.command)
+	else
+		commands[#commands + 1] = string.format("{ %s; } &", entry)
+	end
 end
 
 if settings.compositor then
