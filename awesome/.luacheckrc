@@ -32,24 +32,3 @@ exclude_files = {
 	"lain/",
 	"vicious/",
 }
-
-files["rc.lua"] = {
-	-- Globals the stock rc.lua defines and the rest of the config reads. They
-	-- are declared here so the genuinely broken reads elsewhere stand out
-	-- instead of drowning in ~50 legitimate uses of `modkey`.
-	--
-	-- This list should shrink to nothing: each name that moves into a module
-	-- and gets passed explicitly comes out of here. When the table is empty,
-	-- delete it.
-	globals = {
-		"clientbuttons",
-		"clientkeys",
-		"editor",
-		"editor_cmd",
-		"globalkeys",
-		"modkey",
-		"mymainmenu",
-		"myawesomemenu",
-		"terminal",
-	},
-}
