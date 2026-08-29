@@ -1,0 +1,5 @@
+# The awesome config is formatted with tabs (stylua's defaults). This file
+# exists to pin that, because nvim/stylua.toml sets spaces and an editor
+# walking up from awesome/ would otherwise find no config at the repo root.
+indent_type = "Tabs"
+column_width = 120

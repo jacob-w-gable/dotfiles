@@ -1,7 +1,16 @@
 {
     "diagnostics.globals": [
         "awesome",
+        "button",
         "client",
-        "root"
+        "dbus",
+        "drawin",
+        "keygrabber",
+        "mouse",
+        "mousegrabber",
+        "root",
+        "screen",
+        "selection",
+        "tag"
     ]
 }

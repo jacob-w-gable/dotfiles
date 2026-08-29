@@ -83,4 +83,8 @@ if [[ "$DEVEL" == "true" ]]; then
   npm install -g @tailwindcss/language-server
   npm install -g neovim
   npm install -g markdownlint-cli
+
+  # Lua linter for the awesome config. Installed through luarocks rather than a
+  # distro package because the package name differs across all three distros.
+  luarocks install --local luacheck
 fi
