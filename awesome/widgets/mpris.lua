@@ -2,6 +2,9 @@ local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 local lfs = require("lfs")
+local theme = require("theme.theme")
+
+local NO_MEDIA = "🎵 No media"
 
 -- Helper to check if a file exists
 local function file_exists(path)
@@ -12,8 +15,8 @@ end
 local art_widget = wibox.widget({
 	widget = wibox.widget.imagebox,
 	resize = true,
-	forced_width = 32,
-	forced_height = 32,
+	forced_width = theme.dpi(32),
+	forced_height = theme.dpi(32),
 })
 
 -- Text widget
@@ -21,11 +24,17 @@ local text_widget = wibox.widget({
 	{
 		id = "text",
 		widget = wibox.widget.textbox,
-		text = "🎵 No media",
+		markup = string.format('<span font="%s">%s</span>', theme.font, NO_MEDIA),
 	},
-	margins = 4,
+	margins = theme.dpi(4),
 	widget = wibox.container.margin,
 })
+
+-- Render through the theme font, the way the other bar widgets do
+local function set_text(text)
+	text_widget:get_children_by_id("text")[1].markup =
+		string.format('<span font="%s">%s</span>', theme.font, gears.string.xml_escape(text))
+end
 
 -- Main widget container
 local media_widget = wibox.widget({
@@ -53,7 +62,7 @@ gears.timer({
 		-- Check if Spotify is running
 		awful.spawn.easy_async_with_shell("playerctl -l", function(players)
 			if not players:match("spotify") then
-				text_widget:get_children_by_id("text")[1].text = "🎵 No media"
+				set_text(NO_MEDIA)
 				art_widget.image = nil
 				return
 			end
@@ -73,9 +82,9 @@ gears.timer({
 					art_url = trim(art_url)
 
 					if artist ~= "" and title ~= "" then
-						text_widget:get_children_by_id("text")[1].text = artist .. " - " .. title
+						set_text(artist .. " - " .. title)
 					else
-						text_widget:get_children_by_id("text")[1].text = "🎵 No media"
+						set_text(NO_MEDIA)
 						art_widget.image = nil
 						return
 					end

@@ -149,6 +149,9 @@ theme.titlebar_maximized_button_normal_inactive = titlebar_icons_path .. "maximi
 -- }}}
 -- }}}
 
+-- Exported so widgets can scale their own sizes the same way the theme does.
+theme.dpi = dpi
+
 return theme
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80
