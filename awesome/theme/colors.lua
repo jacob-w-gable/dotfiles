@@ -1,6 +1,17 @@
 local config_path = require("gears.filesystem").get_configuration_dir()
-package.path = package.path .. ";" .. os.getenv("HOME") .. "/.luarocks/share/lua/5.4/?.lua"
-local json = require("dkjson")
+
+-- Find dkjson under whichever Lua version awesome was built against. This was
+-- hardcoded to 5.4, which is wrong wherever awesome links 5.3 -- and if the
+-- require fails the theme has to keep working, since this runs before the
+-- error handler is installed.
+local lua_version = _VERSION:match("%d+%.%d+")
+package.path = table.concat({
+	package.path,
+	os.getenv("HOME") .. "/.luarocks/share/lua/" .. lua_version .. "/?.lua",
+	os.getenv("HOME") .. "/.luarocks/share/lua/" .. lua_version .. "/?/init.lua",
+}, ";")
+
+local ok, json = pcall(require, "dkjson")
 
 -- Default style
 local style = {
@@ -13,13 +24,19 @@ local style = {
 
 local wal_file = os.getenv("HOME") .. "/.cache/wal/colors.json"
 
-local file = io.open(wal_file, "r")
+local file = ok and io.open(wal_file, "r")
 if file then
 	local contents = file:read("*a")
 	file:close()
 
 	local data, pos, err = json.decode(contents, 1, nil)
 	if err then
+		return style
+	end
+
+	-- A truncated or half-written colors.json would otherwise index nil here
+	-- and take the whole theme down.
+	if type(data) ~= "table" or type(data.special) ~= "table" or type(data.colors) ~= "table" then
 		return style
 	end
 
