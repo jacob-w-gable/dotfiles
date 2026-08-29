@@ -652,6 +652,10 @@ globalkeys = gears.table.join(
 	awful.key({ modkey }, "p", function()
 		awful.spawn("rofi -show drun")
 	end, { description = "application launcher", group = "launcher" }),
+	awful.key({ modkey, "Control" }, "r", widgets.promptbox.show, {
+		description = "run prompt",
+		group = "launcher",
+	}),
 	-- Screenshot
 	awful.key({ modkey, "Shift" }, "s", function()
 		awful.spawn("flameshot gui")
@@ -800,9 +804,6 @@ clientbuttons = gears.table.join(
 		awful.mouse.client.resize(c)
 	end)
 )
-
--- Connect promptbox toggle event
-globalkeys = widgets.promptbox(beautiful, globalkeys)
 
 -- Set keys
 root.keys(globalkeys)
