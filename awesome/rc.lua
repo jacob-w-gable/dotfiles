@@ -17,16 +17,12 @@ local solo = require("solo")
 local wibox = require("wibox")
 -- Theme handling library
 local beautiful = require("beautiful")
--- Notification library
-local naughty = require("naughty")
-local dpi = require("beautiful.xresources").apply_dpi
 
 local hotkeys_popup = require("awful.hotkeys_popup")
 -- Widgets
 local widgets = require("widgets")
 
 local lain = require("lain")
-local centered = lain.layout.centerwork
 
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
@@ -35,55 +31,20 @@ if settings.vim_keys then
 end
 -- require("awful.hotkeys_popup.keys")
 
-local has_fdo, freedesktop = pcall(require, "freedesktop")
-
--- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
 -- Pass the theme table, not a path: beautiful.init uses dofile() for a
 -- string, which bypasses package.loaded and builds a second, separate
 -- theme table from the one the widgets already required.
 beautiful.init(require("theme.theme"))
 
--- Configure naughty to center in the top right with some outer padding
-naughty.config.defaults.position = "bottom_right"
-naughty.config.defaults.margin = 15
-naughty.config.padding = dpi(25)
-naughty.config.spacing = dpi(10)
+require("config.layouts")
+require("ui.errors")
+require("ui.notifications")
+local set_wallpaper = require("ui.wallpaper")
 
--- {{{ Error handling
--- Check if awesome encountered an error during startup and fell back to
--- another config (This code will only ever execute for the fallback config)
-if awesome.startup_errors then
-	naughty.notify({
-		preset = naughty.config.presets.critical,
-		title = "Oops, there were errors during startup!",
-		text = awesome.startup_errors,
-	})
-end
+local mymainmenu = require("ui.menu")
 
--- Handle runtime errors after startup
-do
-	local in_error = false
-	awesome.connect_signal("debug::error", function(err)
-		-- Make sure we don't go into an endless error loop
-		if in_error then
-			return
-		end
-		in_error = true
-
-		naughty.notify({
-			preset = naughty.config.presets.critical,
-			title = "Oops, an error happened!",
-			text = tostring(err),
-		})
-		in_error = false
-	end)
-end
--- }}}
-
--- This is used later as the default terminal and editor to run.
 local terminal = apps.terminal
-local editor_cmd = apps.editor_cmd
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
@@ -92,83 +53,7 @@ local editor_cmd = apps.editor_cmd
 -- However, you can use another modifier like Mod1, but it may interact with others.
 local modkey = settings.modkey
 
--- Table of layouts to cover with awful.layout.inc, order matters.
-awful.layout.layouts = {
-	awful.layout.suit.floating,
-	centered,
-	awful.layout.suit.tile,
-	awful.layout.suit.tile.left,
-	-- awful.layout.suit.tile.bottom,
-	-- awful.layout.suit.tile.top,
-	awful.layout.suit.fair,
-	awful.layout.suit.fair.horizontal,
-	-- awful.layout.suit.spiral,
-	-- awful.layout.suit.spiral.dwindle,
-	awful.layout.suit.max,
-	-- awful.layout.suit.max.fullscreen,
-	-- awful.layout.suit.magnifier,
-	-- awful.layout.suit.corner.nw,
-	-- awful.layout.suit.corner.ne,
-	-- awful.layout.suit.corner.sw,
-	-- awful.layout.suit.corner.se,
-}
 -- }}}
-
--- {{{ Menu
--- Create a launcher widget and a main menu
-local myawesomemenu = {
-	{
-		"hotkeys",
-		function()
-			hotkeys_popup.show_help(nil, awful.screen.focused())
-		end,
-	},
-	{ "manual", terminal .. " -e man awesome" },
-	{ "edit config", editor_cmd .. " " .. awesome.conffile },
-	{ "restart", awesome.restart },
-	{
-		"quit",
-		function()
-			awesome.quit()
-		end,
-	},
-}
-
-local menu_awesome = { "awesome", myawesomemenu, beautiful.awesome_icon }
-local menu_terminal = { "open terminal", terminal }
-
-local mymainmenu
-if has_fdo then
-	mymainmenu = freedesktop.menu.build({
-		before = { menu_awesome },
-		after = { menu_terminal },
-	})
-else
-	mymainmenu = awful.menu({
-		items = {
-			menu_awesome,
-			menu_terminal,
-		},
-	})
-end
--- }}}
-
-local function set_wallpaper(s)
-	-- Wallpaper
-	if beautiful.wallpaper then
-		local wallpaper = beautiful.wallpaper
-		-- If wallpaper is a function, call it with the screen
-		if type(wallpaper) == "function" then
-			wallpaper = wallpaper(s)
-		end
-		-- false = honour the aspect ratio: scale by max(aspect_w, aspect_h)
-		-- and centre, which is what `feh --bg-fill` did.
-		gears.wallpaper.maximized(wallpaper, s, false)
-	end
-end
-
--- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
-screen.connect_signal("property::geometry", set_wallpaper)
 
 -- Define pomodoro widget globally, since we need hotkeys to control it
 local pomo = widgets.pomodoro.new({
