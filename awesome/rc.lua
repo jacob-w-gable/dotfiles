@@ -1080,33 +1080,41 @@ client.connect_signal("unfocus", function(c)
 end)
 -- }}}
 
--- Run applets for system tray.
--- Make sure `nm-tray` is installed. Network manager applet.
-awful.spawn.with_shell("pkill nm-tray; nm-tray")
--- Make sure `pasystray` is installed. Pulse audio control.
-awful.spawn.with_shell("pkill pasystray; pasystray")
--- Make sure `blueman` is installed. Bluetooth control.
-awful.spawn.with_shell("blueman-applet")
--- configure timeout with `xset s <timeout>`
--- Make sure i3lock-color and xss-lock is installed. Automatic locking.
-awful.spawn.with_shell("pkill xss-lock; xss-lock -l -- " .. lock_command)
--- Make sure flameshot is installed. Screenshot tool.
-awful.spawn.with_shell("pkill flameshot; flameshot")
--- Make sure dunst is installed. Notification daemon.
--- awful.spawn.with_shell("dunst")
--- Enable touch to tap on touch pad
-awful.spawn.with_shell('xinput set-prop "UNIW0001:00 093A:0255 Touchpad" "libinput Tapping Enabled" 1')
--- Enable natural scrolling
-awful.spawn.with_shell('xinput set-prop "UNIW0001:00 093A:0255 Touchpad" "libinput Natural Scrolling Enabled" 1')
--- Configure repeat rate and delay for keyboard ('xset r rate <delay-ms> <rate-ms>')
-awful.spawn.with_shell("xset r rate 250 60")
--- Resize wallpaper using fill, so that it fits the screen
-awful.spawn.with_shell("feh --bg-fill " .. beautiful.wallpaper)
--- Enable compositor
-if settings.compositor then
-	awful.spawn.with_shell("/usr/local/bin/picom --config ~/.config/picom/picom.conf --animations &")
+-- Autostart.
+--
+-- Skipped when AWESOME_NO_AUTOSTART is set. Several of these lines pkill a
+-- program before restarting it, which would reach out of a nested X server
+-- (Xephyr) and kill the copy belonging to the real session -- so testing this
+-- config in Xephyr is only safe with the variable set.
+if not os.getenv("AWESOME_NO_AUTOSTART") then
+	-- Run applets for system tray.
+	-- Make sure `nm-tray` is installed. Network manager applet.
+	awful.spawn.with_shell("pkill nm-tray; nm-tray")
+	-- Make sure `pasystray` is installed. Pulse audio control.
+	awful.spawn.with_shell("pkill pasystray; pasystray")
+	-- Make sure `blueman` is installed. Bluetooth control.
+	awful.spawn.with_shell("blueman-applet")
+	-- configure timeout with `xset s <timeout>`
+	-- Make sure i3lock-color and xss-lock is installed. Automatic locking.
+	awful.spawn.with_shell("pkill xss-lock; xss-lock -l -- " .. lock_command)
+	-- Make sure flameshot is installed. Screenshot tool.
+	awful.spawn.with_shell("pkill flameshot; flameshot")
+	-- Make sure dunst is installed. Notification daemon.
+	-- awful.spawn.with_shell("dunst")
+	-- Enable touch to tap on touch pad
+	awful.spawn.with_shell('xinput set-prop "UNIW0001:00 093A:0255 Touchpad" "libinput Tapping Enabled" 1')
+	-- Enable natural scrolling
+	awful.spawn.with_shell('xinput set-prop "UNIW0001:00 093A:0255 Touchpad" "libinput Natural Scrolling Enabled" 1')
+	-- Configure repeat rate and delay for keyboard ('xset r rate <delay-ms> <rate-ms>')
+	awful.spawn.with_shell("xset r rate 250 60")
+	-- Resize wallpaper using fill, so that it fits the screen
+	awful.spawn.with_shell("feh --bg-fill " .. beautiful.wallpaper)
+	-- Enable compositor
+	if settings.compositor then
+		awful.spawn.with_shell("/usr/local/bin/picom --config ~/.config/picom/picom.conf --animations &")
+	end
+	-- awful.spawn.with_shell("tuxedo-control-center")
+	-- awful.spawn.with_shell(
+	-- 	"/usr/local/bin/xwinwrap -g 5120x1440 -ni -fdt -b -un -argb -fs -- /usr/games/steam -applaunch 431960"
+	-- )
 end
--- awful.spawn.with_shell("tuxedo-control-center")
--- awful.spawn.with_shell(
--- 	"/usr/local/bin/xwinwrap -g 5120x1440 -ni -fdt -b -un -argb -fs -- /usr/games/steam -applaunch 431960"
--- )
