@@ -36,8 +36,6 @@ function M.client()
 		end)
 	)
 
-	-- Set keys
-
 	return clientbuttons
 end
 

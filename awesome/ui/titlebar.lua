@@ -48,8 +48,6 @@ client.connect_signal("request::titlebars", function(c)
 	})
 end)
 
--- Enable sloppy focus, so that focus follows mouse.
-
 -- If not in vm_mode, add titlebars dynamically based on floating status
 if not settings.vm_mode then
 	-- Add titlebars dynamically based on floating status

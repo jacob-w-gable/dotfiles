@@ -134,7 +134,7 @@ return function(args)
 			})
 		end, { description = "lua execute prompt", group = "awesome" }),
 		awful.key({ modkey }, "p", function()
-			awful.spawn("rofi -show drun")
+			awful.spawn(apps.launcher)
 		end, { description = "application launcher", group = "launcher" }),
 		awful.key({ modkey, "Control" }, "r", require("widgets.promptbox").show, {
 			description = "run prompt",
@@ -142,7 +142,7 @@ return function(args)
 		}),
 		-- Screenshot
 		awful.key({ modkey, "Shift" }, "s", function()
-			awful.spawn("flameshot gui")
+			awful.spawn(apps.screenshot)
 		end, {
 			description = "take screenshot with flameshot",
 			group = "launcher",

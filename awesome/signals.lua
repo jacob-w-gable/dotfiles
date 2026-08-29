@@ -37,7 +37,7 @@ client.connect_signal("manage", function(c)
 	end
 end)
 
--- Add a titlebar if titlebars_enabled is set to true in the rules.
+-- Enable sloppy focus, so that focus follows mouse.
 client.connect_signal("mouse::enter", function(c)
 	c:emit_signal("request::activate", "mouse_enter", { raise = false })
 end)
