@@ -10,6 +10,8 @@ sudo apt install \
   xorg \
   sddm \
   awesome \
+  awesome-extra \
+  brightnessctl \
   nm-tray \
   pasystray \
   blueman \

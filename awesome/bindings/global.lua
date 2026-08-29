@@ -174,11 +174,11 @@ return function(args)
 		end, { description = "previous track", group = "media" }),
 
 		awful.key({}, "XF86MonBrightnessUp", function()
-			awful.spawn("xbacklight -inc 10")
+			awful.spawn.with_shell(apps.brightness_up)
 		end, { description = "increase brightness", group = "media" }),
 
 		awful.key({}, "XF86MonBrightnessDown", function()
-			awful.spawn("xbacklight -dec 10")
+			awful.spawn.with_shell(apps.brightness_down)
 		end, { description = "decrease brightness", group = "media" }),
 
 		awful.key({ "Mod4" }, "'", function()

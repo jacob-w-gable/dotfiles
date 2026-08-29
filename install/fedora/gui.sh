@@ -14,6 +14,7 @@ sudo dnf install -y \
   xorg-x11-server-Xorg \
   sddm \
   awesome \
+  brightnessctl \
   pasystray \
   blueman \
   xss-lock \
@@ -53,7 +54,6 @@ rm -rf awesome/vicious
 git clone https://github.com/vicious-widgets/vicious.git awesome/vicious
 
 # Extra dependency for awesome stuff
-sudo luarocks install minifs
 
 # For building nm-tray
 sudo dnf install -y \

@@ -24,6 +24,7 @@ sudo pacman -S \
   xorg \
   sddm \
   awesome \
+  brightnessctl \
   pasystray \
   paprefs \
   pavucontrol \
