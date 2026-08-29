@@ -1,8 +1,9 @@
 local vicious = require("vicious")
 local awful = require("awful")
+local wibox = require("wibox")
 
 -- Create the RAM graph widget
-local ramwidget = awful.widget.graph()
+local ramwidget = wibox.widget.graph()
 ramwidget:set_width(50)
 ramwidget:set_background_color("#00000000") -- Transparent background
 ramwidget:set_color({

@@ -1,7 +1,8 @@
 local awful = require("awful")
+local wibox = require("wibox")
 local vicious = require("vicious")
 
-local cpuwidget = awful.widget.graph()
+local cpuwidget = wibox.widget.graph()
 cpuwidget:set_width(50)
 cpuwidget:set_background_color("#00000000") -- Transparent background
 cpuwidget:set_color({
