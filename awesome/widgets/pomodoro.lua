@@ -106,6 +106,52 @@ function pomodoro.new(opts)
 		pending_transition = false,
 	}
 
+	local state_file = opts.state_file or gears.filesystem.get_cache_dir() .. "pomodoro-state.lua"
+
+	local function serialize_state()
+		return string.format(
+			"return { phase=%q, break_kind=%q, running=%s, remaining=%d, total=%d, sessions_done=%d, pending_transition=%s }\n",
+			state.phase,
+			state.break_kind or "",
+			tostring(state.running),
+			state.remaining,
+			state.total,
+			state.sessions_done,
+			tostring(state.pending_transition)
+		)
+	end
+
+	local function save_state()
+		local tmp = state_file .. ".tmp"
+		local f = io.open(tmp, "w")
+		if not f then
+			return
+		end
+		f:write(serialize_state())
+		f:close()
+		os.rename(tmp, state_file)
+	end
+
+	local function load_state()
+		local chunk = loadfile(state_file)
+		if not chunk then
+			return
+		end
+
+		local ok, saved = pcall(chunk)
+		if not ok or type(saved) ~= "table" then
+			return
+		end
+
+		state.phase = saved.phase or "idle"
+		state.break_kind = saved.break_kind ~= "" and saved.break_kind or nil
+		state.running = saved.running == true
+		state.remaining = tonumber(saved.remaining) or 0
+		state.total = tonumber(saved.total) or 0
+		state.sessions_done = tonumber(saved.sessions_done) or 0
+		state.pending_transition = saved.pending_transition == true
+	end
+
 	local icon = wibox.widget({ widget = wibox.widget.textbox, text = "󰄉 " })
 	local label = wibox.widget({ widget = wibox.widget.textbox, text = "Pomo" })
 	local timebox = wibox.widget({ widget = wibox.widget.textbox, text = "00:00" })
@@ -205,6 +251,8 @@ function pomodoro.new(opts)
 			local kind = (break_kind == "long") and "Long break" or "Short break"
 			notify("Pomodoro", string.format("%s started (%s)", kind, fmt_mmss(seconds)))
 		end
+
+		save_state()
 	end
 
 	local function stop_all()
@@ -217,6 +265,8 @@ function pomodoro.new(opts)
 		set_color()
 		set_text()
 		notify("Pomodoro", "Stopped")
+
+		save_state()
 	end
 
 	local function next_phase()
@@ -231,6 +281,8 @@ function pomodoro.new(opts)
 		else
 			start_phase("work", work_s, nil)
 		end
+
+		save_state()
 	end
 
 	local timer = gears.timer({
@@ -246,6 +298,8 @@ function pomodoro.new(opts)
 			if state.remaining < 0 then
 				state.remaining = 0
 			end
+
+			save_state()
 
 			if show_progress and state.total > 0 then
 				bar.value = (state.total - state.remaining) / state.total
@@ -305,6 +359,7 @@ function pomodoro.new(opts)
 
 		state.running = not state.running
 		set_color()
+		save_state()
 		notify(
 			"Pomodoro",
 			(state.running and "Resumed" or "Paused") .. " (" .. (state.phase == "work" and "Work" or "Break") .. ")"
@@ -371,8 +426,13 @@ function pomodoro.new(opts)
 		end)
 	))
 
+	load_state()
 	set_text()
 	set_color()
+
+	if show_progress and state.total > 0 then
+		bar.value = (state.total - state.remaining) / state.total
+	end
 
 	return api
 end
