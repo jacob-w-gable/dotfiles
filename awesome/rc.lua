@@ -222,7 +222,9 @@ local function set_wallpaper(s)
 		if type(wallpaper) == "function" then
 			wallpaper = wallpaper(s)
 		end
-		gears.wallpaper.maximized(wallpaper, s, true)
+		-- false = honour the aspect ratio: scale by max(aspect_w, aspect_h)
+		-- and centre, which is what `feh --bg-fill` did.
+		gears.wallpaper.maximized(wallpaper, s, false)
 	end
 end
 
@@ -1085,8 +1087,6 @@ if not os.getenv("AWESOME_NO_AUTOSTART") then
 	awful.spawn.with_shell('xinput set-prop "UNIW0001:00 093A:0255 Touchpad" "libinput Natural Scrolling Enabled" 1')
 	-- Configure repeat rate and delay for keyboard ('xset r rate <delay-ms> <rate-ms>')
 	awful.spawn.with_shell("xset r rate 250 60")
-	-- Resize wallpaper using fill, so that it fits the screen
-	awful.spawn.with_shell("feh --bg-fill " .. beautiful.wallpaper)
 	-- Enable compositor
 	if settings.compositor then
 		awful.spawn.with_shell("/usr/local/bin/picom --config ~/.config/picom/picom.conf --animations &")
