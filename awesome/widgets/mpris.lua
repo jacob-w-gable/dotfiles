@@ -24,20 +24,36 @@ end
 -- Each view is { text, art }; one poller feeds them all.
 local set = views.new(function(view, data)
 	view.text.markup = string.format('<span font="%s">%s</span>', beautiful.font, gears.string.xml_escape(data.text))
-	view.art.image = data.art and gears.surface.load_uncached(data.art) or nil
+
+	-- Only touch the imagebox when the art has actually changed. The file path
+	-- is stable now, so imagebox's own "same image" short-circuit cannot help:
+	-- load_uncached returns a fresh surface every call, which would re-decode
+	-- the jpeg and invalidate the bar on every push, twice per poll, forever.
+	if data.art_token ~= view.art_token then
+		view.art_token = data.art_token
+		view.art.image = data.art and gears.surface.load_uncached(data.art) or nil
+	end
 end, { text = NO_MEDIA, art = nil })
 
 -- Text and art are pushed independently: the track name should appear as soon
 -- as playerctl answers, not wait on the album art download.
-local shown = { text = NO_MEDIA, art = nil }
+-- art_token changes only when the artwork does, so views can tell a genuine
+-- change from a repeated push of the same track.
+local shown = { text = NO_MEDIA, art = nil, art_token = nil }
 local last_art_url
 
 local function push()
-	set.set({ text = shown.text, art = shown.art })
+	set.set({ text = shown.text, art = shown.art, art_token = shown.art_token })
+end
+
+local function set_art(path, token)
+	shown.art, shown.art_token = path, token
 end
 
 local function show_nothing()
-	shown.text, shown.art, last_art_url = NO_MEDIA, nil, nil
+	shown.text = NO_MEDIA
+	set_art(nil, nil)
+	last_art_url = nil
 	push()
 end
 
@@ -66,21 +82,24 @@ local function poll()
 				push()
 
 				if not art_url:match("^https?://") then
-					shown.art, last_art_url = nil, nil
+					set_art(nil, nil)
+					last_art_url = nil
 					return push()
 				end
 
-				-- Only re-fetch when the track actually changed.
+				-- Already downloaded for this track: nothing more to do.
 				if art_url == last_art_url and file_exists(ART_PATH) then
-					shown.art = ART_PATH
-					return push()
+					return
 				end
 
-				last_art_url = art_url
 				awful.spawn.easy_async_with_shell(
 					string.format("curl -s -L -o %s '%s'", ART_PATH, art_url),
 					function()
-						shown.art = file_exists(ART_PATH) and ART_PATH or nil
+						-- Recorded here rather than before the download: the
+						-- path is shared now, so claiming the url up front lets
+						-- the next poll hand out a file curl is still writing.
+						last_art_url = art_url
+						set_art(file_exists(ART_PATH) and ART_PATH or nil, art_url)
 						push()
 					end
 				)
