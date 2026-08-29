@@ -5,7 +5,11 @@ local views = require("widgets.views")
 
 -- Each view is { graph, tooltip }; one vicious registration feeds them all.
 local set = views.new(function(view, data)
-	view.graph:add_value(data.value)
+	-- The graph's max_value is 1, so a percentage has to be normalised before
+	-- add_value or it clamps to a permanently full graph. vicious does this
+	-- itself (topercent, vicious/init.lua:102); feeding the graph directly
+	-- means doing it here.
+	view.graph:add_value(data.value / 100)
 	view.tooltip.text = data.text
 end)
 
