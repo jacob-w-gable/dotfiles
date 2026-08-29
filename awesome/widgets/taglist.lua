@@ -1,8 +1,7 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
-local colors = require("theme.colors")
-local alpha = require("theme.alpha")
+local variants = require("theme.variants")
 local settings = require("config")
 
 local modkey = settings.modkey
@@ -31,7 +30,7 @@ local taglist_buttons = gears.table.join(
 )
 
 local function build_taglist(s)
-	if settings.theme == "squircle" then
+	if variants.is_squircle() then
 		return awful.widget.taglist({
 			screen = s,
 			filter = awful.widget.taglist.filter.all,
@@ -92,25 +91,4 @@ local function build_taglist(s)
 	})
 end
 
-local function theme(style)
-	if settings.theme == "squircle" then
-		style.taglist_bg_occupied = alpha(colors.highlight_color, "faint")
-		style.taglist_bg_empty = alpha(colors.highlight_color, "faint")
-		style.taglist_fg_focus = colors.background_color
-		style.taglist_shape = function(cr, w, h)
-			gears.shape.rounded_rect(cr, w, h, 6)
-		end
-		style.taglist_spacing = 6
-		return style
-	end
-
-	-- Default to powerline style
-	style.taglist_shape = gears.shape.powerline
-	style.taglist_spacing = -12
-	return style
-end
-
-return {
-	new = build_taglist,
-	theme = theme,
-}
+return { new = build_taglist }

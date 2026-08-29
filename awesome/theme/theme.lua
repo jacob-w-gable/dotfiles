@@ -44,7 +44,7 @@ theme.tasklist_fg_focus = brighten(colors.highlight_color, 0.4)
 -- }}}
 
 -- {{{ Taglist
-theme = require("widgets.taglist").theme(theme)
+theme = require("theme.variants").apply_taglist(theme)
 -- }}}
 
 -- {{{ Borders

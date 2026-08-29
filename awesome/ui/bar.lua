@@ -6,8 +6,8 @@ local wibox = require("wibox")
 local beautiful = require("beautiful")
 local lain = require("lain")
 
-local settings = require("config")
 local alpha = require("theme.alpha")
+local variants = require("theme.variants")
 local battery = require("widgets.battery")
 local caffeine = require("widgets.caffeine")
 local clock_widget = require("widgets.clock")
@@ -115,7 +115,7 @@ return function(args)
 		local function right_widgets()
 			local list = right_widget_list()
 
-			if settings.theme == "squircle" then
+			if variants.is_squircle() then
 				local container = {
 					layout = wibox.layout.fixed.horizontal,
 					spacing = 24,
