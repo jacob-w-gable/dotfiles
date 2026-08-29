@@ -250,6 +250,23 @@ end
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
 
+-- Define pomodoro widget globally, since we need hotkeys to control it
+local pomo = widgets.pomodoro.new({
+	work_minutes = 25,
+	short_break_minutes = 5,
+	long_break_minutes = 5,
+	long_break_every = 17,
+	auto_advance = true,
+	show_progress = false,
+	notify = true,
+	sound = {
+		enabled = true,
+		on_finish = os.getenv("HOME") .. "/.config/awesome/theme/alarm1.wav",
+		-- on_start = os.getenv("HOME") .. "/.config/awesome/sounds/chime.mp3",
+		player = "paplay",
+	},
+})
+
 awful.screen.connect_for_each_screen(function(s)
 	-- Wallpaper
 	set_wallpaper(s)
@@ -311,22 +328,6 @@ awful.screen.connect_for_each_screen(function(s)
 			font = beautiful.font,
 			bg = beautiful.notification_bg,
 			fg = beautiful.fg_normal,
-		},
-	})
-
-	local pomo = widgets.pomodoro.new({
-		work_minutes = 25,
-		short_break_minutes = 5,
-		long_break_minutes = 5,
-		long_break_every = 17,
-		auto_advance = true,
-		show_progress = true,
-		notify = true,
-		sound = {
-			enabled = true,
-			on_finish = os.getenv("HOME") .. "/.config/awesome/theme/alarm1.wav",
-			-- on_start = os.getenv("HOME") .. "/.config/awesome/sounds/chime.mp3",
-			player = "paplay",
 		},
 	})
 
@@ -584,6 +585,12 @@ globalkeys = gears.table.join(
 		end
 		awful.spawn("redshift -O 3500")
 	end, { description = "toggle eye saver mode", group = "hotkeys" }),
+	awful.key({ modkey, "Shift" }, "p", function()
+		pomo.toggle_visible()
+	end, {
+		description = "Toggle pomodoro widget",
+		group = "hotkeys",
+	}),
 
 	awful.key({ modkey }, "j", function()
 		focus_next_in_max(-1)

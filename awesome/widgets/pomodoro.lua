@@ -65,11 +65,14 @@ function pomodoro.new(opts)
 
 	-- If you want to hardcode a player, set opts.sound.player.
 	-- Otherwise we pick the first available.
-	local function play_sound(path)
+	local function play_sound(path, wrapper)
 		if not sound_enabled then
 			return
 		end
 		if not path or path == "" then
+			return
+		end
+		if wrapper and not wrapper.visible then
 			return
 		end
 
@@ -185,6 +188,11 @@ function pomodoro.new(opts)
 		container:add(bar)
 	end
 
+	local wrapper = wibox.container.margin(container)
+
+	local visible = opts.visible ~= false
+	wrapper.visible = visible
+
 	local function notify(title, text)
 		if not do_notify then
 			return
@@ -240,7 +248,7 @@ function pomodoro.new(opts)
 		set_color()
 		set_text()
 
-		play_sound(sound_start)
+		play_sound(sound_start, wrapper)
 
 		if phase == "work" then
 			notify(
@@ -312,7 +320,7 @@ function pomodoro.new(opts)
 				state.running = false
 				set_color()
 
-				play_sound(sound_finish)
+				play_sound(sound_finish, wrapper)
 
 				if state.phase == "work" then
 					notify("Pomodoro", "Work complete ✅")
@@ -334,7 +342,23 @@ function pomodoro.new(opts)
 	local api = {}
 
 	function api.widget()
-		return container
+		return wrapper
+	end
+
+	function api.show()
+		wrapper.visible = true
+	end
+
+	function api.hide()
+		wrapper.visible = false
+	end
+
+	function api.toggle_visible()
+		wrapper.visible = not wrapper.visible
+	end
+
+	function api.is_visible()
+		return wrapper.visible
 	end
 
 	function api.start_work()
