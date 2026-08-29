@@ -2,7 +2,7 @@ local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 local beautiful = require("beautiful")
-local settings = require("settings")
+local settings = require("config")
 
 -- A centered run prompt in its own floating popup, separate from the
 -- awful.widget.prompt that lives in the wibar.

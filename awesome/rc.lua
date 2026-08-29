@@ -2,36 +2,14 @@
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 pcall(require, "luarocks.loader")
 
--- Personal settings
-local settings = require("settings")
-
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
 require("awful.autofocus")
 
--- Pin the UI scale before the theme or any widget reads it. Left alone,
--- awesome takes its DPI from the X server, which derives it from EDID at
--- server startup -- so the value depends on which display is awake at boot and
--- the whole UI resizes between reboots. See settings.dpi.
---
--- Both halves are required and neither implies the other: the global value
--- feeds beautiful.xresources.apply_dpi (borders, gaps, menu sizes), while text
--- is laid out by pango at the *per-screen* DPI. This must come after
--- require("awful"), which is what installs the screen.dpi property.
-local xresources = require("beautiful.xresources")
-assert(type(settings.dpi) == "number", "settings.dpi must be a number")
-assert(settings.dpi > 0, "settings.dpi must be positive")
-xresources.set_dpi(settings.dpi)
-
-local function pin_screen_dpi(s)
-	s.dpi = settings.dpi
-end
-
-for s in screen do
-	pin_screen_dpi(s)
-end
-screen.connect_signal("added", pin_screen_dpi)
+-- Personal settings, merged with any per-machine overrides. Requiring this
+-- also pins the UI scale -- see config/init.lua.
+local settings = require("config")
 
 -- Widget and layout library
 local wibox = require("wibox")

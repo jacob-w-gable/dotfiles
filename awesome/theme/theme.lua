@@ -1,4 +1,4 @@
-local settings = require("../settings")
+local settings = require("config")
 local colors = require("theme.colors")
 
 local gears = require("gears")

@@ -2,7 +2,7 @@ local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 local colors = require("theme.colors")
-local settings = require("settings")
+local settings = require("config")
 
 local modkey = settings.modkey
 

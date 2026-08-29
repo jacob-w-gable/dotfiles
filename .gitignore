@@ -11,3 +11,6 @@ awesome/vicious
 awesome/lain
 chromium/Pywal
 __pycache__
+
+# Per-machine awesome overrides (see awesome/config/machine.example.lua)
+awesome/config/machine.lua
