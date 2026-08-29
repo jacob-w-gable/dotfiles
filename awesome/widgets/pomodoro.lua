@@ -438,6 +438,29 @@ function pomodoro.new(opts)
 		notify("Pomodoro", "Sound updated")
 	end
 
+	function api.adjust_remaining(delta)
+		if state.phase == "idle" then
+			return
+		end
+
+		state.remaining = state.remaining + delta
+
+		if state.remaining < 0 then
+			state.remaining = 0
+		end
+
+		if state.remaining > state.total then
+			state.total = state.remaining
+		end
+
+		if show_progress and state.total > 0 then
+			bar.value = (state.total - state.remaining) / state.total
+		end
+
+		set_text()
+		save_state()
+	end
+
 	container:buttons(gears.table.join(
 		awful.button({}, 1, function()
 			api.toggle()
@@ -447,6 +470,12 @@ function pomodoro.new(opts)
 		end),
 		awful.button({}, 3, function()
 			api.skip()
+		end),
+		awful.button({}, 4, function()
+			api.adjust_remaining(10)
+		end),
+		awful.button({}, 5, function()
+			api.adjust_remaining(-10)
 		end)
 	))
 
