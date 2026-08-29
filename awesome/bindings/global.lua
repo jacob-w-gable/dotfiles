@@ -7,7 +7,6 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 local settings = require("config")
 local apps = require("config.apps")
 local solo = require("solo")
-local widgets = require("widgets")
 
 local modkey = settings.modkey
 local terminal = apps.terminal
@@ -38,7 +37,7 @@ return function(args)
 			awful.spawn.with_shell(require("gears.filesystem").get_configuration_dir() .. "theme/wallpaper")
 		end, { description = "change wallpaper", group = "hotkeys" }),
 		awful.key({ modkey }, "c", function()
-			widgets.caffeine.toggle()
+			require("widgets.caffeine").toggle()
 		end, { description = "toggle caffeine", group = "hotkeys" }),
 		awful.key({ modkey }, "e", function()
 			redshift_enabled = not redshift_enabled
@@ -137,7 +136,7 @@ return function(args)
 		awful.key({ modkey }, "p", function()
 			awful.spawn("rofi -show drun")
 		end, { description = "application launcher", group = "launcher" }),
-		awful.key({ modkey, "Control" }, "r", widgets.promptbox.show, {
+		awful.key({ modkey, "Control" }, "r", require("widgets.promptbox").show, {
 			description = "run prompt",
 			group = "launcher",
 		}),

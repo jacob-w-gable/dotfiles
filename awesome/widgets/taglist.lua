@@ -110,6 +110,6 @@ local function theme(style)
 end
 
 return {
-	widget = build_taglist,
+	new = build_taglist,
 	theme = theme,
 }

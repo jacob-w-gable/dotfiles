@@ -1,17 +1,17 @@
 local wibox = require("wibox")
 local gears = require("gears")
 local awful = require("awful")
-local theme = require("theme.theme")
+local beautiful = require("beautiful")
+local views = require("widgets.views")
 
-local weather_widget = wibox.widget.textbox()
-local weather_widget_with_margin = wibox.container.margin(weather_widget, 5, 5, 0, 0)
+local set = views.new()
 
 local lat = nil
 local lon = nil
 local forecast_url = nil
 
 local function set_text(text)
-	weather_widget.markup = string.format('<span font="%s">%s</span>', theme.font, text)
+	set.set(string.format('<span font="%s">%s</span>', beautiful.font, text))
 end
 
 local function forecast_to_icon(forecast)
@@ -174,28 +174,37 @@ local function update_weather()
 	end)
 end
 
--- Initial fetch
-update_weather()
+local M = {}
 
--- Refresh weather every 10 minutes
-gears.timer({
-	timeout = 600,
-	autostart = true,
-	call_now = false,
-	callback = update_weather,
-})
+function M.new()
+	local textbox = set.add(wibox.widget.textbox())
 
--- Refresh location every 12 hours
-gears.timer({
-	timeout = 43200,
-	autostart = true,
-	call_now = false,
-	callback = function()
-		lat = nil
-		lon = nil
-		forecast_url = nil
+	set.start_once(function()
 		update_weather()
-	end,
-})
 
-return weather_widget_with_margin
+		-- Refresh weather every 10 minutes
+		gears.timer({
+			timeout = 600,
+			autostart = true,
+			call_now = false,
+			callback = update_weather,
+		})
+
+		-- Refresh location every 12 hours
+		gears.timer({
+			timeout = 43200,
+			autostart = true,
+			call_now = false,
+			callback = function()
+				lat = nil
+				lon = nil
+				forecast_url = nil
+				update_weather()
+			end,
+		})
+	end)
+
+	return wibox.container.margin(textbox, 5, 5, 0, 0)
+end
+
+return M

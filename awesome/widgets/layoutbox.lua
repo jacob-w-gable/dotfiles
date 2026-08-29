@@ -28,4 +28,4 @@ local function build_layoutbox(s)
 	return layoutbox
 end
 
-return build_layoutbox
+return { new = build_layoutbox }

@@ -7,7 +7,18 @@ local beautiful = require("beautiful")
 local lain = require("lain")
 
 local settings = require("config")
-local widgets = require("widgets")
+local battery = require("widgets.battery")
+local caffeine = require("widgets.caffeine")
+local clock_widget = require("widgets.clock")
+local cpugraph = require("widgets.cpugraph")
+local cputemp = require("widgets.cputemp")
+local layoutbox = require("widgets.layoutbox")
+local mpris = require("widgets.mpris")
+local ramgraph = require("widgets.ramgraph")
+local taglist = require("widgets.taglist")
+local tasklist = require("widgets.tasklist")
+local volume = require("widgets.volume")
+local weather = require("widgets.weather")
 local set_wallpaper = require("ui.wallpaper")
 
 return function(args)
@@ -27,11 +38,11 @@ return function(args)
 		s.mypromptbox = awful.widget.prompt()
 		-- Create an imagebox widget which will contain an icon indicating which layout we're using.
 		-- We need one layoutbox per screen.
-		s.mylayoutbox = widgets.layoutbox(s)
+		s.mylayoutbox = layoutbox.new(s)
 		-- Create a taglist widget
-		s.mytaglist = widgets.taglist.widget(s)
+		s.mytaglist = taglist.new(s)
 		-- Create a tasklist widget
-		s.mytasklist = widgets.tasklist(s)
+		s.mytasklist = tasklist.new(s)
 
 		local awful_bg = beautiful.bg_normal
 		if settings.opacity then
@@ -66,7 +77,7 @@ return function(args)
 			}
 		end
 
-		local clock = widgets.clock
+		local clock = clock_widget.new()
 		lain.widget.cal({
 			attach_to = { clock },
 			followtag = true,
@@ -77,9 +88,37 @@ return function(args)
 			},
 		})
 
+		-- The bar's right-hand side, in order. Defined once; each theme variant
+		-- only decides how to decorate it, so adding a widget is a one-line
+		-- change rather than an edit to two parallel lists that must agree.
+		--
+		-- The pomodoro and the systray are single objects by nature -- one
+		-- timer, and an X selection awesome can only own once -- so they go on
+		-- the primary screen only. Everything else is built per screen.
+		local function right_widget_list()
+			local list = {}
+
+			if s == screen.primary then
+				list[#list + 1] = { name = "pomodoro", widget = pomo.widget() }
+				list[#list + 1] = { name = "systray", widget = wibox.widget.systray() }
+			end
+
+			list[#list + 1] = { name = "caffeine", widget = caffeine.new() }
+			list[#list + 1] = { name = "mpris", widget = mpris.new() }
+			list[#list + 1] = { name = "volume", widget = volume.new() }
+			list[#list + 1] = { name = "battery", widget = battery.new() }
+			list[#list + 1] = { name = "weather", widget = weather.new() }
+			list[#list + 1] = { name = "clock", widget = clock }
+			list[#list + 1] = { name = "layoutbox", widget = s.mylayoutbox }
+
+			return list
+		end
+
 		local function right_widgets()
+			local list = right_widget_list()
+
 			if settings.theme == "squircle" then
-				return {
+				local container = {
 					layout = wibox.layout.fixed.horizontal,
 					spacing = 24,
 					spacing_widget = {
@@ -88,27 +127,31 @@ return function(args)
 						color = beautiful.bg_focus .. "88",
 						widget = wibox.widget.separator,
 					},
-					pomo.widget(),
-					wibox.widget.systray(),
-					widgets.caffeine.widget,
-					widgets.mpris,
-					widgets.volume,
-					widgets.battery,
-					widgets.weather,
-					{
-						layout = wibox.layout.fixed.horizontal,
-						clock,
-						{
-							widget = wibox.container.margin,
-							right = 12,
-							left = 12,
-							s.mylayoutbox,
-						},
-					},
 				}
+
+				for _, entry in ipairs(list) do
+					if entry.name == "layoutbox" then
+						-- Shares the clock's slot rather than getting a
+						-- separator of its own.
+						container[#container] = {
+							layout = wibox.layout.fixed.horizontal,
+							container[#container],
+							{
+								widget = wibox.container.margin,
+								right = 12,
+								left = 12,
+								entry.widget,
+							},
+						}
+					else
+						container[#container + 1] = entry.widget
+					end
+				end
+
+				return container
 			end
 
-			return { -- Right widgets
+			local container = {
 				layout = wibox.layout.fixed.horizontal,
 				spacing = 12,
 				style = {
@@ -121,16 +164,15 @@ return function(args)
 					end,
 					widget = wibox.widget.separator,
 				},
-				powerline_left_secondary(pomo.widget()),
-				powerline_left_primary(wibox.widget.systray()),
-				powerline_left_secondary(widgets.caffeine.widget),
-				powerline_left_primary(widgets.mpris),
-				powerline_left_secondary(widgets.volume),
-				powerline_left_primary(widgets.battery),
-				powerline_left_secondary(widgets.weather),
-				powerline_left_primary(clock),
-				powerline_left_secondary(s.mylayoutbox),
 			}
+
+			-- Alternating fills, starting on the secondary colour.
+			for i, entry in ipairs(list) do
+				local wrap = (i % 2 == 1) and powerline_left_secondary or powerline_left_primary
+				container[#container + 1] = wrap(entry.widget)
+			end
+
+			return container
 		end
 
 		-- Add widgets to the wibox
@@ -147,9 +189,9 @@ return function(args)
 					margins = 10,
 					widget = wibox.container.margin,
 				},
-				widgets.ramgraph,
-				widgets.cpugraph,
-				widgets.cputemp,
+				ramgraph.new(),
+				cpugraph.new(),
+				cputemp.new(),
 				{
 					margins = 5,
 					widget = wibox.container.margin,

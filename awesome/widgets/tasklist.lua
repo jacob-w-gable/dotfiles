@@ -61,4 +61,4 @@ local function build_tasklist(s)
 	})
 end
 
-return build_tasklist
+return { new = build_tasklist }

@@ -1,79 +1,78 @@
 local wibox = require("wibox")
 local awful = require("awful")
 local gears = require("gears")
-local theme = require("theme.theme")
+local beautiful = require("beautiful")
+local views = require("widgets.views")
 
-local volume_widget = wibox.widget({
-	widget = wibox.container.background,
-	{
-		widget = wibox.container.margin,
-		margins = 4,
-		{
-			widget = wibox.widget.textbox,
-			id = "volume_text",
-			markup = string.format('<span font="%s">Vol: --</span>', theme.font),
-		},
-	},
-})
+local NO_VOLUME = "Vol: --"
 
-local function set_volume_text(widget, text)
-	widget:get_children_by_id("volume_text")[1].markup = string.format('<span font="%s">%s</span>', theme.font, text)
+local set = views.new()
+
+local function markup(text)
+	return string.format('<span font="%s">%s</span>', beautiful.font, text)
 end
 
-local function update_volume(widget)
-	awful.spawn.easy_async({ "pactl", "get-sink-volume", "@DEFAULT_SINK@" }, function(stdout, stderr, reason, exit_code)
+local function update()
+	awful.spawn.easy_async({ "pactl", "get-sink-volume", "@DEFAULT_SINK@" }, function(stdout, _, _, exit_code)
 		if exit_code ~= 0 then
-			set_volume_text(widget, "Vol: --")
-			return
+			return set.set(markup(NO_VOLUME))
 		end
 
 		local volume = stdout:match("(%d+)%%")
-
-		if not volume then
-			set_volume_text(widget, "Vol: --")
-			return
-		end
-
-		set_volume_text(widget, string.format("Vol: %s%%", volume))
+		set.set(markup(volume and string.format("Vol: %s%%", volume) or NO_VOLUME))
 	end)
 end
 
--- Initial update
-update_volume(volume_widget)
-
-awesome.connect_signal("volume::update", function()
-	update_volume(volume_widget)
-end)
-
-volume_widget:buttons(gears.table.join(
-	awful.button({}, 4, function()
-		awful.spawn.easy_async({ "pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%" }, function()
-			awesome.emit_signal("volume::update")
-		end)
-	end),
-
-	awful.button({}, 5, function()
-		awful.spawn.easy_async({ "pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%" }, function()
-			awesome.emit_signal("volume::update")
-		end)
-	end),
-
-	awful.button({}, 1, function()
-		awful.spawn.easy_async({ "pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle" }, function()
-			awesome.emit_signal("volume::update")
-		end)
-	end)
-))
-
--- Keep in sync with external changes (e.g. keyboard media keys,
--- pavucontrol, etc.)
-gears.timer({
-	timeout = 5,
-	autostart = true,
-	call_now = false,
-	callback = function()
+local function adjust(args)
+	awful.spawn.easy_async(args, function()
 		awesome.emit_signal("volume::update")
-	end,
-})
+	end)
+end
 
-return volume_widget
+local M = {}
+
+function M.new()
+	local textbox = set.add(wibox.widget.textbox(markup(NO_VOLUME)))
+
+	local widget = wibox.widget({
+		widget = wibox.container.background,
+		{
+			widget = wibox.container.margin,
+			margins = 4,
+			textbox,
+		},
+	})
+
+	widget:buttons(gears.table.join(
+		awful.button({}, 4, function()
+			adjust({ "pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%" })
+		end),
+		awful.button({}, 5, function()
+			adjust({ "pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%" })
+		end),
+		awful.button({}, 1, function()
+			adjust({ "pactl", "set-sink-mute", "@DEFAULT_SINK@", "toggle" })
+		end)
+	))
+
+	set.start_once(function()
+		awesome.connect_signal("volume::update", update)
+
+		-- Catch changes made outside awesome: pavucontrol, another session's
+		-- media keys, a device switch.
+		gears.timer({
+			timeout = 5,
+			autostart = true,
+			call_now = false,
+			callback = function()
+				awesome.emit_signal("volume::update")
+			end,
+		})
+
+		update()
+	end)
+
+	return widget
+end
+
+return M

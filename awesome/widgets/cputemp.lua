@@ -1,14 +1,26 @@
 local vicious = require("vicious")
 local wibox = require("wibox")
-local theme = require("theme.theme")
+local beautiful = require("beautiful")
+local views = require("widgets.views")
 
--- Create a text widget for CPU temperature
-local cputempwidget = wibox.widget.textbox()
--- Add margin around the CPU temperature widget
-local cputempwidget_with_margin = wibox.container.margin(cputempwidget, 20, 10, 0, 0) -- Left, Right, Top, Bottom margins
--- Register the CPU temperature widget with vicious
-vicious.register(cputempwidget, vicious.widgets.thermal, function(widget, args)
-	return string.format('<span font="%s">%d°C</span>', theme.font, args[1])
-end, 7, "thermal_zone0")
+local set = views.new()
 
-return cputempwidget_with_margin
+-- See battery.lua: drives a single poll, never displayed.
+local driver = wibox.widget.textbox()
+
+local M = {}
+
+function M.new()
+	local textbox = set.add(wibox.widget.textbox())
+
+	set.start_once(function()
+		vicious.register(driver, vicious.widgets.thermal, function(_, args)
+			set.set(string.format('<span font="%s">%d°C</span>', beautiful.font, args[1]))
+			return ""
+		end, 7, "thermal_zone0")
+	end)
+
+	return wibox.container.margin(textbox, 20, 10, 0, 0)
+end
+
+return M

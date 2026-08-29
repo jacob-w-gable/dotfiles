@@ -1,14 +1,27 @@
 local vicious = require("vicious")
 local wibox = require("wibox")
-local theme = require("theme.theme")
+local beautiful = require("beautiful")
+local views = require("widgets.views")
 
--- Create a text widget for the battery
-local batwidget = wibox.widget.textbox()
--- Add margin around the battery widget
-local batwidget_with_margin = wibox.container.margin(batwidget, 5, 5, 0, 0) -- Left, Right, Top, Bottom margins
--- Register the battery widget with vicious
-vicious.register(batwidget, vicious.widgets.bat, function(widget, args)
-	return string.format('<span font="%s">Bat: %d%%</span>', theme.font, args[2])
-end, 61, "BAT0")
+local set = views.new()
 
-return batwidget_with_margin
+-- Registered with vicious but never displayed: it exists so there is exactly
+-- one battery poll regardless of how many screens show the widget.
+local driver = wibox.widget.textbox()
+
+local M = {}
+
+function M.new()
+	local textbox = set.add(wibox.widget.textbox())
+
+	set.start_once(function()
+		vicious.register(driver, vicious.widgets.bat, function(_, args)
+			set.set(string.format('<span font="%s">Bat: %d%%</span>', beautiful.font, args[2]))
+			return ""
+		end, 61, "BAT0")
+	end)
+
+	return wibox.container.margin(textbox, 5, 5, 0, 0)
+end
+
+return M

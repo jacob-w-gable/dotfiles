@@ -15,7 +15,6 @@ local solo = require("solo")
 local beautiful = require("beautiful")
 
 -- Widgets
-local widgets = require("widgets")
 
 
 -- Enable hotkeys help widget for VIM and other apps
@@ -39,7 +38,7 @@ require("ui.wallpaper")
 local mymainmenu = require("ui.menu")
 
 -- Define pomodoro widget globally, since we need hotkeys to control it
-local pomo = widgets.pomodoro.new({
+local pomo = require("widgets.pomodoro").new({
 	work_minutes = 25,
 	short_break_minutes = 5,
 	long_break_minutes = 5,
