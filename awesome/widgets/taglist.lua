@@ -2,6 +2,7 @@ local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 local colors = require("theme.colors")
+local alpha = require("theme.alpha")
 local settings = require("config")
 
 local modkey = settings.modkey
@@ -93,8 +94,8 @@ end
 
 local function theme(style)
 	if settings.theme == "squircle" then
-		style.taglist_bg_occupied = colors.highlight_color .. "33"
-		style.taglist_bg_empty = colors.highlight_color .. "33"
+		style.taglist_bg_occupied = alpha(colors.highlight_color, "faint")
+		style.taglist_bg_empty = alpha(colors.highlight_color, "faint")
 		style.taglist_fg_focus = colors.background_color
 		style.taglist_shape = function(cr, w, h)
 			gears.shape.rounded_rect(cr, w, h, 6)

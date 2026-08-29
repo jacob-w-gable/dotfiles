@@ -7,6 +7,7 @@ local beautiful = require("beautiful")
 local lain = require("lain")
 
 local settings = require("config")
+local alpha = require("theme.alpha")
 local battery = require("widgets.battery")
 local caffeine = require("widgets.caffeine")
 local clock_widget = require("widgets.clock")
@@ -44,10 +45,7 @@ return function(args)
 		-- Create a tasklist widget
 		s.mytasklist = tasklist.new(s)
 
-		local awful_bg = beautiful.bg_normal
-		if settings.opacity then
-			awful_bg = beautiful.bg_normal .. "D9"
-		end
+		local awful_bg = alpha(beautiful.bg_normal, "bar")
 		-- Create the wibox
 		s.mywibox = awful.wibar({ position = "top", screen = s, height = 27, bg = awful_bg })
 
@@ -124,7 +122,7 @@ return function(args)
 					spacing_widget = {
 						orientation = "vertical",
 						forced_width = 2,
-						color = beautiful.bg_focus .. "88",
+						color = alpha(beautiful.bg_focus, "separator"),
 						widget = wibox.widget.separator,
 					},
 				}
@@ -204,7 +202,7 @@ return function(args)
 					widget = wibox.widget.separator,
 					orientation = "vertical",
 					forced_width = 2,
-					color = beautiful.bg_focus .. "88",
+					color = alpha(beautiful.bg_focus, "separator"),
 				},
 				s.mytasklist,
 			},

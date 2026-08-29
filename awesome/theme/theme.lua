@@ -1,5 +1,6 @@
 local settings = require("config")
 local colors = require("theme.colors")
+local alpha = require("theme.alpha")
 
 local gears = require("gears")
 local themes_path = require("gears.filesystem").get_themes_dir()
@@ -58,25 +59,15 @@ theme.border_marked = colors.highlight_color
 theme.notification_shape = gears.shape.rounded_rect
 theme.notification_max_width = dpi(450)
 theme.notification_max_height = dpi(200)
-theme.notification_bg = colors.background_color
-theme.notification_border_color = colors.highlight_color
-if settings.opacity then
-	theme.notification_bg = theme.notification_bg .. "B3"
-	theme.notification_border_color = theme.notification_border_color .. "B3"
-end
+theme.notification_bg = alpha(colors.background_color, "popup")
+theme.notification_border_color = alpha(colors.highlight_color, "popup")
 naughty.config.presets.critical.bg = theme.notification_bg
 naughty.config.presets.critical.border_color = theme.notification_border_color
 -- }}}
 
 -- {{{ Titlebars
-theme.titlebar_bg_focus = colors.highlight_color
-if settings.opacity then
-	theme.titlebar_bg_focus = theme.titlebar_bg_focus .. "D9"
-end
-theme.titlebar_bg_normal = colors.background_color
-if settings.opacity then
-	theme.titlebar_bg_normal = theme.titlebar_bg_normal .. "D9"
-end
+theme.titlebar_bg_focus = alpha(colors.highlight_color, "bar")
+theme.titlebar_bg_normal = alpha(colors.background_color, "bar")
 -- }}}
 
 -- {{{ Mouse finder

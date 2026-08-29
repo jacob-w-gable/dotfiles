@@ -2,7 +2,7 @@ local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 local beautiful = require("beautiful")
-local settings = require("config")
+local alpha = require("theme.alpha")
 
 -- A centered run prompt in its own floating popup, separate from the
 -- awful.widget.prompt that lives in the wibar.
@@ -12,12 +12,8 @@ local settings = require("config")
 local prompt_popup, promptbox
 
 local function build()
-	local popup_bg = beautiful.bg_normal
-	local popup_border = beautiful.border_focus
-	if settings.opacity then
-		popup_bg = popup_bg .. "B3"
-		popup_border = popup_border .. "B3"
-	end
+	local popup_bg = alpha(beautiful.bg_normal, "popup")
+	local popup_border = alpha(beautiful.border_focus, "popup")
 
 	prompt_popup = wibox({
 		width = 500,
