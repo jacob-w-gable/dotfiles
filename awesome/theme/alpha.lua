@@ -5,27 +5,31 @@
 -- eight places across five files, which made "how see-through is the bar"
 -- something you had to grep for.
 --
--- Every level here is gated on settings.opacity: with it off, colours come
--- back untouched rather than each call site repeating the check.
+-- Levels come in two kinds. Some are transparency the user opted into with
+-- settings.opacity, and are skipped when it is off. Others are visual weight --
+-- a faint tag fill, a subtle divider -- which are part of the design and apply
+-- either way. Conflating the two makes every tag look selected when opacity is
+-- off, because the faint fill becomes the same solid colour as the focused one.
 
 local settings = require("config")
 
--- Named for what they are used for, not for their value.
+-- Named for what they are used for, not for their value. `optional` marks the
+-- levels that settings.opacity turns off.
 local LEVELS = {
-	popup = "B3", -- notifications, the run prompt
-	bar = "D9", -- the wibar and titlebars
-	faint = "33", -- taglist fills for occupied and empty tags
-	separator = "88", -- the vertical rules between bar sections
+	popup = { suffix = "B3", optional = true }, -- notifications, the run prompt
+	bar = { suffix = "D9", optional = true }, -- the wibar and titlebars
+	faint = { suffix = "33" }, -- taglist fills for occupied and empty tags
+	separator = { suffix = "88" }, -- the vertical rules between bar sections
 }
 
---- Append the alpha for `level` to `color`, honouring settings.opacity.
+--- Append the alpha for `level` to `color`.
 return function(color, level)
-	local suffix = LEVELS[level]
-	assert(suffix, "unknown alpha level: " .. tostring(level))
+	local spec = LEVELS[level]
+	assert(spec, "unknown alpha level: " .. tostring(level))
 
-	if not settings.opacity then
+	if spec.optional and not settings.opacity then
 		return color
 	end
 
-	return color .. suffix
+	return color .. spec.suffix
 end
