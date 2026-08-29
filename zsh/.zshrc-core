@@ -124,6 +124,53 @@ alias cat="batcat"
 # Find files
 alias fd="fdfind"
 
+# Terminal bell
+alias ding='echo -ne "\a"'
+
+# tmux attach or new
+alias ta='tmux attach || tmux new'
+
+# untars a .tar.gz or .tgz into a directory with the same root name
+function untar() {
+  local archive="$1"
+  local dir
+
+  if [[ ! -f "$archive" ]]; then
+    echo "File not found: $archive" >&2
+    return 1
+  fi
+
+  case "$archive" in
+    *.tar.gz)  dir="${archive%.tar.gz}" ;;
+    *.tgz)     dir="${archive%.tgz}" ;;
+    *.tar.bz2) dir="${archive%.tar.bz2}" ;;
+    *.tbz2)    dir="${archive%.tbz2}" ;;
+    *.tar.xz)  dir="${archive%.tar.xz}" ;;
+    *.txz)     dir="${archive%.txz}" ;;
+    *.tar.zst) dir="${archive%.tar.zst}" ;;
+    *.tar)     dir="${archive%.tar}" ;;
+    *)
+      echo "Unsupported archive type: $archive" >&2
+      return 1
+      ;;
+  esac
+
+  mkdir -p "$dir" || return 1
+  tar -xf "$archive" -C "$dir" || return 1
+  rm -f -- "$archive"
+}
+
+# tars a directory into a .tar.gz with the same root name
+function tarit() {
+  if [ -d "$1" ]; then
+    local dir="${1%/}"
+    tar -czf "$dir.tar.gz" -C "$dir" .
+    rm -rf "$dir"
+  else
+    echo "Directory not found: $1"
+  fi
+}
+
 # Use gnome keyring. Without a proper DE, you can use `secret-tool` to add passwords to the keyring.
 # See https://wiki.archlinux.org/title/GNOME/Keyring
 # and https://bbs.archlinux.org/viewtopic.php?pid=2217761#p2217761
