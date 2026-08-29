@@ -14,8 +14,6 @@ cpuwidget:set_color({
 		{ 1, "#AECF96" },
 	},
 })
-vicious.register(cpuwidget, vicious.widgets.cpu, "$1", 3)
-
 -- Tooltip for CPU widget
 local cpu_tooltip = awful.tooltip({
 	objects = { cpuwidget }, -- Attach the tooltip to the CPU widget

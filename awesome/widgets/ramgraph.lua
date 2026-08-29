@@ -16,9 +16,6 @@ ramwidget:set_color({
 	},
 })
 
--- Register RAM widget with vicious
-vicious.register(ramwidget, vicious.widgets.mem, "$1", 3) -- $1 is the percentage of RAM used
-
 -- Tooltip for RAM widget
 local ram_tooltip = awful.tooltip({
 	objects = { ramwidget }, -- Attach the tooltip to the RAM widget
