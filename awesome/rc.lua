@@ -875,7 +875,6 @@ awful.rules.rules = {
 			-- and the name shown there might not match defined rules here.
 			name = {
 				"Event Tester", -- xev.
-				"Open Files",
 			},
 			role = {
 				"AlarmWindow", -- Thunderbird's calendar.
@@ -1008,7 +1007,7 @@ client.connect_signal("manage", function(c)
 		awful.placement.no_offscreen(c)
 	end
 
-	if c.class == "Nsxiv" then
+	if c.class == "Nsxiv" or c.name == "Open Files" then
 		local screen_geometry = c.screen.workarea
 		local width = screen_geometry.width / 2
 		local height = screen_geometry.height / 2
