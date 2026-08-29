@@ -1,5 +1,21 @@
 local lspconfig = require("lspconfig")
 
+-- Machine-local overrides; see lua/config/machine.example.lua. Absent on most
+-- machines, which is the point -- the defaults below have to work unaided.
+local ok_machine, machine = pcall(require, "config.machine")
+machine = ok_machine and machine or {}
+
+local cargo_target_dir = machine.cargo_target_dir or (vim.env.HOME .. "/.cargo/nvim-target")
+
+local rustfmt_override = machine.rustfmt_override
+if rustfmt_override and vim.fn.executable(rustfmt_override[1]) == 0 then
+  vim.notify(
+    ("rustfmt_override %q is not installed; using rust-analyzer's rustfmt"):format(rustfmt_override[1]),
+    vim.log.levels.WARN
+  )
+  rustfmt_override = nil
+end
+
 -- TODO: Condense this duplication into a function
 
 lspconfig.rust_analyzer.setup({
@@ -27,12 +43,14 @@ lspconfig.rust_analyzer.setup({
         features = "all",
         allTargets = true,
         extraEnv = {
-          CARGO_TARGET_DIR = vim.env.HOME .. "/.cargo/nvim-target",
+          CARGO_TARGET_DIR = cargo_target_dir,
         },
       },
-      rustfmt = {
-        -- overrideCommand = { "leptosfmt", "--stdin", "--rustfmt", "e" },
-      },
+      -- Only override when a machine asks for it and the binary exists.
+      -- Left unset, rust-analyzer uses its own rustfmt. A missing override
+      -- binary is worse than none: leptosfmt echoes its input and exits 0,
+      -- so formatting silently does nothing while appearing to succeed.
+      rustfmt = rustfmt_override and { overrideCommand = rustfmt_override } or nil,
       procMacro = {
         enable = true,
       },

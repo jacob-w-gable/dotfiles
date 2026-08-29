@@ -14,6 +14,12 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+--- True when lua/plugins/local/ exists and holds at least one spec.
+local function has_local_plugins()
+  local dir = vim.fn.stdpath("config") .. "/lua/plugins/local"
+  return vim.fn.isdirectory(dir) == 1 and #vim.fn.glob(dir .. "/*.lua", false, true) > 0
+end
+
 require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
@@ -22,6 +28,11 @@ require("lazy").setup({
     { import = "plugins" },
     -- Themes are technically plugins, but I'm using a themes/ folder for organization
     { import = "themes" },
+    -- Machine-local plugin specs. The directory is gitignored, so this is
+    -- where anything belonging to one computer goes instead of being edited
+    -- into a tracked file. Imported only when it has something in it --
+    -- lazy.nvim errors on an import path that resolves to nothing.
+    unpack(has_local_plugins() and { { import = "plugins.local" } } or {}),
   },
   defaults = {
     -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.

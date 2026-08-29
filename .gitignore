@@ -14,3 +14,7 @@ __pycache__
 
 # Per-machine awesome overrides (see awesome/config/machine.example.lua)
 awesome/config/machine.lua
+
+# Machine-local nvim config (see nvim/lua/config/machine.example.lua)
+nvim/lua/config/machine.lua
+nvim/lua/plugins/local/
