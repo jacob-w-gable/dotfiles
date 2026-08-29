@@ -82,4 +82,5 @@ if [[ "$DEVEL" == "true" ]]; then
   npm install -g typescript typescript-language-server neovim
   npm install -g @tailwindcss/language-server
   npm install -g neovim
+  npm install -g markdownlint-cli
 fi

@@ -11,6 +11,7 @@ return {
       html = { "eslint", "prettier" },
       json = { "eslint", "prettier" },
       python = { "flake8", "mypy" },
+      markdown = { "markdownlint" },
     }
 
     g.ale_completion_enabled = 1
