@@ -77,14 +77,30 @@ and every keybinding are unaffected.
 `DWM_NO_AUTOSTART` is the bigger hammer, and skips every program in
 `xinitrc.dwm` rather than just this one.
 
-The nested sessions pass `--backend xrender`, where the config asks for glx and
-a real session gets it. Inside Xephyr the glx backend composites one frame and
+### Backend and blur in a nested session
+
+A real session runs the config as written: the glx backend and `dual_kawase`
+blur. Neither works inside Xephyr, so the nested sessions override three
+settings on the command line.
+
+`--backend xrender`. The glx backend composites one frame inside Xephyr and
 then never repaints: measured over 25 seconds, a glx session changed 0 pixels
 while an xrender one changed 480 and an uncomposited one 412. A frozen
 composite is what "picom isn't doing anything" looks like from the outside, and
-it takes the bar's clock and every window's contents down with it. Everything
-in the config survives the swap except `dual_kawase` blur, which xrender cannot
-do, so the nested preview has rounded corners, fading and dimming but no blur.
+it takes the bar's clock and every window's contents with it. egl is not an
+option either. A nested server has no DRI3, so `EGL_KHR_image_pixmap` is
+missing and picom aborts on start.
+
+`--blur-method kernel --blur-kern 11x11gaussian`. `dual_kawase` needs one of
+those GL backends, so on xrender it is silently dropped and picom logs `Blur
+method 'dual_kawase' is not compatible with the 'xrender' backend`. A
+convolution kernel is what xrender can do instead, and it does blur. It is not
+the same blur a real session gets: xrender runs it on the CPU where
+`dual_kawase` runs on the GPU.
+
+Everything else in the config applies in both: rounded corners, fading, the dim
+on unfocused windows, and transparency, which is plain alpha compositing and
+never needed a GL backend.
 
 The config needed two additions for dwm. dwm sets no `_NET_WM_WINDOW_TYPE` on
 its bar, so the existing rule that squares off anything which is not a normal

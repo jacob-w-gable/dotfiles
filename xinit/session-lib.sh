@@ -102,11 +102,17 @@ start_bar() {
 # it without pkilling first, so it cannot reach the real session's copy. Set
 # DWM_NO_PICOM to skip it.
 #
+# Three flags override the config, because neither GL backend works nested.
+#
 # --backend xrender, where the config asks for glx and a real session gets it.
 # Inside Xephyr the glx backend composites one frame and then never repaints:
 # measured over 25 seconds, a glx session changed 0 pixels while an xrender one
-# changed 480 and an uncomposited one 412. Everything in the config survives
-# the swap except dual_kawase blur, which xrender cannot do.
+# changed 480 and an uncomposited one 412. egl is not an option either, since a
+# nested server has no DRI3 and picom aborts on a missing EGL_KHR_image_pixmap.
+#
+# --blur-method kernel, because the config's dual_kawase needs one of those GL
+# backends. A convolution kernel is what xrender can do, and it blurs; it is
+# not the same blur a real session gets, which keeps dual_kawase.
 start_compositor() {
     if [[ -n ${DWM_NO_PICOM:-} ]]; then
         return 0
@@ -116,8 +122,9 @@ start_compositor() {
         return 0
     fi
 
-    picom --config "$dotfiles/picom/picom.conf" --backend xrender --animations \
-        >/dev/null 2>&1 &
+    picom --config "$dotfiles/picom/picom.conf" \
+        --backend xrender --blur-method kernel --blur-kern 11x11gaussian \
+        --animations >/dev/null 2>&1 &
     session_pids+=($!)
     sleep 3
 }
