@@ -91,10 +91,19 @@ status text. Seven patches cover the gap.
 | `gaplessgrid`       | Stands in for `awful.layout.suit.fair`              |
 | `hidevacant`        | Hides empty tags, as the awesome taglist does       |
 | `movestack`         | Mod+Shift+j/k, which dwm has no equivalent for      |
+| `uselessgap`        | `theme.useless_gap`                                 |
 
 `02-statuscmd.diff` is regenerated against this stack rather than taken from
 upstream: the published patch targets a different status2d variant and three of
 its hunks conflict.
+
+`08-uselessgap.diff` is regenerated too, for behaviour rather than conflicts.
+It applies the gap in `resizeclient`, so every layout gets one without any
+per-layout code, but upstream then carves out two exceptions that awesome does
+not have: it drops the gap and the border when the layout is monocle or there
+is only one client, and it widens the master column by one gap so the
+master/stack boundary gets half the space every other pair of clients gets.
+Both are reverted here, which leaves a single rule for the whole layout.
 
 ## What the two variants actually cost
 
@@ -199,9 +208,29 @@ That endpoint answers any coordinate with more than four decimal places with a
 301 redirect, and `ipapi.co` returns five. The forecast URL lookup returns
 `null` and the widget shows `--°F`. `bin/dwm-weather` passes `--location`.
 
+## Gaps
+
+`gappx` in `dwm/config.h` is the inset applied to every side of every tiled
+client, so two clients are separated by twice it and a screen edge is one of
+it. That is the same model as `theme.useless_gap`, which `theme.lua` sets to
+`dpi(5)`: 8 pixels at the 144 DPI `xinitrc.dwm` pins, and the value used here.
+Measured on a 1920x1080 nested session: 8 pixels at every screen edge, 16
+between any two clients, in tile, centeredmaster, gaplessgrid and monocle
+alike, and none around a floating client.
+
+dwm has no DPI-aware config, so that is a pixel count rather than a scaled
+value, and a machine at a different DPI wants a different number. Changing it
+means a rebuild, since dwm compiles its config in.
+
+The live awesome session measures 18 pixels at the screen edge and 20 between
+two clients, which does not reduce to this model. That reading is probably not
+trustworthy: the two windows sampled were Chromium and kitty, Chromium draws
+its own frame inside the one awesome gives it, and the right screen edge came
+out at 14 rather than 18. Matching the configured `dpi(5)` seemed better than
+matching a number measured through someone else's window decoration.
+
 ## Still missing
 
-- No gaps. `useless_gap` has no equivalent without another patch.
 - No transparency. The bar and titlebar alpha in `theme/alpha.lua` needs the
   dwm alpha patch and an ARGB visual.
 - `dwm-display-fix` falls back to autorandr, where the awesome binding runs a

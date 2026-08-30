@@ -13,6 +13,15 @@
 
 /* appearance */
 static const unsigned int borderpx  = 1;
+
+/* Inset applied to every side of every tiled client, so the space between two
+ * of them is twice this and the space at a screen edge is one of it. That is
+ * the same model as awesome's useless_gap, which theme.lua sets to dpi(5): 8
+ * pixels at the 144 DPI xinitrc.dwm pins. dwm has no DPI-aware config, so this
+ * is the pixel count rather than a scaled value, and a machine running at a
+ * different DPI wants a different number here. */
+static const unsigned int gappx     = 8;
+
 static const unsigned int snap      = 32;
 static const unsigned int systraypinning = 0;   /* 0: systray follows the selected monitor */
 static const unsigned int systrayonleft  = 0;
