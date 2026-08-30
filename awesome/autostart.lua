@@ -14,7 +14,14 @@ if os.getenv("AWESOME_NO_AUTOSTART") then
 	return
 end
 
-local commands = {}
+-- The session PATH comes from the display manager by way of PAM, not a login
+-- shell, so it can be missing directories an interactive shell has. On this
+-- machine /etc/environment appends with "$PATH:...", which PAM does not expand,
+-- so the session loses /usr/local/bin entirely. Anything guarded on
+-- `command -v` would then be skipped even though it is installed.
+local commands = {
+	'PATH="$PATH:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin"',
+}
 
 --- Queue a command, guarded on its binary being installed.
 --
@@ -70,10 +77,18 @@ for _, entry in ipairs(settings.extra_autostart or {}) do
 end
 
 if settings.compositor then
-	-- By name rather than by path: the installer builds picom from source into
-	-- /usr/local/bin, but a distro-packaged one lives in /usr/bin and PATH
-	-- covers both.
+	-- By name, not by path: the installer builds picom into /usr/local/bin, and
+	-- a distro package puts it in /usr/bin.
 	run("picom", "picom --config ~/.config/picom/picom.conf --animations")
+
+	-- Say so when it is missing. The guard skips a program silently, which is
+	-- right for a tray applet and wrong for the compositor: settings.compositor
+	-- is an explicit request, and its absence is visible on every window.
+	commands[#commands + 1] = table.concat({
+		"command -v picom >/dev/null ||",
+		'notify-send -u critical "picom not found"',
+		'"settings.compositor is on, but no picom is on PATH."',
+	}, " ")
 end
 
 -- One shell for the lot.
