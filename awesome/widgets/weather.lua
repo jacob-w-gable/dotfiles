@@ -46,7 +46,7 @@ end
 
 local function fetch_coordinates(callback)
 	local cmd = [[
-curl --silent --show-error --fail \
+curl --silent --show-error --fail --location \
   --connect-timeout 3 \
   --max-time 10 \
   -A 'AwesomeWM Weather Widget' \
@@ -75,17 +75,30 @@ jq -r '[.latitude, .longitude] | @tsv'
 end
 
 local function fetch_forecast_url(callback)
+	-- api.weather.gov takes at most four decimal places. Given more it answers
+	-- 301 with a problem document instead of the point data, and since a
+	-- redirect is not an error --fail does not catch it: curl exits 0, the body
+	-- has no .properties, and jq returns "null". ipapi.co reports five decimals,
+	-- so every lookup ended there.
+	local point_lat = tonumber(lat)
+	local point_lon = tonumber(lon)
+
+	if not point_lat or not point_lon then
+		callback(false)
+		return
+	end
+
 	local cmd = string.format(
 		[[
-curl --silent --show-error --fail \
+curl --silent --show-error --fail --location \
   --connect-timeout 3 \
   --max-time 10 \
   -H 'User-Agent: AwesomeWM Weather Widget' \
-  'https://api.weather.gov/points/%s,%s' |
+  'https://api.weather.gov/points/%.4f,%.4f' |
 jq -r '.properties.forecastHourly'
 ]],
-		lat,
-		lon
+		point_lat,
+		point_lon
 	)
 
 	awful.spawn.easy_async_with_shell(cmd, function(stdout, stderr, _, exit_code)
@@ -109,7 +122,7 @@ end
 local function fetch_weather()
 	local cmd = string.format(
 		[[
-curl --silent --show-error --fail \
+curl --silent --show-error --fail --location \
   --connect-timeout 3 \
   --max-time 10 \
   -H 'User-Agent: AwesomeWM Weather Widget' \
