@@ -5,6 +5,7 @@
 
 local settings = require("config")
 local solo = require("solo")
+local bind = require("bindings").bind
 
 local mod = settings.modkey
 
@@ -22,17 +23,17 @@ local function toggle_then_enforce(mode)
 end
 
 return function()
-	hl.bind(mod .. " + F", toggle_then_enforce("fullscreen"))
-	hl.bind(mod .. " + M", toggle_then_enforce("maximized"))
-	hl.bind(mod .. " + SHIFT + C", hl.dsp.window.close())
-	hl.bind(mod .. " + CONTROL + space", hl.dsp.window.float({ action = "toggle" }))
-	hl.bind(mod .. " + CONTROL + Return", hl.dsp.layout("swapwithmaster"))
-	hl.bind(mod .. " + O", hl.dsp.window.move({ monitor = "+1", follow = true }))
+	bind(mod .. " + F", toggle_then_enforce("fullscreen"), "client", "toggle fullscreen")
+	bind(mod .. " + M", toggle_then_enforce("maximized"), "client", "(un)maximize")
+	bind(mod .. " + SHIFT + C", hl.dsp.window.close(), "client", "close")
+	bind(mod .. " + CONTROL + space", hl.dsp.window.float({ action = "toggle" }), "client", "toggle floating")
+	bind(mod .. " + CONTROL + Return", hl.dsp.layout("swapwithmaster"), "client", "move to master")
+	bind(mod .. " + O", hl.dsp.window.move({ monitor = "+1", follow = true }), "client", "move to screen")
 
 	-- ontop. Hyprland only pins floating windows, which is the case where awesome's
 	-- ontop is meaningful anyway.
-	hl.bind(mod .. " + T", hl.dsp.window.pin({ action = "toggle" }))
-	hl.bind(mod .. " + SHIFT + T", hl.dsp.window.alter_zorder({ mode = "bottom" }))
+	bind(mod .. " + T", hl.dsp.window.pin({ action = "toggle" }), "client", "toggle keep on top")
+	bind(mod .. " + SHIFT + T", hl.dsp.window.alter_zorder({ mode = "bottom" }), "client", "keep on bottom")
 
 	-- Mod+Ctrl+m and Mod+Shift+m maximise vertically and horizontally. Hyprland
 	-- maximises in both axes only, so there is nothing to bind them to.

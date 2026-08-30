@@ -34,6 +34,7 @@ M.lock = "loginctl lock-session"
 -- Scripts kept beside their configs rather than on PATH, so they follow the
 -- ~/.config symlinks instead of assuming the repo is at ~/dotfiles.
 M.wallpaper = os.getenv("HOME") .. "/.config/hypr/scripts/wallpaper"
+M.hotkeys = os.getenv("HOME") .. "/.config/hypr/scripts/hotkeys"
 
 -- Caffeine lives with the bar because it is a bar widget with a click action; Mod+C
 -- drives the same script so the glyph and the inhibitor cannot disagree.

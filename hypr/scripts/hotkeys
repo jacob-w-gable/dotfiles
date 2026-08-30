@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Show the current key bindings, the way awesome's Mod+S hotkeys popup does.
+#
+# Reads the list hypr/bindings/init.lua writes at startup rather than asking hyprctl:
+# Hyprland reports every Lua-backed binding as "__lua" plus an index, which describes
+# nothing. The file is rewritten on each config load, so it cannot list a binding that
+# no longer exists.
+
+set -euo pipefail
+
+LIST="${XDG_RUNTIME_DIR:-/tmp}/hypr-binds"
+
+if [[ ! -f $LIST ]]; then
+	echo "No bindings recorded. Is this config loaded?" >&2
+	exit 1
+fi
+
+# group<TAB>keys<TAB>description, grouped the way awesome's popup groups them.
+formatted=$(sort "$LIST" | awk -F'\t' '
+	$1 != group { group = $1; printf "\n%s\n", toupper(group) }
+	{ printf "  %-26s %s\n", $2, $3 }
+')
+
+if command -v rofi >/dev/null && [[ -n ${WAYLAND_DISPLAY:-} ]]; then
+	printf '%s\n' "$formatted" | rofi -dmenu -i -p " Keys " -no-custom -theme-str 'window {width: 60%;}'
+else
+	printf '%s\n' "$formatted"
+fi

@@ -5,16 +5,19 @@
 -- in hyprland.lua; and xss-lock is replaced by hypridle. What is left is the tray
 -- applets and the bar.
 --
--- Run once per session, guarded by a marker in XDG_RUNTIME_DIR.
+-- Run once per compositor run, guarded by a marker in XDG_RUNTIME_DIR.
 --
 -- The guard is the point. Hyprland raises no usable "session started" event -
--- hyprland.start never fires, and config.reloaded fires on every `hyprctl reload` -
--- so the config itself is the only reliable hook, and it is re-evaluated on each
--- reload. Without the marker, Mod+R would start a second waybar every time.
+-- hyprland.start never fires - so the config itself is the only reliable hook, and it
+-- is re-evaluated on every `hyprctl reload`. Without the marker, Mod+R would start a
+-- second waybar each time.
 --
--- XDG_RUNTIME_DIR is cleared when the last session for the user ends, so logging out
--- and back in correctly starts everything again. This is the same intent as the pkill
--- in awesome/autostart.lua, without reaching outside the session to do it.
+-- The marker is named for the instance signature rather than being a fixed filename.
+-- XDG_RUNTIME_DIR outlives a restart of the compositor whenever any other session for
+-- the user is open - an SSH login is enough - so a fixed name would make Hyprland come
+-- back with no bar. The signature changes on every compositor run and stays the same
+-- across a reload, which is exactly the distinction wanted. This is the same intent as
+-- the pkill in awesome/autostart.lua, without reaching outside the session to do it.
 
 local settings = require("config")
 
@@ -40,7 +43,8 @@ local function run(bin, command)
 end
 
 return function()
-	local marker = (os.getenv("XDG_RUNTIME_DIR") or "/tmp") .. "/hypr-autostart-done"
+	local signature = os.getenv("HYPRLAND_INSTANCE_SIGNATURE") or "unknown"
+	local marker = (os.getenv("XDG_RUNTIME_DIR") or "/tmp") .. "/hypr-autostart-" .. signature
 
 	local existing = io.open(marker, "r")
 	if existing then

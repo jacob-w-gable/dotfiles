@@ -130,6 +130,10 @@ require("bindings.global")()
 require("bindings.client")()
 require("bindings.mouse")()
 
+-- Written out for scripts/hotkeys, which Mod+S opens. hyprctl reports Lua-backed binds
+-- as "__lua" plus an index, so the descriptions have to come from here.
+require("bindings").export()
+
 layouts.init()
 solo.connect()
 
