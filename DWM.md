@@ -58,7 +58,24 @@ The session ends on `Super+Shift+q`, or when the window is closed.
 ## The compositor
 
 picom runs in both nested sessions and in a real one, off the same
-`picom/picom.conf` the awesome session uses. `DWM_NO_PICOM=1` skips it.
+`picom/picom.conf` the awesome session uses.
+
+### Running without it
+
+`DWM_NO_PICOM=1` skips the compositor and starts everything else:
+
+```sh
+DWM_NO_PICOM=1 DOTFILES=$PWD xinit/xephyr-run.sh    # nested
+DWM_NO_PICOM=1 startx xinit/xinitrc.dwm             # a real session
+```
+
+What that removes is rounded corners, fading, the dim on unfocused windows and
+the blur, all of which are picom's. Gaps stay: those are dwm's own, from the
+`uselessgap` patch, and no compositor is involved. The bar, the status blocks
+and every keybinding are unaffected.
+
+`DWM_NO_AUTOSTART` is the bigger hammer, and skips every program in
+`xinitrc.dwm` rather than just this one.
 
 The nested sessions pass `--backend xrender`, where the config asks for glx and
 a real session gets it. Inside Xephyr the glx backend composites one frame and

@@ -6,7 +6,8 @@
 # to run polybar along the bottom instead, with dwm's own bar kept for the tags
 # and the layout symbol.
 #
-# Set DWM_NO_AUTOSTART to skip everything but the window manager. Several
+# Set DWM_NO_PICOM to run without the compositor, or DWM_NO_AUTOSTART to skip
+# every program below and start only the window manager and the bar. Several
 # entries pkill a program before restarting it, and pkill is not scoped to a
 # display, so from a nested X server they would reach out and kill the copy
 # belonging to the real session. Testing this in Xephyr is only safe with the
@@ -64,7 +65,11 @@ if [[ -z ${DWM_NO_AUTOSTART:-} ]]; then
     touchpad_conf=${XDG_CONFIG_HOME:-$HOME/.config}/dwm/touchpad
     [[ -r $touchpad_conf ]] && source "$touchpad_conf"
 
-    run picom "picom --config $dotfiles/picom/picom.conf --animations"
+    # DWM_NO_PICOM skips just the compositor, where DWM_NO_AUTOSTART skips
+    # this whole block. The nested sessions read the same variable.
+    if [[ -z ${DWM_NO_PICOM:-} ]]; then
+        run picom "picom --config $dotfiles/picom/picom.conf --animations"
+    fi
 fi
 
 start_bar
