@@ -96,7 +96,12 @@ static const Layout layouts[] = {
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "rofi", "-show", "drun", NULL };
-static const char *termcmd[]  = { "kitty", "--single-instance", NULL };
+/* kitty's single-instance socket is per user, not per display, so a terminal
+ * opened from a nested test session lands in the real session's kitty instead.
+ * Grouping by DISPLAY keeps each session's terminals to itself and leaves
+ * single-instance behaving as before in a real session. Through sh, because
+ * the group name has to be expanded. */
+#define TERMCMD SHCMD("kitty --single-instance --instance-group \"$DISPLAY\"")
 static const char *runcmd[]   = { "rofi", "-show", "run", NULL };
 static const char *shotcmd[]  = { "flameshot", "gui", NULL };
 static const char *lockcmd[]  = { "xset", "s", "activate", NULL };
@@ -125,7 +130,7 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_4,                          3)
 
 	/* launcher */
-	{ MODKEY,                       XK_Return,     spawn,          {.v = termcmd } },
+	{ MODKEY,                       XK_Return,     spawn,          TERMCMD },
 	{ MODKEY,                       XK_p,          spawn,          {.v = dmenucmd } },
 	{ MODKEY|ControlMask,           XK_r,          spawn,          {.v = runcmd } },
 	{ MODKEY|ShiftMask,             XK_s,          spawn,          {.v = shotcmd } },

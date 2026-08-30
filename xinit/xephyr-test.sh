@@ -1,67 +1,33 @@
 #!/usr/bin/env bash
 #
-# Run this dwm config in a nested X server and screenshot it.
+# Run a variant in a nested X server and screenshot it, twice: once on an empty
+# tag so the bar and the wallpaper are both readable, once with windows open.
 #
 # Autostart is skipped, because several of its entries pkill a program by name
 # and pkill is not scoped to a display: from in here they would kill the copy
 # belonging to the real session.
 #
+# For a session you can type into, use xephyr-run.sh.
+#
 # Usage: xephyr-test.sh [dwmblocks|polybar] [output.png]
 
 set -euo pipefail
 
+readonly here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "$here/session-lib.sh"
+
 readonly variant=${1:-dwmblocks}
-readonly out=${2:-$PWD/dwm-$variant.png}
-readonly display=:7
+readonly out=${2:-$dotfiles/screenshots/dwm-$variant.png}
 readonly geometry=1920x1080
 readonly dpi=144
 
-readonly dotfiles=${DOTFILES:-$HOME/dotfiles}
-export PATH="$HOME/.local/bin:$dotfiles/bin:${POLYBAR_BIN:-}:$PATH"
+trap stop_session EXIT
 
-pids=()
-cleanup() {
-    local pid
-    for pid in "${pids[@]:-}"; do
-        [[ -n $pid ]] && kill "$pid" 2>/dev/null || true
-    done
-    wait 2>/dev/null || true
-}
-trap cleanup EXIT
-
-Xephyr -br -ac -noreset -screen "$geometry" -dpi "$dpi" "$display" >/dev/null 2>&1 &
-pids+=($!)
-
-# Xephyr takes a moment to accept connections, and every command below fails if
-# it is not listening yet.
-for _ in {1..50}; do
-    DISPLAY=$display xdpyinfo >/dev/null 2>&1 && break
-    sleep 0.1
-done
-
-export DISPLAY=$display
-
-xrdb -merge <(printf 'Xft.dpi: %s\n' "$dpi")
-[[ -r $HOME/.cache/wal/colors.Xresources ]] &&
-    xrdb -merge "$HOME/.cache/wal/colors.Xresources"
-
-if [[ -r $HOME/.cache/wal/colors.sh ]]; then
-    wallpaper=$(sed -n "s/^wallpaper=['\"]\\(.*\\)['\"]$/\\1/p" "$HOME/.cache/wal/colors.sh")
-    [[ -r ${wallpaper:-} ]] && feh --bg-fill "$wallpaper"
-fi
-
-dwm >/dev/null 2>&1 &
-pids+=($!)
-sleep 1
-
-if [[ $variant == polybar ]]; then
-    xsetroot -name " "
-    DWM_BAR=polybar polybar --config="$dotfiles/polybar/config.ini" main >/dev/null 2>&1 &
-    pids+=($!)
-else
-    dwmblocks >/dev/null 2>&1 &
-    pids+=($!)
-fi
+pick_display
+start_xephyr "$geometry" "$dpi"
+setup_display "$dpi"
+start_wm
+start_bar "$variant"
 
 shoot() {
     maim -u "$1" 2>/dev/null || import -window root "$1"
@@ -81,7 +47,7 @@ shoot "${out%.png}-bare.png"
 spawn_term() {
     kitty --title "$1" --override confirm_os_window_close=0 \
         --override "font_size=$2" sh -c "$3" >/dev/null 2>&1 &
-    pids+=($!)
+    session_pids+=($!)
     sleep 2
 }
 

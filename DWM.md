@@ -20,7 +20,9 @@ Both variants run. The screenshots in `screenshots/` come from
 | `dwmblocks/`           | Block list and build for the no-polybar variant  |
 | `polybar/config.ini`   | The polybar variant                              |
 | `xinit/xinitrc.dwm`    | Session startup, ported from `autostart.lua`     |
+| `xinit/xephyr-run.sh`  | Opens a nested session you can type into         |
 | `xinit/xephyr-test.sh` | Runs a variant nested and screenshots it         |
+| `xinit/session-lib.sh` | Nested-session setup, shared by those two        |
 | `xinit/bench.sh`       | Measures memory and CPU for both variants        |
 
 ## Trying it
@@ -28,12 +30,30 @@ Both variants run. The screenshots in `screenshots/` come from
 ```sh
 dwm/build.sh          # installs ~/.local/bin/dwm
 dwmblocks/build.sh    # installs ~/.local/bin/dwmblocks
-DOTFILES=$PWD xinit/xephyr-test.sh dwmblocks   # nested, safe to run from awesome
-DOTFILES=$PWD xinit/xephyr-test.sh polybar
+
+DOTFILES=$PWD xinit/xephyr-run.sh              # a session you can type into
+DOTFILES=$PWD xinit/xephyr-test.sh dwmblocks   # screenshots instead
 ```
 
 Neither build needs root. `xinit/xinitrc.dwm` is the real session entry point,
 and `DWM_BAR` selects the bar.
+
+`xephyr-run.sh` takes the same variant argument and an optional window size,
+and prints the keybindings on the way up. It is safe to run from inside the
+awesome session, with two things to know.
+
+**Press Ctrl+Shift with the pointer over the window.** That is Xephyr's grab
+toggle. Without it awesome answers Super itself and dwm never sees it. Xephyr
+reports the current state in its title bar, and Ctrl+Shift again releases.
+
+**Autostart is skipped.** Several of its entries `pkill` a program by name, and
+`pkill` is not scoped to a display, so from in here they would kill the copy
+belonging to the real session. That means no tray applets, no `xss-lock` and no
+picom in the nested window. `Super+Shift+s` is the other one to leave alone: it
+asks the flameshot daemon for a capture, and that daemon belongs to the real
+session.
+
+The session ends on `Super+Shift+q`, or when the window is closed.
 
 ## The patch stack
 
@@ -133,6 +153,10 @@ Changed rather than dropped:
 - `Mod+Tab` and `Mod+Escape` both return to the last tag. awesome had
   `Mod+Tab` walking the client focus history, which dwm does not keep.
 - Four tags, matching `ui/bar.lua`, so `Mod+5` through `Mod+9` do nothing.
+- `Mod+Return` runs `kitty --single-instance --instance-group "$DISPLAY"`,
+  where `apps.lua` passes only `--single-instance`. That socket is per user
+  rather than per display, so without the group a terminal opened in a nested
+  test session appears in the real session's kitty instead.
 - `awful.layout.suit.tile.left` and `fair.horizontal` have no dwm layout.
 - The wallpaper popout rule is gone: it relies on `below`, `sticky` and
   `skip_taskbar`, none of which dwm has.
