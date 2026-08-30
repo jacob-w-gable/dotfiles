@@ -20,6 +20,15 @@ wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/FiraCode.z
 unzip FiraCode.zip -d ~/.fonts
 rm FiraCode.zip
 
+# Download the JetBrains Mono nerd font, for the SDDM theme.
+# System-wide rather than into ~/.fonts like the two above: the greeter runs as the
+# sddm user, so a font in this user's home is invisible to it and the theme falls
+# back to a default.
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip
+sudo unzip -o JetBrainsMono.zip -d /usr/share/fonts/JetBrainsMono
+rm JetBrainsMono.zip
+sudo fc-cache -f
+
 # Install Tela Tela-icon-theme
 wget -O tela-icon-theme.zip https://github.com/vinceliuice/Tela-icon-theme/archive/refs/tags/2024-09-04.zip
 unzip tela-icon-theme.zip
@@ -27,8 +36,11 @@ sudo mkdir -p /usr/share/icons
 (cd Tela-icon-theme-2024-09-04 && sudo ./install.sh -d /usr/share/icons)
 rm -rf Tela-icon-theme-2024-09-04/ tela-icon-theme.zip
 
-# Configure qt5ct
-echo "QT_QPA_PLATFORMTHEME=qt5ct" | sudo tee -a /etc/environment
+# Configure qt5ct. Guarded because this appends: re-running the installer would
+# otherwise stack a duplicate line every time.
+if ! grep -q "^QT_QPA_PLATFORMTHEME=qt5ct$" /etc/environment; then
+  echo "QT_QPA_PLATFORMTHEME=qt5ct" | sudo tee -a /etc/environment
+fi
 
 # Set lock screen timeout
 # if there is a display
@@ -60,7 +72,8 @@ sudo cp sddm/wallpaper.png /usr/share/sddm/themes/simple-sddm/Backgrounds
 
 # Set up picom
 git clone https://github.com/r0-zero/picom.git picom-source
-(cd picom-source && meson setup --buildtype=release build && ninja -C build install)
+(cd picom-source && meson setup --buildtype=release build && ninja -C build &&
+  sudo ninja -C build install)
 rm -rf picom-source
 
 # Set up wal
@@ -76,8 +89,9 @@ cp ./awesome/theme/lockscreen.png ~/Pictures/Wallpapers/wallpaper3.png
 sudo systemctl enable sddm --force
 sudo systemctl set-default graphical.target
 
-# Configure xdg default applications
-xdg-mime default org.gnome.gThumb.desktop image/jpeg
-xdg-mime default org.gnome.gThumb.desktop image/png
-xdg-mime default org.gnome.gThumb.desktop image/webp
-xdg-mime default org.gnome.gThumb.desktop image/gif
+# Configure xdg default applications. eom rather than gThumb: gThumb is not in any
+# of the per-distro package lists, so the association pointed at a missing app.
+xdg-mime default eom.desktop image/jpeg
+xdg-mime default eom.desktop image/png
+xdg-mime default eom.desktop image/webp
+xdg-mime default eom.desktop image/gif

@@ -118,11 +118,21 @@ alias lsm='eza -l --group-directories-first --icons --time-style=long-iso --tota
 alias lsn='eza -l --group-directories-first --icons --time-style=long-iso --total-size --sort=name'
 alias lse='eza -l --group-directories-first --icons --time-style=long-iso --total-size --sort=extension'
 alias lst='eza -l --group-directories-first --icons --time-style=long-iso --total-size --sort=type'
-# Other coreutils alternatives
-alias cat="batcat"
+# Other coreutils alternatives.
+# Debian ships bat and fd under batcat/fdfind to avoid a name clash; every other
+# distro uses the real names. Picking at shell startup keeps one .zshrc working on
+# all of them - and an unguarded `alias cat="batcat"` breaks cat outright on a
+# machine that has no batcat.
+if (( $+commands[batcat] )); then
+  alias cat="batcat"
+elif (( $+commands[bat] )); then
+  alias cat="bat"
+fi
 
 # Find files
-alias fd="fdfind"
+if (( $+commands[fdfind] )); then
+  alias fd="fdfind"
+fi
 
 # Terminal bell
 alias ding='echo -ne "\a"'

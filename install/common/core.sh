@@ -29,8 +29,10 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Set the default shell to zsh
-chsh -s $(which zsh)
+# Set the default shell to zsh.
+# Through sudo and with an explicit user: bare `chsh` prompts for a password, which
+# would stall an unattended install.
+sudo chsh -s "$(command -v zsh)" "$USER"
 
 # Download tmux plugin manager
 if [[ ! -d ~/.tmux/plugins/tpm ]]; then
@@ -53,8 +55,11 @@ rm lazygit lazygit.tar.gz
 # Install reactivex luarocks library, for the Docker nvim extension
 sudo luarocks --lua-version=5.1 install reactivex
 
-# Reset .zshrc
-rm -f ~/.zshrc
+# Reset .zshrc, keeping a copy of whatever was there. The file is rewritten to a
+# single source line, so without the backup an existing config is gone for good.
+if [[ -s ~/.zshrc ]]; then
+  mv ~/.zshrc ~/.zshrc.bak
+fi
 touch ~/.zshrc
 echo "source ~/.zshrc-core" >>~/.zshrc
 

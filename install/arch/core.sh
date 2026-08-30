@@ -17,9 +17,18 @@ sudo pacman -S \
   man-db \
   networkmanager \
   wpa_supplicant \
+  luarocks \
+  lua53 \
+  lua51 \
   --noconfirm
 # ...
 
+# fd and git are assumed by .zshrc-core and by the AUR clones in gui.sh respectively.
+#
+# lua53-filesystem is here but luarocks and the interpreters are in the batch above,
+# deliberately: this package's install script shells out to luarocks-admin, and pacman
+# picks its own order within one transaction, so the tool has to be installed by an
+# earlier call rather than merely listed earlier.
 sudo pacman -S \
   neovim \
   unzip \
@@ -27,12 +36,13 @@ sudo pacman -S \
   python \
   python-pip \
   ranger \
-  luarocks \
   btop \
   gnome-keyring \
   eza \
   bat \
   python-pipx \
   lua53-filesystem \
+  fd \
+  git \
   tmux \
   --noconfirm
