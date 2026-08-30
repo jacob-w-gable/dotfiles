@@ -72,6 +72,7 @@ start_xephyr "$geometry" "$dpi" -resizeable
 setup_display "$dpi"
 start_wm
 start_bar "$variant"
+start_compositor
 
 # One terminal to start with, so the session is usable straight away. Plain
 # kitty, never --single-instance: that socket is per user, not per display, so

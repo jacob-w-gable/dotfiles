@@ -28,6 +28,7 @@ start_xephyr "$geometry" "$dpi"
 setup_display "$dpi"
 start_wm
 start_bar "$variant"
+start_compositor
 
 shoot() {
     maim -u "$1" 2>/dev/null || import -window root "$1"

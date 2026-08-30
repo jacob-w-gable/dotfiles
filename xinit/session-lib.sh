@@ -96,6 +96,32 @@ start_bar() {
     session_pids+=($!)
 }
 
+# picom, with the same config xinitrc.dwm uses but a different backend.
+#
+# Safe to run nested, unlike the rest of autostart: the entry for picom starts
+# it without pkilling first, so it cannot reach the real session's copy. Set
+# DWM_NO_PICOM to skip it.
+#
+# --backend xrender, where the config asks for glx and a real session gets it.
+# Inside Xephyr the glx backend composites one frame and then never repaints:
+# measured over 25 seconds, a glx session changed 0 pixels while an xrender one
+# changed 480 and an uncomposited one 412. Everything in the config survives
+# the swap except dual_kawase blur, which xrender cannot do.
+start_compositor() {
+    if [[ -n ${DWM_NO_PICOM:-} ]]; then
+        return 0
+    fi
+    if ! command -v picom >/dev/null; then
+        echo "picom is not installed, running without a compositor" >&2
+        return 0
+    fi
+
+    picom --config "$dotfiles/picom/picom.conf" --backend xrender --animations \
+        >/dev/null 2>&1 &
+    session_pids+=($!)
+    sleep 3
+}
+
 stop_session() {
     local pid
     for pid in "${session_pids[@]:-}"; do

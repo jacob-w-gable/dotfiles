@@ -55,6 +55,28 @@ session.
 
 The session ends on `Super+Shift+q`, or when the window is closed.
 
+## The compositor
+
+picom runs in both nested sessions and in a real one, off the same
+`picom/picom.conf` the awesome session uses. `DWM_NO_PICOM=1` skips it.
+
+The nested sessions pass `--backend xrender`, where the config asks for glx and
+a real session gets it. Inside Xephyr the glx backend composites one frame and
+then never repaints: measured over 25 seconds, a glx session changed 0 pixels
+while an xrender one changed 480 and an uncomposited one 412. A frozen
+composite is what "picom isn't doing anything" looks like from the outside, and
+it takes the bar's clock and every window's contents down with it. Everything
+in the config survives the swap except `dual_kawase` blur, which xrender cannot
+do, so the nested preview has rounded corners, fading and dimming but no blur.
+
+The config needed two additions for dwm. dwm sets no `_NET_WM_WINDOW_TYPE` on
+its bar, so the existing rule that squares off anything which is not a normal
+window never matched it, and the bar came out with rounded corners. The systray
+patch does give the bar `WM_CLASS = dwm`, which is matchable. dwm's systray is
+a second override-redirect window beside the bar with no class of its own, so
+that one is matched on being override-redirect at `y = 0`. polybar is excluded
+by class for the same reason. All four additions are inert under awesome.
+
 ## The patch stack
 
 dwm ships no layouts beyond tile, monocle and floating, and no colour in the
