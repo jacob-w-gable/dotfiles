@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#
+# Sink volume, in the format widgets/volume.lua uses.
+#
+# Click 1 toggles mute, the scroll buttons change the volume by 2%. Each
+# signals dwmblocks so the reading updates without waiting for the next poll.
+
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/dwm-bar-lib"
+
+case ${BLOCK_BUTTON:-${1:-}} in
+    1) pactl set-sink-mute @DEFAULT_SINK@ toggle ;;
+    4) pactl set-sink-volume @DEFAULT_SINK@ +2% ;;
+    5) pactl set-sink-volume @DEFAULT_SINK@ -2% ;;
+esac
+
+if ! volume=$(pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null); then
+    printf '%s\n' "$(paint muted 'Vol: --')"
+    exit 0
+fi
+
+pct=$(grep -o '[0-9]\+%' <<< "$volume" | head -1 | tr -d '%')
+muted=$(pactl get-sink-mute @DEFAULT_SINK@ 2>/dev/null | grep -c 'yes' || true)
+
+if (( muted )); then
+    printf '%s\n' "$(paint muted 'Vol: muted')"
+else
+    printf '%s %s%%\n' "$(paint accent 'Vol:')" "${pct:-0}"
+fi

@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+#
+# Current temperature and conditions, porting widgets/weather.lua.
+#
+# Same two-step lookup: ipapi.co for coordinates, then api.weather.gov for the
+# hourly forecast. Both results are cached in the state directory, because the
+# status bar re-runs this script on every poll where the awesome widget keeps
+# the coordinates in a module local for the life of the session.
+
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/dwm-bar-lib"
+
+readonly coords_cache=$dwm_state_dir/weather-coords
+readonly url_cache=$dwm_state_dir/weather-url
+readonly reading_cache=$dwm_state_dir/weather-reading
+readonly agent='dwm status bar weather'
+
+# How long a cached reading stands. The forecast is hourly, so polling more
+# often than this only adds requests.
+readonly max_age_seconds=900
+
+fresh() {
+    local file=$1
+    [[ -s $file ]] || return 1
+    (( $(date +%s) - $(stat -c %Y "$file") < max_age_seconds ))
+}
+
+# --location, because api.weather.gov answers a coordinate with more than four
+# decimal places with a 301 to the nearest point it supports.
+fetch() {
+    curl --silent --show-error --fail --location \
+        --connect-timeout 3 --max-time 10 \
+        -H "User-Agent: $agent" "$1"
+}
+
+# The same mapping widgets/weather.lua uses, in the same order, with the
+# nf-weather glyphs in place of its emoji. Order matters: "partly cloudy" has
+# to be tested before the bare "cloud" case, or it picks the wrong glyph.
+forecast_icon() {
+    case ${1,,} in
+        *thunder*)          printf '\uE31D' ;;
+        *snow*|*sleet*)     printf '\uE31A' ;;
+        *shower*)           printf '\uE319' ;;
+        *rain*)             printf '\uE318' ;;
+        *fog*)              printf '\uE313' ;;
+        *"partly cloudy"*)  printf '\uE302' ;;
+        *cloud*)            printf '\uE312' ;;
+        *"mostly sunny"*)   printf '\uE30C' ;;
+        *sunny*|*clear*)    printf '\uE30D' ;;
+        *)                  printf '\uE374' ;;
+    esac
+}
+
+# The cache stores the reading, not the rendered line. Both bars run this same
+# script and only paint() differs between them, so caching the marked-up text
+# would serve dwmblocks colour codes to polybar and the other way round.
+render() {
+    printf '%s %d°F\n' "$(paint accent "$(forecast_icon "$2")")" "$1"
+}
+
+if fresh "$reading_cache"; then
+    IFS=$'\t' read -r temp forecast < "$reading_cache"
+    render "$temp" "$forecast"
+    exit 0
+fi
+
+# Coordinates change only when the machine moves, so this cache has no expiry.
+if [[ ! -s $coords_cache ]]; then
+    fetch 'https://ipapi.co/json/' |
+        jq -r '[.latitude, .longitude] | @tsv' > "$coords_cache" || true
+fi
+if [[ ! -s $coords_cache ]]; then
+    printf '%s\n' "$(paint muted '--°F')"
+    exit 0
+fi
+
+read -r lat lon < "$coords_cache"
+
+# Only a usable URL is cached. Writing "null" here would stick, because the
+# cache has no expiry and a non-empty file is never refetched.
+if [[ ! -s $url_cache ]]; then
+    url=$(fetch "https://api.weather.gov/points/$lat,$lon" |
+        jq -r '.properties.forecastHourly') || true
+    [[ -n ${url:-} && $url != null ]] && printf '%s\n' "$url" > "$url_cache"
+fi
+if [[ ! -s $url_cache ]]; then
+    printf '%s\n' "$(paint muted '--°F')"
+    exit 0
+fi
+
+if ! reading=$(fetch "$(< "$url_cache")" |
+        jq -r '.properties.periods[0] | [.temperature, .shortForecast] | @tsv'); then
+    printf '%s\n' "$(paint muted '--°F')"
+    exit 0
+fi
+
+printf '%s\n' "$reading" > "$reading_cache"
+
+IFS=$'\t' read -r temp forecast <<< "$reading"
+render "$temp" "$forecast"

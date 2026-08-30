@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+#
+# Shared helpers for the status scripts. Source this, do not run it.
+#
+# One set of scripts feeds both bars, so only the color markup differs:
+# dwmblocks reads the status2d form ^c#RRGGBB^text^d^, polybar reads
+# %{F#RRGGBB}text%{F-}. DWM_BAR selects the dialect and defaults to dwmblocks.
+#
+# Colors come from the pywal palette, matching dwm/gen-colors.sh. They are read
+# with sed rather than by sourcing colors.sh, because that file also sets
+# FZF_DEFAULT_OPTS and LS_COLORS into the caller's environment.
+
+readonly wal_sh=$HOME/.cache/wal/colors.sh
+
+wal_var() {
+    local name=$1 fallback=$2 value=
+    [[ -r $wal_sh ]] &&
+        value=$(sed -n "s/^$name='\\(#[0-9a-fA-F]\\{6\\}\\)'\$/\\1/p" "$wal_sh")
+    printf '%s' "${value:-$fallback}"
+}
+
+readonly color_accent=$(wal_var color4 '#1a5598')
+readonly color_urgent=$(wal_var color1 '#d35f5f')
+readonly color_muted=$(wal_var color8 '#5a5a5a')
+
+# Emit text in one of the named roles. An unknown role is a bug in the caller,
+# so it is left uncolored rather than silently substituted.
+paint() {
+    local role=$1 text=$2 hex=
+
+    case $role in
+        accent) hex=$color_accent ;;
+        urgent) hex=$color_urgent ;;
+        muted)  hex=$color_muted ;;
+        plain)  printf '%s' "$text"; return ;;
+        *)      printf '%s' "$text"; return ;;
+    esac
+
+    case ${DWM_BAR:-dwmblocks} in
+        polybar) printf '%%{F%s}%s%%{F-}' "$hex" "$text" ;;
+        *)       printf '^c%s^%s^d^' "$hex" "$text" ;;
+    esac
+}
+
+# Glyphs, written as escapes so they survive an editor that does not handle the
+# Nerd Font private use area. Everything else uses the short text labels the
+# awesome bar uses.
+#
+# All of these are in Hack Nerd Font. That matters more here than it does in
+# awesome: awesome renders through Pango, which falls back to Noto Color Emoji
+# for the emoji widgets/weather.lua uses, while dwm renders through Xft, which
+# aborts on a BGRA colour glyph unless it is built against a patched libXft.
+# Staying inside one monochrome font avoids the question.
+readonly icon_awake=$'\U000F0176'
+readonly icon_sleepy=$'\U000F0FAA'
+readonly icon_play=$'\uF04B'
+readonly icon_pause=$'\uF04C'
+readonly icon_timer=$'●'
+readonly icon_timer_paused=$'○'
+
+# An eight-step bar glyph for a 0-100 reading. The status bar is one line of
+# text, so a graph is a single character rather than the 50px wide plot the
+# awesome config draws.
+spark() {
+    local pct=${1:-0}
+    local -r glyphs=(▁ ▂ ▃ ▄ ▅ ▆ ▇ █)
+    local i=$((pct * 8 / 100))
+    (( i > 7 )) && i=7
+    (( i < 0 )) && i=0
+    printf '%s' "${glyphs[i]}"
+}
+
+# Cache directory for the scripts that keep state between runs.
+readonly dwm_state_dir=${XDG_RUNTIME_DIR:-/tmp}/dwm-status
+mkdir -p "$dwm_state_dir"

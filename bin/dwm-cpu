@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#
+# CPU load as a percentage and a single bar glyph.
+#
+# /proc/stat is cumulative since boot, so the percentage is the delta against
+# the previous run, kept in the state directory. The first run after login has
+# no previous sample and reports 0.
+
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/dwm-bar-lib"
+
+readonly state=$dwm_state_dir/cpu
+
+read -r _ user nice system idle iowait irq softirq _ < /proc/stat
+busy=$((user + nice + system + irq + softirq))
+total=$((busy + idle + iowait))
+
+pct=0
+if [[ -r $state ]]; then
+    read -r prev_busy prev_total < "$state"
+    delta_total=$((total - prev_total))
+    (( delta_total > 0 )) && pct=$(( (busy - prev_busy) * 100 / delta_total ))
+fi
+printf '%s %s\n' "$busy" "$total" > "$state"
+
+(( pct > 100 )) && pct=100
+(( pct < 0 )) && pct=0
+
+printf '%s %s %d%%\n' "$(paint accent 'CPU')" "$(spark "$pct")" "$pct"

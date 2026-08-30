@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+#
+# Backlight control, porting apps.brightness_up and apps.brightness_down.
+#
+# brightnessctl where it exists, xbacklight otherwise. xbacklight needs an X
+# Backlight property that current Intel and AMD drivers often do not expose,
+# where brightnessctl goes through sysfs and works there.
+#
+# Usage: dwm-brightness up|down
+
+set -euo pipefail
+
+readonly step=10
+
+case ${1:-} in
+    up)
+        if command -v brightnessctl >/dev/null; then
+            brightnessctl set "$step%+"
+        else
+            xbacklight -inc "$step"
+        fi
+        ;;
+    down)
+        if command -v brightnessctl >/dev/null; then
+            brightnessctl set "$step%-"
+        else
+            xbacklight -dec "$step"
+        fi
+        ;;
+    *)
+        echo "usage: ${0##*/} up|down" >&2
+        exit 2
+        ;;
+esac

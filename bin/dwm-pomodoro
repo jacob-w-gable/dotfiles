@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+#
+# Pomodoro timer, porting widgets/pomodoro.lua.
+#
+# The awesome widget is a gears.timer plus a table of state in the Lua module.
+# A status script has no process between polls, so the state lives in a file
+# and the phase is advanced by whichever run first sees the deadline pass.
+# That keeps the timer accurate even if the bar misses a poll, because the
+# deadline is an absolute time rather than a countdown that has to be ticked.
+#
+# Usage: dwm-pomodoro [toggle|toggle-visible|reset|skip]
+# With no argument it prints the current state, which is what the bar calls.
+
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/dwm-bar-lib"
+
+readonly state=$dwm_state_dir/pomodoro
+
+# Phase lengths in minutes, and how many work phases fall between long breaks.
+# These are the values rc.lua passes to the widget.
+readonly work_minutes=25
+readonly short_break_minutes=5
+readonly long_break_minutes=5
+readonly long_break_every=17
+
+readonly sound=$HOME/.config/awesome/theme/alarm1.wav
+
+# phase   work, short, long, or idle
+# ends    epoch second the running phase finishes, 0 when paused
+# left    seconds remaining, only meaningful while paused
+# count   work phases completed since the last reset
+# visible 1 when the block is shown on the bar
+phase=idle ends=0 left=0 count=0 visible=1
+
+load() {
+    [[ -r $state ]] || return 0
+    # shellcheck disable=SC1090
+    source "$state"
+}
+
+save() {
+    cat > "$state" <<EOF
+phase=$phase
+ends=$ends
+left=$left
+count=$count
+visible=$visible
+EOF
+}
+
+minutes_for() {
+    case $1 in
+        work)  printf '%d' "$work_minutes" ;;
+        short) printf '%d' "$short_break_minutes" ;;
+        long)  printf '%d' "$long_break_minutes" ;;
+        *)     printf '0' ;;
+    esac
+}
+
+label_for() {
+    case $1 in
+        work)  printf 'Work' ;;
+        short) printf 'Break' ;;
+        long)  printf 'Long break' ;;
+        *)     printf 'Pomodoro' ;;
+    esac
+}
+
+start_phase() {
+    phase=$1
+    ends=$(( $(date +%s) + $(minutes_for "$phase") * 60 ))
+    left=0
+}
+
+# Move to whatever follows the phase that just finished. Work phases are
+# counted, and every long_break_every-th one earns the long break.
+advance() {
+    local finished=$phase
+    if [[ $finished == work ]]; then
+        count=$((count + 1))
+        if (( count % long_break_every == 0 )); then
+            start_phase long
+        else
+            start_phase short
+        fi
+    else
+        start_phase work
+    fi
+
+    notify-send -t 5000 'Pomodoro' "$(label_for "$finished") finished. $(label_for "$phase") started."
+    [[ -r $sound ]] && command -v paplay >/dev/null &&
+        paplay "$sound" >/dev/null 2>&1 &
+}
+
+load
+
+# Set by the branches that change the state, so the bar can be told to redraw.
+redraw=0
+
+case ${BLOCK_BUTTON:-${1:-}} in
+    toggle|1)
+        if [[ $phase == idle ]]; then
+            start_phase work
+        elif (( ends )); then
+            left=$(( ends - $(date +%s) ))
+            (( left < 0 )) && left=0
+            ends=0
+        else
+            ends=$(( $(date +%s) + left ))
+            left=0
+        fi
+        save
+        redraw=1
+        ;;
+    toggle-visible|3)
+        visible=$(( 1 - visible ))
+        save
+        redraw=1
+        ;;
+    reset)
+        phase=idle ends=0 left=0 count=0
+        save
+        redraw=1
+        ;;
+    skip|2)
+        [[ $phase != idle ]] && { advance; save; redraw=1; }
+        ;;
+esac
+
+# Only when a keybinding drove this. dwmblocks re-runs a block itself after a
+# click, so signalling from inside the block it just ran makes the block signal
+# itself forever, which pins a core.
+if (( redraw )) && [[ -z ${BLOCK_BUTTON:-} ]]; then
+    pkill -RTMIN+1 dwmblocks 2>/dev/null || true
+fi
+
+(( visible )) || exit 0
+
+if [[ $phase == idle ]]; then
+    printf '%s\n' "$(paint muted "$icon_timer_paused --:--")"
+    exit 0
+fi
+
+if (( ends )); then
+    remaining=$(( ends - $(date +%s) ))
+    if (( remaining <= 0 )); then
+        advance
+        save
+        remaining=$(( ends - $(date +%s) ))
+    fi
+    icon=$icon_timer
+else
+    remaining=$left
+    icon=$icon_timer_paused
+fi
+
+role=accent
+[[ $phase == work ]] || role=muted
+
+printf '%s %02d:%02d\n' \
+    "$(paint "$role" "$icon")" $((remaining / 60)) $((remaining % 60))

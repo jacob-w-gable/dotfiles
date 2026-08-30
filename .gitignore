@@ -18,3 +18,8 @@ awesome/config/machine.lua
 # Machine-local nvim config (see nvim/lua/config/machine.example.lua)
 nvim/lua/config/machine.lua
 nvim/lua/plugins/local/
+
+# dwm and dwmblocks build trees (see dwm/build.sh and dwmblocks/build.sh)
+dwm/build/
+dwm/colors.h
+dwmblocks/build/

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#
+# Pick a wallpaper, regenerate the pywal palette, and re-theme what can be
+# re-themed without a restart.
+#
+# awesome/theme/wallpaper ends by calling awesome.restart(), which re-reads the
+# theme in place. dwm compiles its palette in, so the equivalent here is a
+# rebuild: the wallpaper and polybar update immediately, dwm's own bar and
+# border colors change the next time it starts.
+
+set -euo pipefail
+
+export PATH="$HOME/.local/bin:$PATH"
+readonly dotfiles=${DOTFILES:-$HOME/dotfiles}
+
+image=$(nsxiv -obtn 1 -z 120 "$HOME"/Pictures/Wallpapers/* || true)
+[[ -n ${image:-} ]] || { echo "No image selected." >&2; exit 1; }
+
+wal -i "$image" --cols16 lighten
+
+feh --bg-fill "$image"
+
+if command -v rgb_ctrl >/dev/null; then
+    rgb_ctrl hex "$(jq -r '.colors.color4' "$HOME/.cache/wal/colors.json")" || true
+fi
+
+# The GTK, Qt and Chromium steps are the wallpaper script's, unchanged: none of
+# them know which window manager is running.
+(cd "$dotfiles/chromium" && ./pywal-theme.sh)
+python3 "$dotfiles/awesome/theme/gtk2css.py" -f "$HOME/.cache/wal/gtk.json"
+
+# polybar re-reads its config, which pulls the new palette straight away.
+polybar-msg cmd restart >/dev/null 2>&1 || true
+
+# dwmblocks scripts read the palette per poll, so they need no restart.
+pkill -RTMIN+1 dwmblocks 2>/dev/null || true
+
+if [[ -x $dotfiles/dwm/build.sh ]]; then
+    "$dotfiles/dwm/build.sh" >/dev/null &&
+        notify-send -t 5000 'Wallpaper' 'Palette applied. Restart dwm to pick up bar and border colors.'
+fi

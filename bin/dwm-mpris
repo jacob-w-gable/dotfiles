@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+#
+# Now playing, via playerctl.
+#
+# widgets/mpris.lua asks Spotify by name and also fetches album art for its
+# popup. There is no popup on a text bar, so this takes whichever player
+# playerctl considers current and prints one truncated line.
+#
+# Click 1 play/pauses, 4 and 5 skip.
+
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/dwm-bar-lib"
+
+# Longest title shown before it is cut, so one long track name cannot push the
+# rest of the bar off screen.
+readonly max_width=40
+
+case ${BLOCK_BUTTON:-${1:-}} in
+    1) playerctl play-pause 2>/dev/null || true ;;
+    4) playerctl next 2>/dev/null || true ;;
+    5) playerctl previous 2>/dev/null || true ;;
+esac
+
+command -v playerctl >/dev/null || exit 0
+
+status=$(playerctl status 2>/dev/null) || exit 0
+[[ $status == Playing || $status == Paused ]] || exit 0
+
+track=$(playerctl metadata --format '{{artist}} - {{title}}' 2>/dev/null) || exit 0
+[[ -n ${track// /} ]] || exit 0
+[[ $track == " - "* ]] && track=${track# - }
+
+(( ${#track} > max_width )) && track="${track:0:max_width-1}…"
+
+icon=$icon_play
+[[ $status == Paused ]] && icon=$icon_pause
+
+printf '%s %s\n' "$(paint accent "$icon")" "$track"

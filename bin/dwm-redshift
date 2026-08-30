@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# Eye saver mode, porting the Mod+e binding in bindings/global.lua.
+#
+# The awesome binding keeps its flag in a module local, which resets on restart
+# while a running redshift survives. The flag is a file here, so the state
+# tracks the process across a restart of either the bar or the window manager.
+
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/dwm-bar-lib"
+
+readonly state=$dwm_state_dir/redshift
+readonly temperature=3500
+
+if [[ -f $state ]]; then
+    rm -f "$state"
+    redshift -x
+else
+    touch "$state"
+    redshift -O "$temperature"
+fi

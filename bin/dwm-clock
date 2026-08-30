@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# Date and time, in the format widgets/clock.lua uses.
+#
+# Click 1 shows the month calendar as a notification, replacing the calendar
+# lain.widget.cal attaches to the awesome clock.
+
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/dwm-bar-lib"
+
+case ${BLOCK_BUTTON:-${1:-}} in
+    1)
+        notify-send -t 8000 "$(date '+%B %Y')" "$(cal | tail -n +2)"
+        ;;
+esac
+
+printf '%s\n' "$(paint accent "$(date '+%a %b %d, %I:%M %p')")"

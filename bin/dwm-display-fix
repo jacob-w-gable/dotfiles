@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# Re-apply the monitor layout, porting the Mod+d binding.
+#
+# settings.display_fix_command is per-machine and lives in the gitignored
+# config/machine.lua. The same command goes in $XDG_CONFIG_HOME/dwm/display-fix
+# here. Without that file this falls back to autorandr, then to letting xrandr
+# turn on every connected output at its preferred mode.
+
+set -euo pipefail
+
+readonly override=${XDG_CONFIG_HOME:-$HOME/.config}/dwm/display-fix
+
+if [[ -x $override ]]; then
+    exec "$override"
+fi
+
+if command -v autorandr >/dev/null; then
+    exec autorandr --change
+fi
+
+for output in $(xrandr | awk '/ connected/ {print $1}'); do
+    xrandr --output "$output" --auto
+done

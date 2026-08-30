@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+#
+# Battery charge, in the format widgets/battery.lua uses.
+#
+# Prints nothing at all on a machine with no battery, which removes the block
+# from the bar. The awesome config shows it unconditionally, but a desktop has
+# no reading to show and an empty block is one less thing on the bar.
+
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/dwm-bar-lib"
+
+readonly bat=/sys/class/power_supply/BAT0
+
+[[ -d $bat ]] || exit 0
+
+pct=$(< "$bat/capacity")
+status=$(< "$bat/status")
+
+role=accent
+(( pct <= 15 )) && [[ $status != Charging ]] && role=urgent
+
+# A leading + marks charging, as the text label leaves no room for the ten
+# Nerd Font battery glyphs the awesome widget could use.
+charge=
+[[ $status == Charging ]] && charge='+'
+
+printf '%s %s%d%%\n' "$(paint "$role" 'Bat:')" "$charge" "$pct"

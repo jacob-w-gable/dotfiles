@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+#
+# Session startup for dwm, porting awesome/autostart.lua.
+#
+# DWM_BAR selects the status bar and defaults to dwmblocks. Set it to polybar
+# to run polybar along the bottom instead, with dwm's own bar kept for the tags
+# and the layout symbol.
+#
+# Set DWM_NO_AUTOSTART to skip everything but the window manager. Several
+# entries pkill a program before restarting it, and pkill is not scoped to a
+# display, so from a nested X server they would reach out and kill the copy
+# belonging to the real session. Testing this in Xephyr is only safe with the
+# variable set.
+
+export PATH="$HOME/.local/bin:${DOTFILES:-$HOME/dotfiles}/bin:$PATH"
+export DWM_BAR=${DWM_BAR:-dwmblocks}
+
+readonly dotfiles=${DOTFILES:-$HOME/dotfiles}
+
+# Pinned for the same reason config/settings.lua pins it: the X server computes
+# DPI from EDID at startup, before an external monitor's real mode is applied,
+# so the whole UI silently resizes between reboots.
+readonly dpi=${DWM_DPI:-144}
+
+xrdb -merge <(printf 'Xft.dpi: %s\n' "$dpi")
+[[ -r $HOME/.cache/wal/colors.Xresources ]] &&
+    xrdb -merge "$HOME/.cache/wal/colors.Xresources"
+
+# dwm draws no wallpaper of its own, where awesome does it from the theme.
+if [[ -r $HOME/.cache/wal/colors.sh ]]; then
+    wallpaper=$(sed -n "s/^wallpaper=['\"]\\(.*\\)['\"]$/\\1/p" "$HOME/.cache/wal/colors.sh")
+    [[ -r ${wallpaper:-} ]] && feh --bg-fill "$wallpaper"
+fi
+
+start_bar() {
+    if [[ $DWM_BAR == polybar ]]; then
+        # dwm's own bar keeps the tags, the layout symbol and the systray, and
+        # shows no status text. A single space rather than an empty string:
+        # dwm falls back to printing its version when WM_NAME has no items.
+        xsetroot -name " "
+        polybar --config="$dotfiles/polybar/config.ini" main &
+    else
+        dwmblocks &
+    fi
+}
+
+if [[ -z ${DWM_NO_AUTOSTART:-} ]]; then
+    # Guarded on the binary being installed, so a machine without pasystray
+    # skips it. Each is backgrounded because the tray applets do not exit.
+    run() { command -v "$1" >/dev/null && { eval "${2:-$1}" & }; }
+    restart() { command -v "$1" >/dev/null && { pkill "$1"; eval "${2:-$1}" & }; }
+
+    restart nm-tray
+    restart pasystray
+    run blueman-applet
+
+    restart xss-lock "xss-lock -l -- dwm-lock"
+    restart flameshot
+
+    run xset "xset r rate 250 60"
+
+    # Per-device input tweaks. The device name comes from `xinput list` and is
+    # specific to one machine, so it goes in a file this reads rather than here.
+    touchpad_conf=${XDG_CONFIG_HOME:-$HOME/.config}/dwm/touchpad
+    [[ -r $touchpad_conf ]] && source "$touchpad_conf"
+
+    run picom "picom --config $dotfiles/picom/picom.conf --animations"
+fi
+
+start_bar
+
+exec dwm

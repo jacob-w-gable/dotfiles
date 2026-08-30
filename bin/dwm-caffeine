@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#
+# Sleep inhibition, porting widgets/caffeine.lua.
+#
+# The awesome widget keeps the on/off flag in a module local. A status script
+# runs fresh each poll, so the flag lives in a file instead, which also lets
+# the Mod+c binding and a bar click drive the same state.
+#
+# Usage: dwm-caffeine [toggle]
+
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/dwm-bar-lib"
+
+readonly state=$dwm_state_dir/caffeine
+
+toggle() {
+    if [[ -f $state ]]; then
+        rm -f "$state"
+        xset s on +dpms
+        notify-send -t 2000 'Caffeine' 'Disabled (Sleep Allowed)'
+    else
+        touch "$state"
+        xset s off -dpms
+        notify-send -t 2000 'Caffeine' 'Enabled (No Sleep)'
+    fi
+    # Only when a keybinding drove this. dwmblocks re-runs a block itself after
+    # a click, so a signal from inside that run is redundant. Under polybar the
+    # module re-reads on its own interval and this is a no-op either way.
+    [[ -z ${BLOCK_BUTTON:-} ]] &&
+        { pkill -RTMIN+3 dwmblocks 2>/dev/null || true; }
+}
+
+case ${BLOCK_BUTTON:-${1:-}} in
+    toggle|1) toggle ;;
+esac
+
+if [[ -f $state ]]; then
+    printf '%s\n' "$(paint accent "$icon_awake")"
+else
+    printf '%s\n' "$(paint muted "$icon_sleepy")"
+fi

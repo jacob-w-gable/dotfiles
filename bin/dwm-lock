@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+#
+# The i3lock invocation from apps.lock_command().
+#
+# The awesome version builds this after beautiful.init so it can read theme
+# colors. Here the three colors come from the pywal palette directly, which is
+# the same source the theme reads. i3lock wants bare hex, with no leading '#'.
+
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/dwm-bar-lib"
+
+readonly wallpaper=$HOME/.config/awesome/theme/lockscreen.png
+
+bg=${color_muted#\#}
+fg=$(wal_var foreground '#d3dae3'); fg=${fg#\#}
+hl=${color_accent#\#}
+
+exec i3lock -i "$wallpaper" -F -f --indicator --clock \
+    --ring-color="$bg" --ringver-color="$fg" \
+    --insidever-color="$bg" --insidewrong-color="$bg" \
+    --verif-color="$fg" --wrong-color="$fg" \
+    --time-color="$fg" --date-color="$hl" \
+    --greeter-color="$hl" --layout-color="$hl" --keyhl-color="$fg" \
+    --time-str="%H:%M" --date-str="%A, %Y-%m-%d" \
+    --wrong-text="Incorrect" --noinput-text="No input" \
+    --verif-text="Verifying..." \
+    --custom-key-commands \
+    --cmd-media-play "playerctl play-pause" \
+    --cmd-media-next "playerctl next" \
+    --cmd-media-prev "playerctl previous" \
+    --cmd-volume-up "pactl set-sink-volume @DEFAULT_SINK@ +2%" \
+    --cmd-volume-down "pactl set-sink-volume @DEFAULT_SINK@ -2%" \
+    --cmd-audio-mute "pactl set-sink-mute @DEFAULT_SINK@ toggle" \
+    --cmd-brightness-up "dwm-brightness up" \
+    --cmd-brightness-down "dwm-brightness down"
