@@ -1,6 +1,6 @@
--- "Solo mode": on a tag that is showing one window at a time -- either because
+-- "Solo mode": on a tag that is showing one window at a time - either because
 -- the layout is max-like, or because the focused client is fullscreen or
--- maximized -- every other client on the tag is minimized out of the way, and
+-- maximized - every other client on the tag is minimized out of the way, and
 -- restored when the tag leaves that state.
 --
 -- Only clients minimized *by* solo mode are restored, tracked with a private
@@ -48,8 +48,8 @@ local function exempt_from_solo(c)
 	return false
 end
 
--- Minimize all non-focused clients on the tag when in solo;
--- restore what we minimized when exiting solo.
+-- Minimize all non-focused clients on the tag when in solo, and restore the
+-- ones we minimized when leaving it.
 function M.enforce(t)
 	t = t or (client.focus and client.focus.first_tag) or awful.screen.focused().selected_tag
 	if not t then

@@ -1,6 +1,6 @@
 -- One data source, many views.
 --
--- A bar widget that polls something -- the battery, the volume, the weather --
+-- A bar widget that polls something (the battery, the volume, the weather)
 -- wants exactly one poller no matter how many screens are showing it, and one
 -- widget object per screen. Sharing a single widget object across screens does
 -- not work: awesome draws it on whichever bar claimed it last, so the others
@@ -14,7 +14,7 @@ local M = {}
 --- Create a view set.
 --
 -- @tparam[opt] function apply How to paint a value onto one view. Defaults to
---   setting .markup, which suits a textbox; a graph wants add_value instead.
+--   setting .markup, which suits a textbox. A graph wants add_value instead.
 -- @tparam[opt] any initial Value to paint on views added before the first
 --   set(), e.g. a "no data yet" placeholder.
 function M.new(apply, initial)
@@ -31,10 +31,10 @@ function M.new(apply, initial)
 
 	--- Register a view to receive updates, and paint the current value on it.
 	--
-	-- `key` must be an object the bar itself holds -- a widget -- because the
+	-- `key` must be an object the bar itself references (a widget), because the
 	-- table is weak-keyed and anything else is collected straight away. When a
-	-- view needs more than one object (a graph and its tooltip, say), pass
-	-- them as `payload`; it is held strongly for as long as the key lives.
+	-- view needs more than one object, a graph and its tooltip say, pass them
+	-- as `payload`. It stays reachable for as long as the key does.
 	function set.add(key, payload)
 		local view = payload or key
 		views[key] = view

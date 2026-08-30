@@ -1,16 +1,9 @@
--- Language server configuration.
+-- LSP keymaps, and the rust-analyzer helpers they call.
 --
--- Uses vim.lsp.config / vim.lsp.enable (Neovim 0.11+) rather than the
--- require("lspconfig").X.setup() "framework", which nvim-lspconfig deprecates
--- on 0.11 and which fired a deprecation warning with a backtrace at startup.
--- It also meant two systems were creating clients: LazyVim drives LSP through
--- vim.lsp.config, so servers set up the old way got different capabilities and
--- a separate on_attach chain.
---
--- The server settings themselves live in lua/plugins/lspconfig.lua, layered
--- onto LazyVim's spec -- nvim-lspconfig is lazy-loaded, so a server configured
--- from here at startup would have no cmd and never start. This file is the
--- keymaps and the rust-analyzer helpers they call.
+-- Server settings live in lua/plugins/lspconfig.lua, layered onto LazyVim's
+-- spec. nvim-lspconfig is lazy-loaded, and it puts the per-server defaults on
+-- the runtimepath, so a server configured from this file at startup has no cmd
+-- and never starts.
 
 -- rust-analyzer helpers ------------------------------------------------------
 
@@ -20,7 +13,7 @@ end
 
 --- Ask rust-analyzer to run cargo check now.
 --
--- checkOnSave is off below, so diagnostics from cargo only appear when asked.
+-- checkOnSave is off, so cargo diagnostics only appear when asked for.
 local function rust_flycheck(bufnr)
   local client = rust_client(bufnr)
   if not client then
@@ -37,7 +30,7 @@ local function rust_restart(bufnr)
     return vim.notify("rust-analyzer is not attached to this buffer", vim.log.levels.WARN)
   end
   vim.notify("rust-analyzer: restarting")
-  -- Wait for the client to actually exit before starting a new one; stopping
+  -- Wait for the client to actually exit before starting a new one. Stopping
   -- is asynchronous, and enabling too early leaves two clients on the buffer.
   client:stop()
   local timer = vim.uv.new_timer()
@@ -59,8 +52,7 @@ end
 
 -- Keymaps -------------------------------------------------------------------
 
--- One place, applied on LspAttach, rather than the same ~60 lines pasted into
--- each server's on_attach.
+-- Applied on LspAttach, so every server gets the same set.
 local function on_attach(client, bufnr)
   local function map(lhs, rhs, desc)
     vim.keymap.set("n", lhs, rhs, { buffer = bufnr, desc = desc, silent = true })
@@ -91,9 +83,9 @@ local function on_attach(client, bufnr)
     end, "Run cargo check")
   end
 
-  -- Formatting comes from conform (see lua/plugins/formatting.lua) or, with no
-  -- formatter registered for the filetype, from the LSP itself. Turning it off
-  -- for these two keeps prettier authoritative for JS/TS and Python.
+  -- prettier and autopep8 own these filetypes (lua/plugins/formatting.lua).
+  -- Without this the server would also advertise formatting and conform's
+  -- lsp_format = "fallback" could pick it.
   if client.name == "ts_ls" or client.name == "pyright" then
     client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.documentRangeFormattingProvider = false

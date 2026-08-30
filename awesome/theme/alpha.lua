@@ -1,15 +1,14 @@
 -- Alpha suffixes for theme colours.
 --
--- awesome takes colours as #RRGGBB or #RRGGBBAA, so transparency is applied by
--- appending two hex digits. Those digits were written as bare literals in
--- eight places across five files, which made "how see-through is the bar"
--- something you had to grep for.
+-- awesome takes colours as #RRGGBB or #RRGGBBAA, so transparency means
+-- appending two hex digits. Naming the levels keeps "how see-through is the
+-- bar" in one place.
 --
 -- Levels come in two kinds. Some are transparency the user opted into with
--- settings.opacity, and are skipped when it is off. Others are visual weight --
--- a faint tag fill, a subtle divider -- which are part of the design and apply
--- either way. Conflating the two makes every tag look selected when opacity is
--- off, because the faint fill becomes the same solid colour as the focused one.
+-- settings.opacity, and are skipped when it is off. Others are visual weight
+-- (a faint tag fill, a subtle divider) and apply either way. Conflating the
+-- two makes every tag look selected when opacity is off, because the faint
+-- fill becomes the same solid colour as the focused one.
 
 local settings = require("config")
 

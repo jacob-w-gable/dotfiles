@@ -1,8 +1,7 @@
 -- Rules applied to new clients, via the "manage" signal.
 --
--- Returns the table rather than assigning awful.rules.rules directly, so
--- rc.lua decides when it takes effect and the client keys and buttons can be
--- passed in rather than reached for.
+-- Returns the table, so rc.lua decides when it takes effect and passes in the
+-- client keys and buttons.
 
 local awful = require("awful")
 local beautiful = require("beautiful")

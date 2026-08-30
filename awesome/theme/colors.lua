@@ -1,9 +1,9 @@
 local config_path = require("gears.filesystem").get_configuration_dir()
 
--- Find dkjson under whichever Lua version awesome was built against. This was
--- hardcoded to 5.4, which is wrong wherever awesome links 5.3 -- and if the
--- require fails the theme has to keep working, since this runs before the
--- error handler is installed.
+-- Find dkjson under whichever Lua version awesome was built against. It links
+-- 5.3 on some distributions and 5.4 on others. The require is wrapped because
+-- this file runs before the error handler is installed, so a missing dkjson
+-- would take the whole theme down.
 local lua_version = _VERSION:match("%d+%.%d+")
 package.path = table.concat({
 	package.path,

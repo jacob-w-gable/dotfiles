@@ -1,14 +1,12 @@
 -- Theme variants.
 --
--- settings.theme selects one. It used to be a bare string compared with == in
--- three places, with anything unrecognised silently falling through to
--- powerline -- so a typo gave you the wrong theme rather than an error.
+-- settings.theme selects one, and an unrecognised name is an error rather than
+-- a silent fallback.
 --
--- This module also breaks a dependency cycle in spirit: the taglist's beautiful
--- keys used to live in widgets/taglist.lua, which meant theme/theme.lua had to
--- require a widget to finish building itself, the reverse of how every other
--- widget relates to the theme. The keys are theme data, so they live here; the
--- widget template stays in the widget and reads `name` from here.
+-- The taglist's beautiful keys live here because they are theme data. Keeping
+-- them in the widget would mean theme/theme.lua has to require a widget to
+-- finish building itself, the reverse of how every other widget reads the
+-- theme. The widget template stays in the widget and reads `name` from here.
 
 local gears = require("gears")
 local colors = require("theme.colors")

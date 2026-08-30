@@ -7,7 +7,7 @@ local awful = require("awful")
 require("awful.autofocus")
 
 -- Personal settings, merged with any per-machine overrides. Requiring this
--- also pins the UI scale -- see config/init.lua.
+-- also pins the UI scale - see config/init.lua.
 local settings = require("config")
 local solo = require("solo")
 

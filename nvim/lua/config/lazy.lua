@@ -14,7 +14,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
---- True when lua/plugins/local/ exists and holds at least one spec.
+--- True when lua/plugins/local/ exists and contains at least one spec.
 local function has_local_plugins()
   local dir = vim.fn.stdpath("config") .. "/lua/plugins/local"
   return vim.fn.isdirectory(dir) == 1 and #vim.fn.glob(dir .. "/*.lua", false, true) > 0
@@ -30,7 +30,7 @@ require("lazy").setup({
     { import = "themes" },
     -- Machine-local plugin specs. The directory is gitignored, so this is
     -- where anything belonging to one computer goes instead of being edited
-    -- into a tracked file. Imported only when it has something in it --
+    -- into a tracked file. Imported only when it has something in it,
     -- lazy.nvim errors on an import path that resolves to nothing.
     unpack(has_local_plugins() and { { import = "plugins.local" } } or {}),
   },
@@ -41,7 +41,7 @@ require("lazy").setup({
     -- It's recommended to leave version=false for now, since a lot the plugin that support versioning,
     -- have outdated releases, which may break your Neovim install.
     version = false, -- always use the latest git commit
-    -- version = "*", -- try installing the latest stable version for plugins that support semver
+    -- version = "*", - try installing the latest stable version for plugins that support semver
   },
   install = { colorscheme = { "tokyonight", "habamax" } },
   checker = {

@@ -4,7 +4,7 @@
 -- reads of globals that were never defined. That is the failure mode this
 -- config is most prone to: a module reaching for a name that happens to be a
 -- global in rc.lua works until the name is made local, then breaks silently at
--- runtime with no load-time error. `awesome -k` cannot see it; luacheck can.
+-- runtime with no load-time error. `awesome -k` cannot see it. luacheck can.
 
 std = "lua53"
 

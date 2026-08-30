@@ -14,10 +14,10 @@ M.screenshot = "flameshot gui"
 
 -- brightnessctl where it exists, xbacklight otherwise. xbacklight is
 -- deprecated and needs an X Backlight property that current Intel and AMD
--- drivers often do not expose; brightnessctl goes through sysfs and works
+-- drivers often do not expose. brightnessctl goes through sysfs and works
 -- there. Neither is installed by every distro script, so the choice is made
--- at run time -- by the shell that runs the command, so it costs no extra
--- process. These are shell snippets: run them with spawn.with_shell.
+-- at run time, by the shell that runs the command, so it adds no process.
+-- These are shell snippets: run them with spawn.with_shell.
 M.brightness_up = "command -v brightnessctl >/dev/null && brightnessctl set 10%+ || xbacklight -inc 10"
 M.brightness_down = "command -v brightnessctl >/dev/null && brightnessctl set 10%- || xbacklight -dec 10"
 

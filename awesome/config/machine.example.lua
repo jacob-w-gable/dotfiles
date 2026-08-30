@@ -9,10 +9,10 @@
 
 return {
 	-- The X server's idea of DPI depends on which display wins the race at
-	-- boot, so this is pinned -- and the right value differs per machine.
+	-- boot, so this is pinned - and the right value differs per machine.
 	-- dpi = 144,
 
-	-- Extra programs to autostart. A plain string is run as-is; the table form
+	-- Extra programs to autostart. A plain string is run as-is. The table form
 	-- is skipped when `bin` is not installed, like the built-in entries.
 	-- extra_autostart = {
 	-- 	{ bin = "nextcloud", command = "pkill nextcloud; nextcloud" },

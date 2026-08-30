@@ -1,11 +1,7 @@
--- Formatting, via LazyVim's conform.nvim.
+-- Formatting, layered onto LazyVim's conform.nvim spec.
 --
--- These filetypes were previously fixed by ALE's fix_on_save. ALE ran on
--- BufWritePost, after conform had already formatted and written on
--- BufWritePre, so every save formatted twice and wrote the file twice.
---
--- conform resolves prettier through node_modules first (util.from_node_modules),
--- so project-local installs keep working exactly as they did under ALE.
+-- conform resolves prettier through node_modules before PATH, so a project
+-- that vendors its own version gets that one.
 
 return {
   {

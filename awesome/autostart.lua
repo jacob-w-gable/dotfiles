@@ -1,7 +1,7 @@
 -- Programs and input settings applied once at login.
 --
 -- Skipped entirely when AWESOME_NO_AUTOSTART is set. Several entries pkill a
--- program before restarting it, and pkill is not scoped to a display -- run
+-- program before restarting it, and pkill is not scoped to a display - run
 -- from a nested X server (Xephyr) they would reach out and kill the copy
 -- belonging to the real session. Testing this config in Xephyr is only safe
 -- with the variable set.
@@ -18,13 +18,12 @@ local commands = {}
 
 --- Queue a command, guarded on its binary being installed.
 --
--- The guard is free: these run inside a shell we are spawning anyway, so
--- `command -v` costs no extra process and means a machine without, say,
--- pasystray simply skips it rather than spawning a failure.
+-- The guard adds no process: these already run through a shell, so
+-- `command -v` is a builtin, and a machine without pasystray skips it.
 --
--- Backgrounded, because they all share one shell now: the tray applets do not
--- exit, so run in the foreground the first of them would block every command
--- after it.
+-- Each command is backgrounded because they share one shell. The tray applets
+-- do not exit, so in the foreground the first would block every command after
+-- it.
 local function run(bin, command)
 	commands[#commands + 1] = string.format("command -v %s >/dev/null && { %s; } &", bin, command or bin)
 end
@@ -77,5 +76,5 @@ if settings.compositor then
 	run("picom", "picom --config ~/.config/picom/picom.conf --animations")
 end
 
--- One shell for the lot, rather than one per line as before.
+-- One shell for the lot.
 awful.spawn.with_shell(table.concat(commands, "\n"))

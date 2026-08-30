@@ -86,12 +86,12 @@ return function(args)
 			},
 		})
 
-		-- The bar's right-hand side, in order. Defined once; each theme variant
+		-- The bar's right-hand side, in order. Defined once, so each theme variant
 		-- only decides how to decorate it, so adding a widget is a one-line
 		-- change rather than an edit to two parallel lists that must agree.
 		--
-		-- The pomodoro and the systray are single objects by nature -- one
-		-- timer, and an X selection awesome can only own once -- so they go on
+		-- The pomodoro and the systray are single objects by nature - one
+		-- timer, and an X selection awesome can only own once - so they go on
 		-- the primary screen only. Everything else is built per screen.
 		local function right_widget_list()
 			local list = {}

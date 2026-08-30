@@ -1,10 +1,9 @@
 -- Client signals: placement of new windows, border width and colour, and
 -- focus-follows-mouse.
 --
--- Awesome dispatches every handler connected to a signal, so these live
--- alongside the handlers in solo.lua and ui/titlebar.lua rather than being
--- merged with them -- they are separate concerns that happen to share a
--- signal name.
+-- Awesome dispatches every handler connected to a signal, so these sit
+-- alongside the handlers in solo.lua and ui/titlebar.lua. They are separate
+-- concerns that share a signal name.
 
 local awful = require("awful")
 local beautiful = require("beautiful")

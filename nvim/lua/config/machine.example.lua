@@ -8,7 +8,7 @@
 -- dirty working tree and follows you onto every other machine.
 --
 -- For machine-local *plugins*, drop a spec file into lua/plugins/local/
--- instead -- that whole directory is gitignored and imported automatically.
+-- instead - that whole directory is gitignored and imported automatically.
 
 return {
 	-- Where rust-analyzer puts its build artifacts. Useful when the default

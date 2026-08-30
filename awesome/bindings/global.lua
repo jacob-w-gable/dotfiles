@@ -16,7 +16,7 @@ return function(args)
 	local pomo = args.pomodoro
 
 	-- Toggled by Mod+e below. Module state, so it resets on restart while a
-	-- running redshift survives -- see the note in the plan.
+	-- running redshift survives - see the note in the plan.
 	local redshift_enabled = false
 
 	local globalkeys = gears.table.join(

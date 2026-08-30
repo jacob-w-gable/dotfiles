@@ -6,10 +6,10 @@ local views = require("widgets.views")
 
 local NO_MEDIA = "🎵 No media"
 
--- Album art is fetched to one stable path rather than a new /tmp file per
--- poll. load_uncached is what makes the imagebox notice the file changed --
--- previously a unique filename per poll was doing that job, and leaking a jpeg
--- every five seconds for as long as the session lasted.
+-- Album art goes to one stable path. Because the filename never changes,
+-- imagebox cannot tell one track's art from the next by path alone, so the
+-- surface is loaded with load_uncached and only when the art actually changes
+-- (see the token in the view set below).
 local ART_PATH = gears.filesystem.get_cache_dir() .. "mpris-art.jpg"
 
 local function file_exists(path)
@@ -21,7 +21,7 @@ local function file_exists(path)
 	return true
 end
 
--- Each view is { text, art }; one poller feeds them all.
+-- Each view is { text, art }. One poller feeds them all.
 local set = views.new(function(view, data)
 	view.text.markup = string.format('<span font="%s">%s</span>', beautiful.font, gears.string.xml_escape(data.text))
 

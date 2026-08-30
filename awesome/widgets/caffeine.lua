@@ -15,7 +15,7 @@ local function markup(glyph)
 	return string.format('<span font="%s">%s</span>', beautiful.font, glyph)
 end
 
---- Toggle sleep inhibition. Exported so a keybinding can drive it too; every
+--- Toggle sleep inhibition. Exported so a keybinding can drive it too, and every
 --- screen's glyph updates.
 local function toggle()
 	enabled = not enabled
