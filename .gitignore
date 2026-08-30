@@ -18,3 +18,13 @@ awesome/config/machine.lua
 # Machine-local nvim config (see nvim/lua/config/machine.example.lua)
 nvim/lua/config/machine.lua
 nvim/lua/plugins/local/
+
+# Spike VM artifacts (see vm/README.md)
+vm/base.qcow2
+vm/disk.qcow2
+vm/seed.iso
+vm/id_ed25519
+vm/id_ed25519.pub
+vm/vm.pid
+vm/console.log
+vm/*.png
