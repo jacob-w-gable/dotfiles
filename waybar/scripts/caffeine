@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Sleep inhibition, for the bar and for Mod+C.
+#
+# awesome/widgets/caffeine.lua runs `xset s off -dpms`. There is no xset here: idle is
+# hypridle's business, and the way to tell it to stand down is an inhibitor on the
+# systemd login session, which is also what a video player would take.
+
+set -euo pipefail
+
+STATE="${XDG_RUNTIME_DIR:-/tmp}/caffeine.pid"
+
+AWAKE=" "
+SLEEPY="󰾪 "
+
+is_on() {
+	[[ -f $STATE ]] && kill -0 "$(cat "$STATE")" 2>/dev/null
+}
+
+case "${1:-status}" in
+on | off | toggle)
+	if is_on; then
+		kill "$(cat "$STATE")" 2>/dev/null || true
+		rm -f "$STATE"
+		[[ ${1} == on ]] && exec "$0" on
+		notify-send -t 2000 "Caffeine" "Disabled (sleep allowed)"
+	else
+		# Held open by a sleeping child; killing it releases the inhibitor.
+		systemd-inhibit --what=idle:sleep --who=caffeine --why="Toggled from the bar" \
+			sleep infinity &
+		echo $! >"$STATE"
+		notify-send -t 2000 "Caffeine" "Enabled (no sleep)"
+	fi
+	pkill -RTMIN+7 waybar 2>/dev/null || true
+	;;
+status)
+	if is_on; then
+		printf '{"text":"%s","tooltip":"Caffeine: on","class":"on"}\n' "$AWAKE"
+	else
+		printf '{"text":"%s","tooltip":"Caffeine: off","class":"off"}\n' "$SLEEPY"
+	fi
+	;;
+*)
+	echo "usage: $0 [status|toggle|on|off]" >&2
+	exit 1
+	;;
+esac

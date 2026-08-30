@@ -40,10 +40,12 @@ ssh_guest '
 	mkdir -p ~/.config
 	# rm first: Hyprland writes a default ~/.config/hypr on first run, and linking onto
 	# an existing directory would put the link inside it.
-	rm -rf ~/.config/hypr ~/.config/kitty ~/.config/rofi
+	rm -rf ~/.config/hypr ~/.config/kitty ~/.config/rofi ~/.config/waybar ~/.config/wal
 	ln -s ~/dotfiles/hypr   ~/.config/hypr
 	ln -s ~/dotfiles/kitty  ~/.config/kitty
 	ln -s ~/dotfiles/rofi   ~/.config/rofi
+	ln -s ~/dotfiles/waybar ~/.config/waybar
+	ln -s ~/dotfiles/wal    ~/.config/wal
 '
 
 echo "==> restarting Hyprland to pick up the config"

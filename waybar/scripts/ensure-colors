@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Make sure the pywal colour file waybar's stylesheet imports exists.
+#
+# GTK treats a missing @import as a fatal parse error rather than skipping it, so waybar
+# refuses to start on a machine where pywal has never run. Writing the same fallbacks
+# that hypr/theme/colors.lua carries keeps the bar working until the first wallpaper
+# change generates the real thing.
+
+set -euo pipefail
+
+TARGET="${XDG_CACHE_HOME:-$HOME/.cache}/wal/colors-waybar.css"
+
+[[ -f $TARGET ]] && exit 0
+
+mkdir -p "$(dirname "$TARGET")"
+cat >"$TARGET" <<'CSS'
+/* Fallback palette, written because pywal has not run yet. Overwritten by
+ * wal/templates/colors-waybar.css on the next wallpaper change. */
+@define-color background #091a34;
+@define-color foreground #d3dae3;
+@define-color cursor     #d3dae3;
+
+@define-color color0  #091a34;
+@define-color color1  #a04040;
+@define-color color2  #88a175;
+@define-color color3  #d0a050;
+@define-color color4  #1a5598;
+@define-color color5  #8060a0;
+@define-color color6  #56a3ff;
+@define-color color7  #d3dae3;
+@define-color color8  #3a4a64;
+@define-color color9  #c05050;
+@define-color color10 #aecf96;
+@define-color color11 #e0c070;
+@define-color color12 #92d7f4;
+@define-color color13 #a080c0;
+@define-color color14 #76c3ff;
+@define-color color15 #ffffff;
+CSS

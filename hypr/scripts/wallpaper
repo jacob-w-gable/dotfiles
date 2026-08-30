@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# Pick a wallpaper, regenerate the palette, and reload everything that uses it.
+#
+# The Wayland counterpart of awesome/theme/wallpaper. Same pipeline, three differences:
+# imv rather than nsxiv for the picker, hyprpaper rather than the compositor's own
+# wallpaper call, and `hyprctl reload` rather than restarting the window manager -
+# Hyprland re-reads its config in place, so there is nothing to restart.
+
+set -euo pipefail
+
+export PATH="$HOME/.local/bin:$PATH"
+exec >"${XDG_RUNTIME_DIR:-/tmp}/wallpaper.log" 2>&1
+
+# Config-relative, so it follows the ~/.config/hypr symlink rather than assuming the
+# repo is checked out at ~/dotfiles - the awesome script hardcodes the path and breaks
+# if the checkout moves.
+CONFIG_DIR="$HOME/.config"
+WALLPAPERS="$HOME/Pictures/Wallpapers"
+
+mkdir -p "$WALLPAPERS"
+
+# imv-dir prints the path of the image showing when it exits, which is how the picker
+# returns a selection without a TTY.
+IMAGE=$(imv-dir "$WALLPAPERS" -l 2>/dev/null | tail -1 || true)
+if [[ -z ${IMAGE:-} || ! -f $IMAGE ]]; then
+	echo "No image selected."
+	exit 1
+fi
+echo "Selected image: $IMAGE"
+
+wal -i "$IMAGE" --cols16 lighten
+
+# Keyboard backlight, if this machine has one.
+if command -v rgb_ctrl >/dev/null; then
+	rgb_ctrl hex "$(jq -r '.colors.color4' "$HOME/.cache/wal/colors.json")" || true
+fi
+
+# The wallpaper itself. unload first, or hyprpaper keeps every image it has ever been
+# given in memory.
+if command -v hyprpaper >/dev/null; then
+	hyprctl hyprpaper unload all
+	hyprctl hyprpaper preload "$IMAGE"
+	hyprctl hyprpaper wallpaper ",$IMAGE"
+fi
+
+# Chromium, GTK and Qt all read the pywal output; these regenerate their themes from it.
+if [[ -x $CONFIG_DIR/../dotfiles/chromium/pywal-theme.sh ]]; then
+	(cd "$HOME/dotfiles/chromium" && ./pywal-theme.sh)
+fi
+
+python3 "$HOME/dotfiles/awesome/theme/gtk2css.py" -f "$HOME/.cache/wal/gtk.json"
+
+awk '
+/_colors=$/ {
+  if (key) print key line "\n"
+  key=$0; line=""; next
+}
+/^#/ && key {
+  sub(/^[[:space:]]+|[[:space:]]+$/, "")
+  gsub(/,$/, ",")
+  line = line $0
+  next
+}
+/^\[/ {
+  if (key) print key line "\n"; key=""; line=""
+  print $0; next
+}
+END { if (key) print key line "\n" }' "$HOME/.cache/wal/qt5ct.conf" \
+	>"$CONFIG_DIR/qt5ct/colors/hyprland.conf"
+
+# Re-read the palette. Hyprland reloads in place; waybar has to be restarted, since it
+# reads its stylesheet once at startup.
+hyprctl reload
+pkill -USR2 waybar 2>/dev/null || true

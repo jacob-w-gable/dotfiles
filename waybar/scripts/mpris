@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Now playing, ported from awesome/widgets/mpris.lua.
+#
+# That widget is hardcoded to Spotify. This asks playerctl for whichever player is
+# actually playing, which is the same thing on a machine running only Spotify and more
+# useful on one that is not.
+
+set -euo pipefail
+
+if ! command -v playerctl >/dev/null; then
+	printf '{"text":""}\n'
+	exit 0
+fi
+
+status=$(playerctl status 2>/dev/null || true)
+if [[ -z $status ]]; then
+	printf '{"text":"🎵 No media","tooltip":"Nothing playing"}\n'
+	exit 0
+fi
+
+artist=$(playerctl metadata artist 2>/dev/null || true)
+title=$(playerctl metadata title 2>/dev/null || true)
+
+if [[ -n $artist && -n $title ]]; then
+	text="$artist - $title"
+elif [[ -n $title ]]; then
+	text="$title"
+else
+	text="🎵"
+fi
+
+# Long track names would otherwise push the widgets to their right off the bar.
+if ((${#text} > 40)); then
+	text="${text:0:39}…"
+fi
+
+jq -cn --arg text "$text" --arg tooltip "$status" '{text: $text, tooltip: $tooltip}'

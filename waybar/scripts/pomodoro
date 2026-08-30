@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+# Pomodoro timer, ported from awesome/widgets/pomodoro.lua.
+#
+# Same shape as the awesome widget and the same settings rc.lua gives it: 25 minute
+# work, 5 minute breaks, a long break every 17, auto-advance on, and a sound when a
+# phase finishes.
+#
+# State lives in a file rather than in memory because each invocation is a separate
+# process - waybar polls this once a second - where the awesome widget was a long-lived
+# object holding its own state.
+
+set -euo pipefail
+
+WORK_MINUTES=25
+SHORT_BREAK_MINUTES=5
+LONG_BREAK_MINUTES=5
+LONG_BREAK_EVERY=17
+AUTO_ADVANCE=true
+
+SOUND="$HOME/.config/awesome/theme/alarm1.wav"
+
+STATE="${XDG_CACHE_HOME:-$HOME/.cache}/waybar/pomodoro"
+mkdir -p "$(dirname "$STATE")"
+
+# phase: work | short | long
+# running: 0 | 1
+# remaining: seconds left in the phase
+# completed: work phases finished, for the long-break count
+phase=work
+running=0
+remaining=$((WORK_MINUTES * 60))
+completed=0
+visible=1
+# shellcheck disable=SC1090
+[[ -f $STATE ]] && source "$STATE"
+
+save() {
+	cat >"$STATE" <<-EOS
+		phase=$phase
+		running=$running
+		remaining=$remaining
+		completed=$completed
+		visible=$visible
+		updated=$(date +%s)
+	EOS
+}
+
+phase_seconds() {
+	case "$1" in
+	work) echo $((WORK_MINUTES * 60)) ;;
+	short) echo $((SHORT_BREAK_MINUTES * 60)) ;;
+	long) echo $((LONG_BREAK_MINUTES * 60)) ;;
+	esac
+}
+
+#- Move to the phase that follows the current one.
+advance() {
+	if [[ $phase == work ]]; then
+		completed=$((completed + 1))
+		if ((completed % LONG_BREAK_EVERY == 0)); then
+			phase=long
+		else
+			phase=short
+		fi
+	else
+		phase=work
+	fi
+
+	remaining=$(phase_seconds "$phase")
+	$AUTO_ADVANCE || running=0
+}
+
+#- Count down by however long has passed since the last tick.
+#
+# Elapsed time rather than a fixed decrement: waybar's interval is best-effort, and the
+# machine may have suspended, so trusting the clock keeps the timer honest.
+tick() {
+	((running)) || return 0
+
+	local now elapsed
+	now=$(date +%s)
+	elapsed=$((now - ${updated:-now}))
+	((elapsed > 0)) || return 0
+
+	remaining=$((remaining - elapsed))
+	if ((remaining <= 0)); then
+		notify-send -t 5000 "Pomodoro" "$phase finished"
+		[[ -f $SOUND ]] && command -v paplay >/dev/null && paplay "$SOUND" &
+		advance
+	fi
+}
+
+case "${1:-status}" in
+toggle)
+	running=$((1 - running))
+	save
+	;;
+stop)
+	running=0
+	phase=work
+	remaining=$(phase_seconds work)
+	save
+	;;
+skip)
+	advance
+	save
+	;;
+visible)
+	visible=$((1 - visible))
+	save
+	;;
+status)
+	tick
+	save
+
+	if ((!visible)); then
+		printf '{"text":""}\n'
+		exit 0
+	fi
+
+	case "$phase" in
+	work) label="Work $((completed % LONG_BREAK_EVERY + 1))/$LONG_BREAK_EVERY"; class=work ;;
+	short) label="Break S"; class=break ;;
+	long) label="Break L"; class=break ;;
+	esac
+
+	((running)) || label="Pomo"
+
+	printf -v clock '%02d:%02d' $((remaining / 60)) $((remaining % 60))
+	jq -cn --arg text "$label $clock" --arg class "$class" \
+		--arg tooltip "$phase, $completed completed" \
+		'{text: $text, class: $class, tooltip: $tooltip}'
+	;;
+*)
+	echo "usage: $0 [status|toggle|stop|skip|visible]" >&2
+	exit 1
+	;;
+esac

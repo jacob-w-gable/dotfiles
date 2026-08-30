@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Current temperature and conditions, ported from awesome/widgets/weather.lua.
+#
+# Same two-step lookup: ipapi.co for the coordinates, then the US National Weather
+# Service for the forecast. The coordinates are rounded to four decimals because the
+# api.weather.gov points endpoint rejects anything longer.
+
+set -euo pipefail
+
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/waybar"
+LOCATION_CACHE="$CACHE_DIR/weather-location"
+LOCATION_TTL=$((12 * 60 * 60))
+
+mkdir -p "$CACHE_DIR"
+
+fail() {
+	printf '{"text":"","tooltip":"Weather unavailable: %s"}\n' "$1"
+	exit 0
+}
+
+# Coordinates change rarely, so they are cached for twelve hours as the awesome widget
+# caches them.
+if [[ ! -f $LOCATION_CACHE ]] ||
+	(($(date +%s) - $(stat -c %Y "$LOCATION_CACHE") > LOCATION_TTL)); then
+	if ! location=$(curl -sf --max-time 10 https://ipapi.co/json); then
+		[[ -f $LOCATION_CACHE ]] || fail "no location"
+	else
+		printf '%s' "$location" >"$LOCATION_CACHE"
+	fi
+fi
+
+lat=$(jq -r '.latitude' <"$LOCATION_CACHE")
+lon=$(jq -r '.longitude' <"$LOCATION_CACHE")
+[[ $lat == null || $lon == null ]] && fail "no coordinates"
+
+point=$(printf '%.4f,%.4f' "$lat" "$lon")
+
+forecast_url=$(curl -sf --max-time 10 "https://api.weather.gov/points/$point" |
+	jq -r '.properties.forecastHourly') || fail "no forecast url"
+[[ $forecast_url == null ]] && fail "no forecast url"
+
+period=$(curl -sf --max-time 10 "$forecast_url" | jq -r '.properties.periods[0]') ||
+	fail "no forecast"
+
+temp=$(jq -r '.temperature' <<<"$period")
+unit=$(jq -r '.temperatureUnit' <<<"$period")
+short=$(jq -r '.shortForecast' <<<"$period")
+
+# The same mapping the awesome widget uses, most specific first.
+lower=${short,,}
+case "$lower" in
+*thunder*) icon="⛈️" ;;
+*snow* | *sleet*) icon="🌨️" ;;
+*shower*) icon="🌦️" ;;
+*rain*) icon="🌧️" ;;
+*fog*) icon="🌫️" ;;
+*"mostly cloudy"* | *cloud*) icon="☁️" ;;
+*"partly cloudy"*) icon="⛅" ;;
+*"mostly sunny"*) icon="🌤️" ;;
+*sunny* | *clear*) icon="🌞" ;;
+*) icon="❓" ;;
+esac
+
+jq -cn --arg text "$icon $temp°$unit" --arg tooltip "$short" \
+	'{text: $text, tooltip: $tooltip}'

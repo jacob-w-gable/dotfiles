@@ -1,0 +1,140 @@
+// Waybar, standing in for awesome's wibar. The module order matches ui/bar.lua so the
+// two can be read side by side.
+//
+// awesome puts the pomodoro and the systray on the primary screen only - one timer, and
+// an X selection it can own once. Waybar draws this config on every output; to pin a
+// module to one screen, split this into an array of bar objects and give each an
+// "output" key. That is a per-machine concern, so it is not done here.
+{
+  "layer": "top",
+  "position": "top",
+  "height": 27,
+  "spacing": 0,
+
+  // Left: tags, then the resource graphs. awesome also has a promptbox here; its
+  // equivalent is Mod+Ctrl+R opening rofi, which is not a bar widget.
+  "modules-left": [
+    "hyprland/workspaces",
+    "memory",
+    "cpu",
+    "temperature"
+  ],
+
+  // Centre: awesome's tasklist is filtered to the focused client, so it only ever shows
+  // one window. That is exactly hyprland/window.
+  "modules-center": [
+    "hyprland/window"
+  ],
+
+  "modules-right": [
+    "custom/pomodoro",
+    "tray",
+    "custom/caffeine",
+    "custom/mpris",
+    "pulseaudio",
+    "battery",
+    "custom/weather",
+    "clock",
+    "custom/layout"
+  ],
+
+  "hyprland/workspaces": {
+    "format": "{name}",
+    "on-click": "activate",
+    "sort-by-number": true,
+    // awesome creates four tags per screen and they always exist, occupied or not.
+    "persistent-workspaces": { "*": [1, 2, 3, 4] }
+  },
+
+  "hyprland/window": {
+    "format": "{title}",
+    "max-length": 60,
+    "separate-outputs": true
+  },
+
+  // vicious mem/cpu/thermal, at the same intervals awesome polls them.
+  "memory": {
+    "interval": 3,
+    "format": "RAM {percentage}%",
+    "tooltip-format": "{used:0.1f}G of {total:0.1f}G"
+  },
+
+  "cpu": {
+    "interval": 3,
+    "format": "CPU {usage}%"
+  },
+
+  "temperature": {
+    "interval": 7,
+    "format": "{temperatureC}°C",
+    "critical-threshold": 80
+  },
+
+  "pulseaudio": {
+    "format": "Vol: {volume}%",
+    "format-muted": "Vol: --",
+    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
+    "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%"
+  },
+
+  "battery": {
+    "interval": 61,
+    "format": "Bat: {capacity}%",
+    "states": { "warning": 30, "critical": 15 }
+  },
+
+  "clock": {
+    "interval": 60,
+    "format": "{:%a %b %d, %I:%M %p}",
+    // lain.widget.cal attaches a calendar to awesome's clock; this is waybar's.
+    "tooltip-format": "<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "format": { "today": "<b>{}</b>" }
+    }
+  },
+
+  "tray": {
+    "spacing": 10
+  },
+
+  "custom/caffeine": {
+    "exec": "~/.config/waybar/scripts/caffeine status",
+    "on-click": "~/.config/waybar/scripts/caffeine toggle",
+    "return-type": "json",
+    "signal": 7,
+    "interval": "once"
+  },
+
+  "custom/layout": {
+    "exec": "~/.config/waybar/scripts/layout",
+    "signal": 8,
+    "interval": "once"
+  },
+
+  "custom/pomodoro": {
+    "exec": "~/.config/waybar/scripts/pomodoro status",
+    "on-click": "~/.config/waybar/scripts/pomodoro toggle",
+    "on-click-middle": "~/.config/waybar/scripts/pomodoro stop",
+    "on-click-right": "~/.config/waybar/scripts/pomodoro skip",
+    "return-type": "json",
+    "signal": 9,
+    "interval": 1
+  },
+
+  "custom/mpris": {
+    "exec": "~/.config/waybar/scripts/mpris",
+    "on-click": "playerctl play-pause",
+    "on-scroll-up": "playerctl next",
+    "on-scroll-down": "playerctl previous",
+    "return-type": "json",
+    "interval": 5
+  },
+
+  "custom/weather": {
+    "exec": "~/.config/waybar/scripts/weather",
+    "return-type": "json",
+    "interval": 600
+  }
+}

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# The current layout, for the bar's layout indicator.
+#
+# Read from a file rather than from hyprctl because the layout Mod+space cycles through
+# is a notion this config keeps - Hyprland only knows dwindle, master or scrolling, not
+# which of the five entries in hypr/layouts.lua produced it.
+
+set -euo pipefail
+
+STATE="${XDG_RUNTIME_DIR:-/tmp}/hypr-layout"
+
+declare -A GLYPH=(
+	[dwindle]="󰕰"
+	[master]="󰝘"
+	[centre]="󰃹"
+	[scrolling]="󰶊"
+	[floating]="󰀸"
+)
+
+name=$(cat "$STATE" 2>/dev/null || echo dwindle)
+printf '%s\n' "${GLYPH[$name]:-$name}"

@@ -22,18 +22,27 @@ sudo -v
 #   xorg-xwayland  for anything not yet ported, nsxiv included
 sudo pacman -S \
   hyprland \
+  hyprlock \
+  hypridle \
+  hyprsunset \
+  waybar \
   kitty \
   grim \
   slurp \
   wl-clipboard \
   rofi-wayland \
   dunst \
+  imv \
+  hyprpaper \
   xorg-xwayland \
   polkit \
+  polkit-kde-agent \
   mesa \
   brightnessctl \
   playerctl \
   pavucontrol \
+  network-manager-applet \
+  blueman \
   alsa-utils \
   imagemagick \
   jq \

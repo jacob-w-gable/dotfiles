@@ -1,0 +1,107 @@
+/* Waybar styling, following awesome's "squircle" theme variant: rounded tag chips, a
+ * translucent bar, and widgets separated by spacing rather than powerline arrows.
+ *
+ * Colours come from pywal through wal/templates/colors-waybar.css. GTK treats a missing
+ * @import as a fatal parse error rather than skipping it, so waybar/scripts/ensure-colors
+ * writes a fallback palette before the bar starts if pywal has never run. */
+@import url("file:///home/jacob/.cache/wal/colors-waybar.css");
+
+* {
+  font-family: "Hack Nerd Font", monospace;
+  font-size: 11px;
+  /* Waybar draws its own box model; awesome's widgets have no borders either. */
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+}
+
+window#waybar {
+  /* alpha "bar" in awesome/theme/alpha.lua is D9, i.e. 85%. */
+  background-color: alpha(@background, 0.85);
+  color: @foreground;
+}
+
+/* Tags. awesome uses a rounded_rect of radius 6 with 10px horizontal margins. */
+#workspaces button {
+  padding: 0 10px;
+  margin: 3px 3px;
+  border-radius: 6px;
+  color: @foreground;
+  background-color: transparent;
+}
+
+#workspaces button.active {
+  background-color: @color4;
+  color: @background;
+}
+
+#workspaces button.occupied,
+#workspaces button.empty {
+  background-color: alpha(@color4, 0.2);
+}
+
+#workspaces button.urgent {
+  background-color: @color1;
+  color: @background;
+}
+
+#workspaces button:hover {
+  background-color: alpha(@color4, 0.4);
+}
+
+/* The focused window's title, in the centre. */
+#window {
+  padding: 0 15px;
+  color: @foreground;
+}
+
+/* Everything else. The 12px sides give the 24px spacing between widgets that the
+ * squircle variant sets. */
+#memory,
+#cpu,
+#temperature,
+#pulseaudio,
+#battery,
+#clock,
+#tray,
+#custom-caffeine,
+#custom-mpris,
+#custom-weather,
+#custom-pomodoro,
+#custom-layout {
+  padding: 0 12px;
+  color: @foreground;
+}
+
+/* The layout indicator shares the clock's slot rather than getting a separator of its
+ * own, as it does in awesome/ui/bar.lua. */
+#custom-layout {
+  padding-left: 0;
+}
+
+#temperature.critical,
+#battery.critical {
+  color: @color1;
+}
+
+#battery.warning {
+  color: @color3;
+}
+
+#custom-pomodoro.work {
+  color: @color1;
+}
+
+#custom-pomodoro.break {
+  color: @color2;
+}
+
+tooltip {
+  background-color: alpha(@background, 0.95);
+  border: 1px solid @color4;
+  border-radius: 8px;
+}
+
+tooltip label {
+  color: @foreground;
+}

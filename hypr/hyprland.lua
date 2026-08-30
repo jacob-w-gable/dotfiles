@@ -1,133 +1,152 @@
--- Hyprland configuration - feasibility spike.
+-- Hyprland configuration.
 --
--- A deliberately small subset of the AwesomeWM config next door, enough to check that
--- the bindings and the look carry over to Wayland. The bar, the custom widgets and solo
--- mode are not here; see the plan for what a full port would involve.
+-- Laid out to mirror awesome/ next door, so the two can be read side by side: config/
+-- holds settings and the programs to launch, theme/ the palette, bindings/ the keys.
+-- Where a behaviour has no Wayland equivalent the module that would have carried it
+-- says so rather than leaving it unexplained.
 --
--- Lua rather than hyprland.conf: 0.55 deprecated hyprlang and it is slated for removal.
--- The AwesomeWM config is Lua too, so the two read alike.
+-- Lua rather than hyprland.conf because 0.55 deprecated hyprlang and it is slated for
+-- removal - which happens to suit a repo whose window manager config is already Lua.
 
---------------------
----- MONITORS -----
---------------------
+local settings = require("config")
+local theme = require("theme")
+local apps = require("config.apps")
+local layouts = require("layouts")
+local solo = require("solo")
 
--- "preferred" rather than a fixed mode, so this works both on the VM's virtio output and
--- on real hardware. Under QEMU with no display attached, Hyprland falls back to a
--- HEADLESS-0 output at 1920x1080, which an empty `output` also matches.
-hl.monitor({
-	output = "",
-	mode = "preferred",
-	position = "auto",
-	scale = 1,
-})
+--------------------------------------------------------------------- monitors
 
---------------------
----- PROGRAMS -----
---------------------
+-- "preferred" everywhere by default, so this works on an unknown display without being
+-- told about it. Real layouts belong in config/machine.lua.
+if settings.monitors then
+	for _, monitor in ipairs(settings.monitors) do
+		hl.monitor(monitor)
+	end
+else
+	hl.monitor({ output = "", mode = "preferred", position = "auto", scale = settings.scale })
+end
 
--- Mirrors awesome/config/apps.lua.
-local terminal = "kitty --single-instance"
-local launcher = "rofi -show drun"
+--------------------------------------------------------------- look and feel
 
--- awesome/config/settings.lua pins modkey = "Mod4".
-local mod = "SUPER"
-
---------------------------
----- LOOK AND FEEL -----
---------------------------
-
--- Gaps and borders come from awesome/theme/theme.lua, which sets useless_gap = dpi(5)
--- and border_width = dpi(1) at a pinned DPI of 144. dpi(5) at 144 is 7.5px, so 8 and 2
--- are the rounded equivalents at the scale Hyprland works in.
---
--- Blur, shadows and animations are off. The VM has no GPU and renders through llvmpipe,
--- where they are the difference between sluggish and unusable. Turn them back on when
--- this config is tried on real hardware.
 hl.config({
 	general = {
-		gaps_in = 4,
-		gaps_out = 8,
-		border_size = 2,
+		gaps_in = settings.gaps_in,
+		gaps_out = settings.gaps_out,
+		border_size = settings.border_size,
 
-		-- Placeholders matching theme/colors.lua's fallbacks, for now. Wiring these to
-		-- ~/.cache/wal/colors.json the way the Awesome theme does is a follow-on.
 		col = {
-			active_border = "rgba(1a5598ff)",
-			inactive_border = "rgba(091a34ff)",
+			active_border = theme.border_active,
+			inactive_border = theme.border_inactive,
 		},
 
+		-- awesome resizes from the border only with a modifier held; the gap is not a
+		-- grab target there either.
+		resize_on_border = false,
 		layout = "dwindle",
 	},
 
 	decoration = {
-		rounding = 8,
-		blur = { enabled = false },
-		shadow = { enabled = false },
+		rounding = settings.rounding,
+
+		-- picom.conf dims unfocused windows by 0.04 and blurs with dual_kawase at
+		-- strength 6; these are the compositor's equivalents.
+		dim_inactive = settings.effects,
+		dim_strength = 0.04,
+
+		blur = {
+			enabled = settings.effects,
+			size = 6,
+			passes = 2,
+		},
+
+		shadow = {
+			enabled = settings.effects,
+			range = 4,
+			render_power = 3,
+		},
 	},
 
 	animations = {
-		enabled = false,
+		enabled = settings.animations,
 	},
 
 	misc = {
 		force_default_wallpaper = 0,
 		disable_hyprland_logo = true,
+		-- The bar and the wallpaper are not windows to focus.
+		focus_on_activate = true,
 	},
 
 	dwindle = {
 		preserve_split = true,
 	},
+
+	master = {
+		new_status = "master",
+	},
 })
 
---------------
----- INPUT ---
---------------
+------------------------------------------------------------------------ input
 
 hl.config({
 	input = {
 		kb_layout = "us",
 
-		-- awesome/signals.lua connects mouse::enter to request::activate, i.e. sloppy
-		-- focus. This is the same behaviour.
+		-- Sloppy focus, from the mouse::enter handler in awesome/signals.lua.
 		follow_mouse = 1,
 
-		-- autostart.lua sets these with `xset r rate 250 60`, which has no Wayland
-		-- equivalent - the compositor owns key repeat instead.
+		-- awesome sets these with `xset r rate 250 60` at autostart. On Wayland the
+		-- compositor owns key repeat, so they belong here.
 		repeat_delay = 250,
 		repeat_rate = 60,
+
+		touchpad = {
+			natural_scroll = settings.touchpad and settings.touchpad.natural_scrolling or false,
+			tap_to_click = settings.touchpad and settings.touchpad.tapping or true,
+		},
 	},
 })
 
--------------------
----- KEYBINDS ----
--------------------
+------------------------------------------------------------------ environment
 
--- Launchers, from bindings/global.lua.
-hl.bind(mod .. " + Return", hl.dsp.exec_cmd(terminal))
-hl.bind(mod .. " + P", hl.dsp.exec_cmd(launcher))
+hl.env("XCURSOR_SIZE", "24")
+hl.env("HYPRCURSOR_SIZE", "24")
 
--- Client control, from bindings/client.lua.
-hl.bind(mod .. " + SHIFT + C", hl.dsp.window.close())
-hl.bind(mod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
-hl.bind(mod .. " + CONTROL + space", hl.dsp.window.float({ action = "toggle" }))
+-- Ask toolkits for their Wayland backends. Without these, GTK and Qt apps run through
+-- XWayland and miss out on fractional scaling and the clipboard.
+hl.env("GDK_BACKEND", "wayland,x11")
+hl.env("QT_QPA_PLATFORM", "wayland;xcb")
+hl.env("MOZ_ENABLE_WAYLAND", "1")
+hl.env("QT_QPA_PLATFORMTHEME", "qt5ct")
 
--- Focus. Awesome routes Mod+j/k through solo.focus_next, which walks the tag's client
--- list; without solo mode there is nothing to walk, so these are directional for now.
--- Note Awesome's j/k are inverted relative to their descriptions - j is focus_next(-1).
-hl.bind(mod .. " + J", hl.dsp.focus({ direction = "down" }))
-hl.bind(mod .. " + K", hl.dsp.focus({ direction = "up" }))
+-- Screenshots need explicit permission when ecosystem.enforce_permissions is on.
+hl.permission("/usr/(bin|local/bin)/grim", "screencopy", "allow")
+hl.permission("/usr/(lib|libexec|lib64)/xdg-desktop-portal-hyprland", "screencopy", "allow")
 
--- Awesome's Mod+h/l change the master width factor. Hyprland has no master factor in
--- dwindle, so these resize the focused window along the same axis.
-hl.bind(mod .. " + H", hl.dsp.window.resize({ x = -40, y = 0 }))
-hl.bind(mod .. " + L", hl.dsp.window.resize({ x = 40, y = 0 }))
+----------------------------------------------------------------------- pieces
 
--- Four tags, named 1-4, created per screen in awesome/ui/bar.lua.
-for i = 1, 4 do
-	hl.bind(mod .. " + " .. i, hl.dsp.focus({ workspace = i }))
-	hl.bind(mod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
-end
+require("rules")()
+require("bindings.global")()
+require("bindings.client")()
+require("bindings.mouse")()
 
--- Mouse, from bindings/mouse.lua: Mod+left drags, Mod+right resizes.
-hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
-hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+layouts.init()
+solo.connect()
+
+-- Forget windows as they close, so neither module tries to restore one that is gone.
+hl.on("window.close", function(event)
+	local address = event and event.window and event.window.address
+	if address then
+		solo.forget(address)
+		require("scratchpad").forget(address)
+	end
+end)
+
+-- Deferred, not called here.
+--
+-- Hyprland exports WAYLAND_DISPLAY to the programs it spawns only once the compositor
+-- is up. The config is evaluated before that, and config.reloaded fires before it too,
+-- so anything started from either has nothing to connect to and exits immediately. A
+-- short timer is the only hook that lands after the socket exists - hyprland.start,
+-- which would be the obvious one, never fires in 0.56.
+hl.timer(require("autostart"), { type = "oneshot", timeout = 2000 })
