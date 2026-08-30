@@ -63,7 +63,7 @@ return function()
 	-- queued separately because these are spawned, not awaited: as two commands waybar
 	-- races the script that writes the file it needs.
 	local config_dir = os.getenv("HOME") .. "/.config"
-	run("waybar", config_dir .. "/waybar/scripts/ensure-colors; waybar")
+	run("waybar", config_dir .. "/hypr/scripts/ensure-colors; waybar")
 	run("hypridle")
 	run("dunst")
 

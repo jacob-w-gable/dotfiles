@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# Make sure the pywal files the session imports exist.
+#
+# waybar and rofi both @import a generated palette, and neither treats a missing file as
+# a skippable warning: GTK makes it a fatal parse error, so waybar refuses to start at
+# all, and rofi falls back to its default theme with an error on screen. Neither file
+# exists on a machine where pywal has never run.
+#
+# Writing the same fallbacks that hypr/theme/colors.lua carries keeps a fresh install
+# looking right until the first wallpaper change generates the real thing. Both are left
+# alone once they exist, so this never overwrites pywal's output.
+
+set -euo pipefail
+
+CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/wal"
+mkdir -p "$CACHE"
+
+if [[ ! -f $CACHE/colors-waybar.css ]]; then
+	cat >"$CACHE/colors-waybar.css" <<'CSS'
+/* Fallback palette, written because pywal has not run yet. Overwritten by
+ * wal/templates/colors-waybar.css on the next wallpaper change. */
+@define-color background #091a34;
+@define-color foreground #d3dae3;
+@define-color cursor     #d3dae3;
+
+@define-color color0  #091a34;
+@define-color color1  #a04040;
+@define-color color2  #88a175;
+@define-color color3  #d0a050;
+@define-color color4  #1a5598;
+@define-color color5  #8060a0;
+@define-color color6  #56a3ff;
+@define-color color7  #d3dae3;
+@define-color color8  #3a4a64;
+@define-color color9  #c05050;
+@define-color color10 #aecf96;
+@define-color color11 #e0c070;
+@define-color color12 #92d7f4;
+@define-color color13 #a080c0;
+@define-color color14 #76c3ff;
+@define-color color15 #ffffff;
+CSS
+fi
+
+if [[ ! -f $CACHE/colors-rofi-dark.rasi ]]; then
+	cat >"$CACHE/colors-rofi-dark.rasi" <<'RASI'
+/* Fallback palette, written because pywal has not run yet. Overwritten by
+ * wal/templates/colors-rofi-dark.rasi on the next wallpaper change. */
+* {
+    active-background:   #1a5598;
+    active-foreground:   #d3dae3;
+    normal-background:   #091a34;
+    normal-foreground:   #d3dae3;
+    urgent-background:   #a04040;
+    urgent-foreground:   #d3dae3;
+
+    alternate-active-background: #091a34;
+    alternate-active-foreground: #d3dae3;
+    alternate-normal-background: #091a34;
+    alternate-normal-foreground: #d3dae3;
+    alternate-urgent-background: #091a34;
+    alternate-urgent-foreground: #d3dae3;
+
+    selected-active-background:  #a04040;
+    selected-active-foreground:  #d3dae3;
+    selected-normal-background:  #1a5598;
+    selected-normal-foreground:  #d3dae3;
+    selected-urgent-background:  #88a175;
+    selected-urgent-foreground:  #d3dae3;
+
+    background-color: #091a34;
+    background:       #091a34aa;
+    foreground:       #d3dae3;
+    border-color:     #091a34;
+}
+RASI
+fi
