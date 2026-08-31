@@ -37,3 +37,10 @@ least reliable corner of that matrix for no benefit to a screenshot loop.
 
 Blur, shadows and animations are off in the spike config. Under software rendering that
 is the difference between sluggish-but-usable and unusable.
+
+`--gui` uses QEMU's SDL backend, not GTK. Both accept `gl=on`, and `virtio-vga-gl`
+refuses to start without it, but the GTK backend paints a black window on an X11 session
+running the proprietary NVIDIA driver - the guest is rendering the whole time, and
+`./vm/shot.sh` proves it. SDL's GL path works on the same host. If you ever see a black
+window again, take a screenshot first: it tells you immediately whether the problem is
+the guest or the way QEMU is presenting it.

@@ -43,7 +43,11 @@ args=(
 )
 
 if $gui; then
-	args+=(-display "gtk,gl=on" -serial mon:stdio)
+	# SDL rather than GTK. Both take gl=on, and virtio-vga-gl refuses to start without
+	# it, but QEMU's GTK backend presents a black window on this host - an X11 session
+	# on the proprietary NVIDIA driver - while the guest renders normally underneath.
+	# SDL's GL path works there. Nothing about the guest differs between the two.
+	args+=(-display "sdl,gl=on" -serial mon:stdio)
 	echo "==> starting VM with a window"
 	exec qemu-system-x86_64 "${args[@]}"
 fi
