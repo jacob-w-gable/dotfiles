@@ -66,7 +66,19 @@ awk '
 END { if (key) print key line "\n" }' "$HOME/.cache/wal/qt5ct.conf" \
 	>"$CONFIG_DIR/qt5ct/colors/hyprland.conf"
 
-# Re-read the palette. Hyprland reloads in place; waybar has to be restarted, since it
-# reads its stylesheet once at startup.
+# Notifications. dunst reads dunstrc.d/*.conf after its main config, so dropping the
+# generated colours there overrides them without touching the tracked dunstrc.
+DUNST_DROPIN="$CONFIG_DIR/dunst/dunstrc.d"
+if [[ -f $HOME/.cache/wal/colors-dunst.conf ]]; then
+	mkdir -p "$DUNST_DROPIN"
+	cp "$HOME/.cache/wal/colors-dunst.conf" "$DUNST_DROPIN/99-wal.conf"
+fi
+
+# Re-read the palette. Hyprland reloads in place; waybar and dunst both read their
+# config once at startup, so they are restarted rather than signalled.
 hyprctl reload
 pkill -USR2 waybar 2>/dev/null || true
+if command -v dunst >/dev/null; then
+	pkill dunst 2>/dev/null || true
+	setsid dunst >/dev/null 2>&1 &
+fi

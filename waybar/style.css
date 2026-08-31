@@ -57,8 +57,8 @@ window#waybar {
 
 /* Everything else. The 12px sides give the 24px spacing between widgets that the
  * squircle variant sets. */
-#memory,
-#cpu,
+#custom-ramgraph,
+#custom-cpugraph,
 #temperature,
 #pulseaudio,
 #battery,
@@ -77,6 +77,16 @@ window#waybar {
  * own, as it does in awesome/ui/bar.lua. */
 #custom-layout {
   padding-left: 0;
+}
+
+/* The graphs are drawn from block characters, which have no side bearings; awesome sits
+ * them right next to each other, so the padding between them goes. */
+#custom-ramgraph {
+  padding-right: 0;
+}
+
+#custom-cpugraph {
+  padding-left: 4px;
 }
 
 #temperature.critical,

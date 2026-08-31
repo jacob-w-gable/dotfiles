@@ -6,6 +6,9 @@
 # all, and rofi falls back to its default theme with an error on screen. Neither file
 # exists on a machine where pywal has never run.
 #
+# dunst is less fragile - it just uses the colours in dunstrc - so it only needs the
+# drop-in directory to exist for the wallpaper script to write into.
+#
 # Writing the same fallbacks that hypr/theme/colors.lua carries keeps a fresh install
 # looking right until the first wallpaper change generates the real thing. Both are left
 # alone once they exist, so this never overwrites pywal's output.
@@ -75,3 +78,7 @@ if [[ ! -f $CACHE/colors-rofi-dark.rasi ]]; then
 }
 RASI
 fi
+
+# dunst reads dunstrc.d/*.conf after dunstrc, which is how pywal's colours get in. The
+# directory has to exist before the wallpaper script can drop a file there.
+mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/dunst/dunstrc.d"

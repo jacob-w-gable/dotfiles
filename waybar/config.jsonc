@@ -15,8 +15,8 @@
   // equivalent is Mod+Ctrl+R opening rofi, which is not a bar widget.
   "modules-left": [
     "hyprland/workspaces",
-    "memory",
-    "cpu",
+    "custom/ramgraph",
+    "custom/cpugraph",
     "temperature"
   ],
 
@@ -52,16 +52,19 @@
     "separate-outputs": true
   },
 
-  // vicious mem/cpu/thermal, at the same intervals awesome polls them.
-  "memory": {
-    "interval": 3,
-    "format": "RAM {percentage}%",
-    "tooltip-format": "{used:0.1f}G of {total:0.1f}G"
+  // awesome draws these as scrolling bar graphs with a horizontal gradient. Waybar has
+  // no graph widget, so the script builds one out of block characters and colours each
+  // column with Pango markup. Three seconds is the interval vicious polls at.
+  "custom/ramgraph": {
+    "exec": "~/.config/waybar/scripts/graph mem",
+    "return-type": "json",
+    "interval": 3
   },
 
-  "cpu": {
-    "interval": 3,
-    "format": "CPU {usage}%"
+  "custom/cpugraph": {
+    "exec": "~/.config/waybar/scripts/graph cpu",
+    "return-type": "json",
+    "interval": 3
   },
 
   "temperature": {

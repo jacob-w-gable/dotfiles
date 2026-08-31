@@ -46,6 +46,13 @@ ssh_guest '
 	ln -s ~/dotfiles/rofi   ~/.config/rofi
 	ln -s ~/dotfiles/waybar ~/.config/waybar
 	ln -s ~/dotfiles/wal    ~/.config/wal
+
+	# dunst is the one config that is not a directory symlink. It reads drop-ins from
+	# dunstrc.d/ next to dunstrc, and that is where pywal writes its colours - which
+	# would land inside the repo if the whole directory were linked.
+	rm -rf ~/.config/dunst
+	mkdir -p ~/.config/dunst/dunstrc.d
+	ln -s ~/dotfiles/dunst/dunstrc ~/.config/dunst/dunstrc
 '
 
 echo "==> restarting Hyprland to pick up the config"

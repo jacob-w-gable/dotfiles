@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+"""Scrolling CPU and memory graphs for waybar.
+
+awesome draws these with wibox.widget.graph: a 50px bar chart that scrolls right to
+left, filled with a horizontal three-stop gradient. Waybar has no graph widget, so this
+draws the same thing out of block characters and colours each column with Pango markup.
+
+The gradient runs across the width, not by value - that is how awesome/widgets/cpugraph
+sets it up, with `from = {0, 0}, to = {50, 0}` - so a column's colour depends on where
+it sits in the history, not on how tall it is.
+
+Each invocation appends one sample and reprints the whole history, because waybar polls
+a custom module rather than letting it hold state.
+"""
+
+import json
+import os
+import sys
+from pathlib import Path
+
+# Eight levels, matching the resolution a block character can show.
+BLOCKS = "▁▂▃▄▅▆▇█"
+
+COLUMNS = 20
+
+# Stops from awesome/widgets/{cpugraph,ramgraph}.lua.
+GRADIENTS = {
+    "cpu": [(0.0, "#FF5656"), (0.5, "#88A175"), (1.0, "#AECF96")],
+    "mem": [(0.0, "#56A3FF"), (0.5, "#75A188"), (1.0, "#96CFAE")],
+}
+
+STATE_DIR = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp"))
+
+
+def interpolate(stops, position):
+    """Colour at `position` (0..1) along a list of (offset, #rrggbb) stops."""
+    for i in range(len(stops) - 1):
+        left_at, left = stops[i]
+        right_at, right = stops[i + 1]
+        if left_at <= position <= right_at:
+            span = right_at - left_at
+            t = 0 if span == 0 else (position - left_at) / span
+            channels = (
+                round(int(left[k:k + 2], 16) + (int(right[k:k + 2], 16) - int(left[k:k + 2], 16)) * t)
+                for k in (1, 3, 5)
+            )
+            return "#%02x%02x%02x" % tuple(channels)
+    return stops[-1][1]
+
+
+def cpu_percent():
+    """Busy percentage since the previous call.
+
+    /proc/stat counts since boot, so a single reading says nothing; the previous totals
+    are kept beside the history. The first call has nothing to compare against and
+    reports zero rather than a spike.
+    """
+    fields = Path("/proc/stat").read_text().split("\n")[0].split()[1:]
+    values = [int(v) for v in fields]
+    idle = values[3] + values[4]
+    total = sum(values)
+
+    previous = STATE_DIR / "waybar-cpu-prev"
+    try:
+        last_total, last_idle = (int(v) for v in previous.read_text().split())
+    except (OSError, ValueError):
+        last_total, last_idle = total, idle
+
+    previous.write_text(f"{total} {idle}")
+
+    delta_total = total - last_total
+    delta_idle = idle - last_idle
+    if delta_total <= 0:
+        return 0.0
+    return max(0.0, min(100.0, 100.0 * (delta_total - delta_idle) / delta_total))
+
+
+def meminfo():
+    """Used and total memory in MiB, plus swap, the way vicious reports them."""
+    values = {}
+    for line in Path("/proc/meminfo").read_text().splitlines():
+        key, _, rest = line.partition(":")
+        values[key] = int(rest.split()[0])
+
+    total = values["MemTotal"] / 1024
+    available = values.get("MemAvailable", values["MemFree"]) / 1024
+    used = total - available
+
+    swap_total = values.get("SwapTotal", 0) / 1024
+    swap_used = swap_total - values.get("SwapFree", 0) / 1024
+
+    return used, total, swap_used, swap_total
+
+
+def push(history_file, value):
+    """Append a sample and return the trailing COLUMNS of history."""
+    try:
+        history = [float(v) for v in history_file.read_text().split()]
+    except (OSError, ValueError):
+        history = []
+
+    history.append(value)
+    history = history[-COLUMNS:]
+    history_file.write_text(" ".join(f"{v:.1f}" for v in history))
+    return history
+
+
+def render(history, gradient):
+    """History as coloured block characters, oldest on the left."""
+    # A short history is left-padded so the graph grows into place from the right rather
+    # than stretching, which is how awesome's scrolls.
+    padded = [None] * (COLUMNS - len(history)) + history
+
+    out = []
+    for index, value in enumerate(padded):
+        colour = interpolate(gradient, index / (COLUMNS - 1))
+        if value is None:
+            out.append(f'<span foreground="{colour}"> </span>')
+            continue
+        level = min(len(BLOCKS) - 1, int(value / 100 * len(BLOCKS)))
+        out.append(f'<span foreground="{colour}">{BLOCKS[level]}</span>')
+    return "".join(out)
+
+
+def main():
+    which = sys.argv[1] if len(sys.argv) > 1 else "cpu"
+    if which not in GRADIENTS:
+        sys.exit(f"usage: {sys.argv[0]} [cpu|mem]")
+
+    if which == "cpu":
+        value = cpu_percent()
+        tooltip = f"CPU Usage: {value:.0f}%"
+    else:
+        used, total, swap_used, swap_total = meminfo()
+        value = 100 * used / total if total else 0
+        tooltip = f"RAM: {used:.0f} MiB / {total:.0f} MiB"
+        if swap_total:
+            tooltip += f"\nSwap: {swap_used:.0f} MiB / {swap_total:.0f} MiB"
+
+    history = push(STATE_DIR / f"waybar-{which}-history", value)
+    print(json.dumps({"text": render(history, GRADIENTS[which]), "tooltip": tooltip}))
+
+
+if __name__ == "__main__":
+    main()

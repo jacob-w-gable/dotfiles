@@ -1,0 +1,73 @@
+# Notifications, standing in for awesome's naughty.
+#
+# The numbers come from awesome/ui/notifications.lua and the notification_* keys in
+# awesome/theme/theme.lua. They are the values awesome uses *before* its DPI scaling:
+# that config pins dpi = 144 and multiplies everything by 1.5, because the X server
+# cannot be trusted to report the panel's DPI. Wayland has no such problem - the
+# compositor scales the output - so the unscaled numbers are the ones to write here.
+#
+# Colours are the fallbacks from awesome/theme/colors.lua. pywal overrides them through
+# dunstrc.d/99-wal.conf, which is written by hypr/scripts/wallpaper; drop-ins are read
+# after this file, so anything set there wins.
+
+[global]
+    # naughty.config.defaults.position = "bottom_right", margin = 15
+    origin = bottom-right
+    offset = 15x15
+
+    # naughty.config.spacing = dpi(10)
+    gap_size = 10
+
+    # naughty.config.padding = dpi(25)
+    padding = 25
+    horizontal_padding = 25
+
+    # theme.notification_max_width / max_height
+    width = 450
+    height = (0, 200)
+
+    # theme.notification_shape = gears.shape.rounded_rect, whose default radius is 10.
+    corner_radius = 10
+    frame_width = 1
+
+    font = Hack Nerd Font 8
+    markup = full
+    format = "<b>%s</b>\n%b"
+    word_wrap = yes
+    ellipsize = end
+
+    # awesome shows an icon when the notification carries one.
+    icon_position = left
+    max_icon_size = 48
+
+    # Click to dismiss, right-click to dismiss all - naughty's default mouse behaviour.
+    mouse_left_click = do_action, close_current
+    mouse_middle_click = close_all
+    mouse_right_click = close_current
+
+    follow = mouse
+    show_age_threshold = 60
+    ignore_newline = no
+    stack_duplicates = true
+    show_indicators = no
+
+[urgency_low]
+    background = "#091a34b3"
+    foreground = "#2477d4"
+    frame_color = "#1a5598b3"
+    timeout = 5
+
+[urgency_normal]
+    background = "#091a34b3"
+    foreground = "#2477d4"
+    frame_color = "#1a5598b3"
+    timeout = 10
+
+# naughty.config.presets.critical is given the same background and border as the rest in
+# awesome/theme/theme.lua, rather than the red naughty defaults to. Only the timeout
+# differs: critical notifications stay until dismissed.
+[urgency_critical]
+    background = "#091a34b3"
+    foreground = "#2477d4"
+    frame_color = "#1a5598b3"
+    timeout = 0

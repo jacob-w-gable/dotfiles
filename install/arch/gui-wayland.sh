@@ -32,6 +32,7 @@ sudo pacman -S \
   wl-clipboard \
   rofi-wayland \
   dunst \
+  libnotify \
   imv \
   hyprpaper \
   xorg-xwayland \
