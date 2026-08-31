@@ -17,7 +17,9 @@ LONG_BREAK_MINUTES=5
 LONG_BREAK_EVERY=17
 AUTO_ADVANCE=true
 
-SOUND="$HOME/.config/awesome/theme/alarm1.wav"
+# Reached through hypr/theme, which symlinks awesome's copy, so the bar does not need
+# the other config installed to make a noise.
+SOUND="$HOME/.config/hypr/theme/alarm1.wav"
 
 STATE="${XDG_CACHE_HOME:-$HOME/.cache}/waybar/pomodoro"
 mkdir -p "$(dirname "$STATE")"

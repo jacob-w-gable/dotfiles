@@ -72,6 +72,13 @@ return function()
 	-- runtime without rewriting a config file.
 	run("hyprpaper")
 
+	-- And the image itself. awesome draws the wallpaper from ui/wallpaper.lua as each
+	-- screen appears; hyprpaper needs telling once it is listening, which is what the
+	-- script waits for.
+	local theme = require("theme")
+	run("hyprpaper", string.format("%s/.config/hypr/scripts/set-wallpaper %q",
+		os.getenv("HOME"), theme.wallpaper))
+
 	-- Tray applets. nm-applet in place of awesome's nm-tray, which is Qt XEmbed and
 	-- has no Wayland tray to embed into.
 	run("nm-applet", "nm-applet --indicator")

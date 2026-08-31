@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Put the wallpaper on screen at login.
+#
+# awesome draws it from ui/wallpaper.lua as each screen appears. hyprpaper is a separate
+# daemon that has to be up and answering before it will take an image, so this waits for
+# its socket rather than assuming - autostart spawns the two together and does not order
+# them.
+#
+# Takes the image as an argument so the caller decides; hypr/theme/colors.lua picks
+# pywal's current wallpaper, or awesome's default if pywal has never run.
+
+set -euo pipefail
+
+IMAGE="${1:-}"
+[[ -n $IMAGE && -f $IMAGE ]] || exit 0
+
+# hyprpaper is spawned alongside this, so give it a moment to come up. Bounded: if it is
+# not there after a few seconds it is not coming, and a login should not hang on it.
+#
+# listactive is the probe because it is one of the few requests hyprpaper 0.8 actually
+# answers - preload, unload, reload and listloaded all return "invalid hyprpaper
+# request", whatever the wiki says. Setting the wallpaper needs no preload there either.
+for _ in $(seq 1 20); do
+	if hyprctl hyprpaper listactive >/dev/null 2>&1; then
+		# Empty monitor field means every output, which is what awesome does.
+		hyprctl hyprpaper wallpaper ",$IMAGE" >/dev/null
+		exit 0
+	fi
+	sleep 0.5
+done

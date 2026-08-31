@@ -78,20 +78,32 @@ return function()
 	bind(mod .. " + SHIFT + J", hl.dsp.window.swap({ next = true }), "client", "swap with next client")
 	bind(mod .. " + SHIFT + K", hl.dsp.window.swap({ prev = true }), "client", "swap with previous client")
 
-	-- awesome's incmwfact. dwindle has no master factor, so this resizes along the
-	-- same axis, which is what the binding feels like in use.
-	bind(mod .. " + L", hl.dsp.window.resize({ x = 40, y = 0 }), "layout", "increase master width")
-	bind(mod .. " + H", hl.dsp.window.resize({ x = -40, y = 0 }), "layout", "decrease master width")
+	-- awesome's incmwfact. Each Hyprland layout names this differently and rejects the
+	-- others, so layouts.lua dispatches whichever fits the layout in effect.
+	bind(mod .. " + L", function()
+		layouts.resize_master(1)
+	end, "layout", "increase master width")
+	bind(mod .. " + H", function()
+		layouts.resize_master(-1)
+	end, "layout", "decrease master width")
 
-	-- incnmaster. Only the master layout has a concept of master count; in dwindle
-	-- these are no-ops, as incnmaster effectively is in awesome's floating layout.
-	bind(mod .. " + SHIFT + L", hl.dsp.layout("addmaster"), "layout", "more master clients")
-	bind(mod .. " + SHIFT + H", hl.dsp.layout("removemaster"), "layout", "fewer master clients")
+	-- incnmaster. Only the master layout has a concept of master count, and dwindle
+	-- errors on the message rather than ignoring it, so these are guarded.
+	bind(mod .. " + SHIFT + L", function()
+		layouts.master_message("addmaster")
+	end, "layout", "more master clients")
+	bind(mod .. " + SHIFT + H", function()
+		layouts.master_message("removemaster")
+	end, "layout", "fewer master clients")
 
 	-- incncol has no equivalent: neither dwindle nor master lays out in columns.
 	-- Reused for the master orientation, which is the nearest thing to the effect.
-	bind(mod .. " + CONTROL + L", hl.dsp.layout("orientationnext"), "layout", "next master orientation")
-	bind(mod .. " + CONTROL + H", hl.dsp.layout("orientationprev"), "layout", "previous master orientation")
+	bind(mod .. " + CONTROL + L", function()
+		layouts.master_message("orientationnext")
+	end, "layout", "next master orientation")
+	bind(mod .. " + CONTROL + H", function()
+		layouts.master_message("orientationprev")
+	end, "layout", "previous master orientation")
 
 	bind(mod .. " + space", function()
 		layouts.cycle(1)

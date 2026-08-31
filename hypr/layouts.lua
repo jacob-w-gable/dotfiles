@@ -82,6 +82,41 @@ local function apply(index)
 	hl.exec_cmd("pkill -RTMIN+8 waybar")
 end
 
+--- Widen or narrow the master area. delta is +1 or -1.
+--
+-- awesome's incmwfact is one call whatever the layout; here each layout has its own
+-- message and the wrong one is an error, so the current layout picks it. A floating
+-- window has no split to adjust, so it is resized directly - which is what dragging its
+-- edge would do, and what awesome's floating layout leaves you with.
+function M.resize_master(delta)
+	local window = hl.get_active_window()
+	if window and window.floating then
+		hl.dispatch(hl.dsp.window.resize({ x = delta * 40, y = 0 }))
+		return
+	end
+
+	local amount = string.format("%+.2f", delta * 0.05)
+	local entry = ORDER[current]
+
+	if entry.layout == "master" then
+		hl.dispatch(hl.dsp.layout("mfact " .. amount))
+	elseif entry.layout == "dwindle" then
+		hl.dispatch(hl.dsp.layout("splitratio " .. amount))
+	end
+	-- The scrolling layout has no master area, so there is nothing to adjust.
+end
+
+--- Send a layout message that only the master layout understands.
+--
+-- dwindle rejects these outright - "Unknown dwindle layoutmsg" - so sending them
+-- unconditionally would put an error in the log every time the key is pressed on the
+-- wrong layout. In awesome the equivalent calls are simply no-ops off a tiled layout.
+function M.master_message(msg)
+	if ORDER[current].layout == "master" then
+		hl.dispatch(hl.dsp.layout(msg))
+	end
+end
+
 --- Step through the list, wrapping. delta is 1 or -1.
 function M.cycle(delta)
 	current = (current - 1 + delta) % #ORDER + 1

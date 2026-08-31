@@ -34,6 +34,8 @@ M.secondary = colors.secondary_color
 M.border_active = rgba(colors.highlight_color, 1)
 M.border_inactive = rgba(colors.background_color, 1)
 
+M.wallpaper = colors.wallpaper
+
 M.rgba = rgba
 M.brighten = brighten
 

@@ -35,11 +35,9 @@ if command -v rgb_ctrl >/dev/null; then
 	rgb_ctrl hex "$(jq -r '.colors.color4' "$HOME/.cache/wal/colors.json")" || true
 fi
 
-# The wallpaper itself. unload first, or hyprpaper keeps every image it has ever been
-# given in memory.
+# The wallpaper itself. No preload or unload around it: hyprpaper 0.8 rejects both as
+# invalid requests and takes the image on `wallpaper` alone.
 if command -v hyprpaper >/dev/null; then
-	hyprctl hyprpaper unload all
-	hyprctl hyprpaper preload "$IMAGE"
 	hyprctl hyprpaper wallpaper ",$IMAGE"
 fi
 

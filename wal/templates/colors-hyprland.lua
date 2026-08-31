@@ -4,6 +4,7 @@
 -- and a bad file then fails as a load error the caller can pcall rather than as a nil
 -- index halfway through building the theme.
 return {{
+	wallpaper = "{wallpaper}",
 	background = "{background}",
 	foreground = "{foreground}",
 	cursor = "{cursor}",
