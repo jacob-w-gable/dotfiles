@@ -12,7 +12,9 @@
 
 return {
 	-- Where rust-analyzer puts its build artifacts. Useful when the default
-	-- location is on a small disk. Defaults to ~/.cargo/nvim-target.
+	-- location is on a small disk. Defaults to ~/.cargo/nvim-target. Each
+	-- workspace gets a subdirectory below this, so the whole tree is safe to
+	-- delete when it grows too large.
 	-- cargo_target_dir = "/mnt/somewhere/cargo/target-nvim",
 
 	-- Override the rustfmt command rust-analyzer uses, e.g. for Leptos

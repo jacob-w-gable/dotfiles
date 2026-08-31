@@ -11,7 +11,29 @@
 local ok_machine, machine = pcall(require, "config.machine")
 machine = ok_machine and machine or {}
 
-local cargo_target_dir = machine.cargo_target_dir or (vim.env.HOME .. "/.cargo/nvim-target")
+-- Root of rust-analyzer's build artifacts. Each workspace gets its own
+-- subdirectory below it, named by target_dir_for.
+local cargo_target_root = machine.cargo_target_dir or (vim.env.HOME .. "/.cargo/nvim-target")
+
+-- Cargo leaves a package's path out of its fingerprint, so two checkouts of the
+-- same crate - a worktree and the branch it was made from - share one slot in a
+-- shared target directory. They take turns invalidating each other, and when the
+-- second checkout's files are older than the artifacts built from the first,
+-- which is what git worktree add produces, cargo calls them fresh and reuses the
+-- other checkout's output. rust-analyzer then reports the other branch's
+-- diagnostics.
+--
+-- Keying the directory on the workspace root gives each checkout its own slot.
+-- The cost is that registry dependencies are built once per workspace instead of
+-- once in total.
+local function target_dir_for(root)
+  if not root then
+    return cargo_target_root
+  end
+  root = vim.fs.normalize(root)
+  local name = vim.fn.fnamemodify(root, ":t"):gsub("[^%w._-]", "_")
+  return ("%s/%s-%s"):format(cargo_target_root, name, vim.fn.sha256(root):sub(1, 12))
+end
 
 local rustfmt_override = machine.rustfmt_override
 if rustfmt_override and vim.fn.executable(rustfmt_override[1]) == 0 then
@@ -42,6 +64,14 @@ local servers = {}
 if vim.fn.executable(available.rust_analyzer) == 1 then
   servers.rust_analyzer = {
     mason = false,
+    -- root_dir is resolved before this runs, and vim.lsp deep-copies the config
+    -- for every client, so this touches one client's settings and not the shared
+    -- spec. Edit the table in place rather than replacing it: the client kept a
+    -- reference to it when it was created.
+    before_init = function(_, config)
+      local cargo = config.settings["rust-analyzer"].cargo
+      cargo.extraEnv.CARGO_TARGET_DIR = target_dir_for(config.root_dir)
+    end,
     settings = {
       ["rust-analyzer"] = {
         imports = {
@@ -54,8 +84,10 @@ if vim.fn.executable(available.rust_analyzer) == 1 then
           allTargets = true,
           extraEnv = {
             -- Keeping nvim's analysis out of ./target stops it fighting a
-            -- terminal cargo build for the same lock.
-            CARGO_TARGET_DIR = cargo_target_dir,
+            -- terminal cargo build for the same lock. before_init narrows this
+            -- to the workspace's own subdirectory; the root is the fallback for
+            -- a client that starts without a root_dir.
+            CARGO_TARGET_DIR = cargo_target_root,
           },
         },
         -- Unset means rust-analyzer's own rustfmt. An override whose binary is
