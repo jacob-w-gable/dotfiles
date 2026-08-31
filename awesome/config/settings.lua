@@ -19,5 +19,9 @@ return {
 
 	theme = "squircle",
 
-	lock_screen_wallpaper = os.getenv("HOME") .. "/.config/awesome/theme/lockscreen.png",
+	-- Built from the active wallpaper by theme/lockscreen, which runs on every
+	-- wallpaper change and at login. It lives in the cache rather than beside the
+	-- config because it is generated, and the path is fixed because xss-lock is
+	-- handed the i3lock command once, at login.
+	lock_screen_wallpaper = os.getenv("HOME") .. "/.cache/awesome/lockscreen.png",
 }

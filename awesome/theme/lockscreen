@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+#
+# Rebuild the lock screen image from whatever wallpaper is currently active.
+#
+# i3lock takes a single PNG and draws it across the whole X screen, while
+# Awesome maximizes the wallpaper on each monitor separately, so the two only
+# agree if the image is composited here: the wallpaper is scaled to fill every
+# output and pasted at that output's offset in one screen-sized canvas.
+#
+# The result is cached and only rebuilt when the wallpaper or the monitor
+# layout changes, because scaling a 4K image costs a second or two and this
+# runs on every Awesome start.
+set -euo pipefail
+
+# Ensure your user bin is visible when started from Awesome (non-interactive env)
+export PATH="$HOME/.local/bin:$PATH"
+
+cache_dir="$HOME/.cache/awesome"
+out="$cache_dir/lockscreen.png"
+stamp="$cache_dir/lockscreen.stamp"
+wal_colors="$HOME/.cache/wal/colors.json"
+fallback="$HOME/.config/awesome/theme/wallpaper.jpg"
+
+force=false
+if [ "${1:-}" = "--force" ]; then
+  force=true
+fi
+
+if ! command -v convert >/dev/null 2>&1; then
+  echo "ImageMagick's convert is required to build the lock screen" >&2
+  exit 1
+fi
+
+mkdir -p "$cache_dir"
+
+# The active wallpaper is whatever pywal was last pointed at; theme/colors.lua
+# reads the same field, so the lock screen and the desktop cannot disagree.
+source_image=""
+if [ -r "$wal_colors" ] && command -v jq >/dev/null 2>&1; then
+  source_image="$(jq -r '.wallpaper // empty' "$wal_colors")"
+fi
+if [ -z "$source_image" ] || [ ! -r "$source_image" ]; then
+  source_image="$fallback"
+fi
+if [ ! -r "$source_image" ]; then
+  echo "No readable wallpaper to build a lock screen from" >&2
+  exit 1
+fi
+
+# Every output that is switched on, as WxH+X+Y. An output that is connected but
+# has no mode - a monitor plugged in and turned off - has no geometry, and
+# including it would stretch the canvas over a region nothing displays.
+mapfile -t geometries < <(
+  xrandr --query | awk '$2 == "connected" {
+    for (i = 3; i <= NF; i++)
+      if ($i ~ /^[0-9]+x[0-9]+\+[0-9]+\+[0-9]+$/) {
+        print $i
+        break
+      }
+  }'
+)
+if [ "${#geometries[@]}" -eq 0 ]; then
+  echo "No active outputs found" >&2
+  exit 1
+fi
+
+# Rebuilding is skipped unless the wallpaper file, its contents, or the layout
+# changed. Size and mtime stand in for the contents: pywal can hand back the
+# same path with a different image behind it.
+signature="$source_image $(stat -c '%Y %s' "$source_image") ${geometries[*]}"
+if [ "$force" = false ] && [ -f "$out" ] && [ -f "$stamp" ] &&
+  [ "$(cat "$stamp")" = "$signature" ]; then
+  echo "Lock screen already current for $source_image"
+  exit 0
+fi
+
+# The canvas spans the bounding box of the outputs, which is the X screen. It is
+# derived from the same geometries rather than asked of the X server so that the
+# canvas and the pieces composited into it can never disagree.
+width=0
+height=0
+args=()
+for geometry in "${geometries[@]}"; do
+  if [[ ! $geometry =~ ^([0-9]+)x([0-9]+)\+([0-9]+)\+([0-9]+)$ ]]; then
+    echo "Unparsable output geometry: $geometry" >&2
+    exit 1
+  fi
+  output_width="${BASH_REMATCH[1]}"
+  output_height="${BASH_REMATCH[2]}"
+  output_x="${BASH_REMATCH[3]}"
+  output_y="${BASH_REMATCH[4]}"
+
+  if [ "$((output_x + output_width))" -gt "$width" ]; then
+    width="$((output_x + output_width))"
+  fi
+  if [ "$((output_y + output_height))" -gt "$height" ]; then
+    height="$((output_y + output_height))"
+  fi
+
+  # '^' scales until the image covers the output, then extent crops the
+  # overhang, which is what gears.wallpaper.maximized does on the desktop.
+  args+=(
+    '(' "$source_image"
+    -resize "${output_width}x${output_height}^"
+    -gravity center
+    -extent "${output_width}x${output_height}" ')'
+    -geometry "+${output_x}+${output_y}"
+    -composite
+  )
+done
+
+# Written to a temporary file in the same directory and moved into place, so a
+# lock that fires mid-rebuild never reads a half-written PNG.
+temporary="$(mktemp "$cache_dir/lockscreen.XXXXXX.png")"
+trap 'rm -f "$temporary"' EXIT
+
+convert -size "${width}x${height}" xc:black "${args[@]}" -alpha off "png:$temporary"
+mv -- "$temporary" "$out"
+trap - EXIT
+
+printf '%s\n' "$signature" >"$stamp"
+echo "Built $out (${width}x${height}) from $source_image"

@@ -29,6 +29,11 @@ fi
 # Need to sleep to wait for the wallpaper to set
 sleep 2
 
+# Rebuild the lock screen from the image that was just selected. A failure here
+# leaves the previous lock screen in place, which is worth strictly less than
+# the theme updates below, so it must not take the rest of the script down.
+"$HOME/.config/awesome/theme/lockscreen" --force || echo "Lock screen rebuild failed."
+
 # Update Chromium theme
 (cd $HOME/dotfiles/chromium && ./pywal-theme.sh)
 

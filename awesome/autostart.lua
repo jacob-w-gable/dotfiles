@@ -46,6 +46,12 @@ restart("pasystray") -- pulse audio
 run("blueman-applet") -- bluetooth
 
 -- Automatic locking. Timeout is configured with `xset s <timeout>`.
+--
+-- The lock screen image is rebuilt first, so a wallpaper or a monitor layout
+-- that changed while Awesome was not running is picked up. It is a no-op when
+-- the cached image already matches, and it is guarded on convert because that
+-- is the binary the script needs.
+run("convert", "$HOME/.config/awesome/theme/lockscreen")
 restart("xss-lock", "xss-lock -l -- " .. apps.lock_command())
 
 -- Screenshot daemon.
