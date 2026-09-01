@@ -118,11 +118,21 @@ alias lsm='eza -l --group-directories-first --icons --time-style=long-iso --tota
 alias lsn='eza -l --group-directories-first --icons --time-style=long-iso --total-size --sort=name'
 alias lse='eza -l --group-directories-first --icons --time-style=long-iso --total-size --sort=extension'
 alias lst='eza -l --group-directories-first --icons --time-style=long-iso --total-size --sort=type'
-# Other coreutils alternatives
-alias cat="batcat"
+# Other coreutils alternatives.
+#
+# Debian and Ubuntu rename both of these to avoid clashing with existing
+# packages (bat -> batcat, fd -> fdfind); Arch and Fedora ship the upstream
+# names. Picking at startup means one rc file works on all of them, instead of
+# aliasing to a binary that is not installed and shadowing the one that is -
+# which is what `alias fd=fdfind` was doing on Arch, hiding the real fd.
+if (( $+commands[batcat] )); then
+  alias cat="batcat"
+elif (( $+commands[bat] )); then
+  alias cat="bat"
+fi
 
 # Find files
-alias fd="fdfind"
+(( $+commands[fdfind] )) && alias fd="fdfind"
 
 # Terminal bell
 alias ding='echo -ne "\a"'
