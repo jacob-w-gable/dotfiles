@@ -57,6 +57,12 @@ restart("xss-lock", "xss-lock -l -- " .. apps.lock_command())
 -- Screenshot daemon.
 restart("flameshot")
 
+-- Touch gestures. touchegg.service runs the daemon as root, but the actions it
+-- is configured with are executed by a client inside the X session, so both
+-- halves have to be running. The pkill is scoped to this user so it cannot
+-- reach the root daemon.
+run("touchegg", 'pkill -u "$(id -u)" touchegg; touchegg')
+
 -- Per-device input tweaks. The device name comes from `xinput list` and is
 -- specific to one machine's hardware, so it lives in config/machine.lua.
 local touchpad = settings.touchpad

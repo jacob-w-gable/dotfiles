@@ -12,6 +12,9 @@ awesome/lain
 chromium/Pywal
 __pycache__
 
+# touchegg writes a per-display lock into its linked config directory
+touchegg/.touchegg*.lock
+
 # Per-machine awesome overrides (see awesome/config/machine.example.lua)
 awesome/config/machine.lua
 
