@@ -1,5 +1,8 @@
 return {
   "dgrbrady/nvim-docker",
+  -- Turned off. Set this back to true to get the container list on <leader>C
+  -- again; lazy.nvim then skips installing and loading the plugin entirely.
+  enabled = false,
   requires = {
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
