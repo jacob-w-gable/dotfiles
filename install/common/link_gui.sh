@@ -34,6 +34,29 @@ ln -s $(pwd)/rofi $HOME/.config/rofi
 rm -rf $HOME/.config/wal
 ln -s $(pwd)/wal $HOME/.config/wal
 
+# Convertible/2-in-1 support. Opt in with `install.sh --tablet`; these enable
+# services and install an Xorg input rule that are pointless on other machines.
+if [[ "${DOTFILES_TABLET:-false}" == true ]]; then
+  rm -rf $HOME/.config/touchegg
+  ln -s $(pwd)/touchegg $HOME/.config/touchegg
+
+  mkdir -p $HOME/.config/systemd/user
+  rm -rf $HOME/.config/systemd/user/tablet-mode-daemon.service
+  ln -s $(pwd)/systemd/user/tablet-mode-daemon.service $HOME/.config/systemd/user/tablet-mode-daemon.service
+  systemctl --user daemon-reload
+  systemctl --user enable --now tablet-mode-daemon.service
+
+  sudo systemctl enable --now touchegg.service
+
+  # Onboard reads themes from its data dir rather than ~/.config, so this copies
+  # rather than symlinks. Safe to skip if wal has not generated colors yet.
+  $(pwd)/awesome/scripts/onboard-pywal-theme.sh || true
+
+  sudo mkdir -p /etc/X11/xorg.conf.d
+  sudo rm -f /etc/X11/xorg.conf.d/50-wacom-touchscreen.conf
+  sudo ln -s $(pwd)/xorg.conf.d/50-wacom-touchscreen.conf /etc/X11/xorg.conf.d/50-wacom-touchscreen.conf
+fi
+
 rm -rf $HOME/Scripts/wallpaper
 mkdir -p $HOME/Scripts
 ln -s $(pwd)/awesome/theme/wallpaper $HOME/Scripts/wallpaper

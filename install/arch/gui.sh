@@ -51,6 +51,18 @@ sudo pacman -S \
   ueberzug \
   --noconfirm
 
+# Tablet mode (convertible/touchscreen laptops). Opt in with
+# `install.sh --tablet`; skipped everywhere else.
+if [[ "${DOTFILES_TABLET:-false}" == true ]]; then
+  sudo pacman -S \
+    touchegg \
+    onboard \
+    python-evdev \
+    xf86-input-wacom \
+    iio-sensor-proxy \
+    --noconfirm
+fi
+
 git clone https://aur.archlinux.org/yay.git
 (cd yay && makepkg -si --noconfirm)
 rm -rf yay

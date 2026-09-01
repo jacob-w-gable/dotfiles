@@ -11,6 +11,10 @@ sudo -v
 DISTRO=""
 GUI=false
 DEVEL=true
+# Convertible/2-in-1 support (touchscreen rotation, gestures, on-screen
+# keyboard). Opt-in, because it installs extra packages and enables services
+# that are useless on a machine that does not fold.
+export DOTFILES_TABLET=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -26,8 +30,12 @@ while [[ $# -gt 0 ]]; do
     DEVEL=false
     shift
     ;;
+  --tablet)
+    export DOTFILES_TABLET=true
+    shift
+    ;;
   -h | --help)
-    echo "Usage: $0 [--distro <name>] [--gui] [--no-devel]"
+    echo "Usage: $0 [--distro <name>] [--gui] [--no-devel] [--tablet]"
     exit 0
     ;;
   *)
