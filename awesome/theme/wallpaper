@@ -58,5 +58,10 @@ awk '
 }
 END { if (key) print key line "\n" }' $HOME/.cache/wal/qt5ct.conf >$HOME/.config/qt5ct/colors/awesomewm.conf
 
+# Update on-screen keyboard theme. Onboard reads themes from its own data
+# directory rather than ~/.config, so this copies rather than symlinks. It is a
+# no-op on a machine with no Onboard installed.
+"$HOME/.config/awesome/scripts/onboard-pywal-theme.sh" || echo "Onboard theme update failed."
+
 # Detach the restart so Awesome doesn't kill this script early
 setsid bash -lc 'sleep 0.15; awesome-client "awesome.restart()"' >/dev/null 2>&1 &

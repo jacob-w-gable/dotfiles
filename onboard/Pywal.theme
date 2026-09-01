@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+
+<!--
+Onboard theme paired with the pywal-generated Pywal.colors scheme.
+
+Only the styling lives here (roundness, gradients, shadows); every colour comes
+from <color_scheme>Pywal</color_scheme>, which is regenerated from the pywal
+palette on each wallpaper change. Installed by
+awesome/scripts/onboard-pywal-theme.sh.
+-->
+
+<theme format="1.3" name="Pywal">
+  <color_scheme>Pywal</color_scheme>
+  <background_gradient>0.0</background_gradient>
+  <key_style>flat</key_style>
+  <roundrect_radius>14.0</roundrect_radius>
+  <key_size>94.0</key_size>
+  <key_fill_gradient>0.0</key_fill_gradient>
+  <key_stroke_gradient>0.0</key_stroke_gradient>
+  <key_gradient_direction>0.0</key_gradient_direction>
+  <key_label_font></key_label_font>
+  <key_label_overrides/>
+  <key_shadow_strength>20.0</key_shadow_strength>
+  <key_shadow_size>20.0</key_shadow_size>
+</theme>

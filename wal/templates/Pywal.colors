@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+
+<!--
+Onboard color scheme generated from the current pywal palette.
+
+This file is a pywal template: it is rendered to ~/.cache/wal/Pywal.colors
+every time the wallpaper changes, and awesome/scripts/onboard-pywal-theme.sh
+copies it into ~/.local/share/onboard/themes/ and selects it.
+
+Do not edit the copy in ~/.cache or ~/.local/share; both are regenerated.
+-->
+
+<color_scheme name="Pywal" format="2.1">
+    <window type="key-popup">
+        <color element="border" rgb="{color4}" opacity="1.0"/>
+    </window>
+
+    <layer> <color element="background" rgb="{color0}" opacity="0.9"/> </layer>
+    <layer> <color element="background" rgb="{color0.lighten(5%)}" opacity="0.9"/> </layer>
+    <layer> <color element="background" rgb="{color0.lighten(10%)}" opacity="0.9"/> </layer>
+
+    <key_group>
+        <color element="fill"   rgb="{color0.lighten(12%)}"/>
+        <color element="stroke" rgb="{color0}"/>
+        <color element="label"  rgb="{foreground}"/>
+        icon0
+
+        <key_group>
+            <color element="fill" rgb="{color4}"/>
+            icon1, icon2
+        </key_group>
+
+        <!-- modifier keys -->
+        <key_group>
+            <color element="fill" rgb="{color0.lighten(22%)}"/>
+            icon3,
+            RCTL, LCTL, RALT, LALT, LWIN, CAPS,
+            LFSH, RTSH, NMLK, ESC
+        </key_group>
+
+        <!-- navigation, function and action keys -->
+        <key_group>
+            <color element="fill" rgb="{color0.lighten(17%)}"/>
+            MENU, RWIN, BKSP, TAB, RTRN,
+            KPDL, KPEN,
+            LEFT, RGHT, UP, DOWN, INS, DELE, HOME, END, PGUP, PGDN,
+            F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
+            Prnt, Pause, Scroll,
+            KPSU, KPDV, KPAD, KPMU,
+            secondaryclick, middleclick, doubleclick, dragclick, hoverclick,
+            hide, showclick, move, layer,
+            quit
+        </key_group>
+
+        <!-- layer switching buttons -->
+        <key_group>
+            <color element="fill" rgb="{color5}"/>
+            m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15
+        </key_group>
+
+        <key_group>
+            <color element="fill" rgb="{color1}"/>
+            settings
+        </key_group>
+
+        <!-- word suggestions -->
+        <key_group>
+            <color element="fill" rgb="{color0.lighten(8%)}"/>
+            wordlist, prediction
+        </key_group>
+    </key_group>
+</color_scheme>
