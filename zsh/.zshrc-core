@@ -181,11 +181,38 @@ function tarit() {
   fi
 }
 
-# Use gnome keyring. Without a proper DE, you can use `secret-tool` to add passwords to the keyring.
+# Use gnome keyring for secrets. Without a proper DE, you can use `secret-tool`
+# to add passwords to the keyring.
 # See https://wiki.archlinux.org/title/GNOME/Keyring
 # and https://bbs.archlinux.org/viewtopic.php?pid=2217761#p2217761
-# Make sure you do not run ssh-agent in your system, as it will conflict with gnome-keyring-daemon.
 if ! pgrep -u "$USER" -f gnome-keyring-daemon > /dev/null; then
   eval $(gnome-keyring-daemon --start 2>/dev/null)
 fi
-export SSH_AUTH_SOCK
+
+# Point ssh at whichever agent this session actually provides.
+#
+# This used to be a bare `export SSH_AUTH_SOCK`, which exports an *empty*
+# value - so ssh saw no agent, ignored the unlocked keys, and fell back to
+# asking for the passphrase through ssh-askpass. In a non-interactive context
+# (a git fetch from an editor or a script) there is no askpass binary, so it
+# just failed with "Permission denied (publickey)".
+#
+# It was also aimed at the wrong agent: gnome-keyring dropped its ssh
+# component in 42, and `gnome-keyring-daemon --components` now offers only
+# pkcs11 and secrets. The replacement is gcr-ssh-agent, socket-activated by
+# systemd --user; plain ssh-agent.socket is the fallback elsewhere.
+#
+# A value inherited from the session (a DE, or an agent started by hand) wins,
+# so this only fills in a gap rather than overriding a working setup.
+if [[ -z "$SSH_AUTH_SOCK" ]]; then
+  for _ssh_sock in \
+    "${XDG_RUNTIME_DIR:-/run/user/$UID}/gcr/ssh" \
+    "${XDG_RUNTIME_DIR:-/run/user/$UID}/ssh-agent.socket" \
+    "${XDG_RUNTIME_DIR:-/run/user/$UID}/keyring/ssh"; do
+    if [[ -S "$_ssh_sock" ]]; then
+      export SSH_AUTH_SOCK="$_ssh_sock"
+      break
+    fi
+  done
+  unset _ssh_sock
+fi
