@@ -58,6 +58,14 @@ awk '
 }
 END { if (key) print key line "\n" }' $HOME/.cache/wal/qt5ct.conf >$HOME/.config/qt5ct/colors/awesomewm.conf
 
+# GTK and Qt apps read their colours through xdg-desktop-portal, which caches
+# them, so already-running apps keep the old theme until it is restarted. Each
+# backend is optional - a machine with only one of them installed must not have
+# the rest of this script taken down by the missing unit.
+for unit in xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-kde; do
+  systemctl --user restart "$unit.service" 2>/dev/null || true
+done
+
 # Update on-screen keyboard theme. Onboard reads themes from its own data
 # directory rather than ~/.config, so this copies rather than symlinks. It is a
 # no-op on a machine with no Onboard installed.
