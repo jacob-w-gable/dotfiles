@@ -125,6 +125,20 @@ client.connect_signal("manage", function(c)
 	end
 end)
 
+-- scripts/tablet-mode-daemon.py runs as a systemd --user service, watching the
+-- hardware fold switch and the accelerometer and emitting these two signals
+-- through awesome-client. It exits straight away on hardware without the
+-- switch, so on a non-convertible neither signal is ever raised.
+awesome.connect_signal("tablet::mode", set)
+
+-- Rotation is a shell script rather than done here because keeping the picture
+-- and the touch/pen input aligned takes xrandr, xsetwacom and an xinput
+-- coordinate transformation matrix together.
+awesome.connect_signal("tablet::orientation", function(orientation)
+	local script = require("gears.filesystem").get_configuration_dir() .. "scripts/rotate-screen.sh"
+	awful.spawn.with_shell(script .. " " .. orientation)
+end)
+
 local M = {
 	supported = supported,
 	set = set,

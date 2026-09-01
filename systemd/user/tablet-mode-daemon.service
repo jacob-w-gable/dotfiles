@@ -1,0 +1,12 @@
+[Unit]
+Description=Watch tablet-mode switch and accelerometer, drive awesomewm tablet mode
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.config/awesome/scripts/tablet-mode-daemon.py
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target
