@@ -17,6 +17,11 @@ return {
 	dpi_scale = 1,
 	font = "Hack Nerd Font 8",
 
+	-- Height in pixels of the on-screen keyboard, which signals.lua pins to the
+	-- bottom edge of the screen. Onboard's own docking geometry hangs off the
+	-- bottom of the display, so this is what actually decides its size.
+	osk_height = 260,
+
 	theme = "squircle",
 
 	-- Built from the active wallpaper by theme/lockscreen, which runs on every

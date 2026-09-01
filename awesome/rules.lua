@@ -84,6 +84,30 @@ return function(keys, buttons)
 			},
 		},
 
+		-- On-screen keyboard: floats on top without taking focus. Tablet mode
+		-- puts every tag in the max layout, which would otherwise tile the
+		-- keyboard fullscreen, and focusable = false keeps typing going to the
+		-- window underneath instead of to the keyboard itself.
+		{
+			rule_any = {
+				class = { apps.osk_class },
+				instance = { "onboard" },
+			},
+			properties = {
+				floating = true,
+				ontop = true,
+				sticky = true,
+				focusable = false,
+				skip_taskbar = true,
+				titlebars_enabled = false,
+				border_width = 0,
+				-- Onboard docks itself to the bottom edge, so only keep it on
+				-- screen; the default no_overlap would shove it out of the way of
+				-- other windows.
+				placement = awful.placement.no_offscreen,
+			},
+		},
+
 		-- Set Firefox to always map on the tag named "2" on screen 1.
 		-- { rule = { class = "Firefox" },
 		--   properties = { screen = 1, tag = "2" } },

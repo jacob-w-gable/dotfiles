@@ -8,6 +8,7 @@
 local awful = require("awful")
 local beautiful = require("beautiful")
 local apps = require("config.apps")
+local settings = require("config")
 
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function(c)
@@ -33,6 +34,41 @@ client.connect_signal("manage", function(c)
 		c:raise()
 
 		awful.titlebar.hide(c)
+	end
+end)
+
+-- Onboard positions itself from its own saved docking geometry, which ends up
+-- hanging off the bottom of the display - the lower part of the keyboard is
+-- drawn past the screen edge, so raising its height just pushes more of it out
+-- of view. Pin it to a strip along the bottom edge instead.
+local function pin_onscreen_keyboard(c)
+	local geo = c.screen.geometry
+	local height = settings.osk_height
+	c:geometry({
+		x = geo.x,
+		y = geo.y + geo.height - height,
+		width = geo.width,
+		height = height,
+	})
+end
+
+client.connect_signal("manage", function(c)
+	if c.class == apps.osk_class then
+		pin_onscreen_keyboard(c)
+	end
+end)
+
+-- Onboard re-applies its own geometry after mapping and on rotation, so keep
+-- correcting it. The comparison makes this a no-op once pinned, which stops it
+-- recursing on the geometry change it makes itself.
+client.connect_signal("property::geometry", function(c)
+	if c.class ~= apps.osk_class then
+		return
+	end
+	local geo = c.screen.geometry
+	local height = settings.osk_height
+	if c.width ~= geo.width or c.height ~= height or c.y ~= geo.y + geo.height - height then
+		pin_onscreen_keyboard(c)
 	end
 end)
 

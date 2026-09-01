@@ -16,6 +16,7 @@ local cputemp = require("widgets.cputemp")
 local layoutbox = require("widgets.layoutbox")
 local mpris = require("widgets.mpris")
 local ramgraph = require("widgets.ramgraph")
+local tablet_mode = require("widgets.tablet_mode")
 local taglist = require("widgets.taglist")
 local tasklist = require("widgets.tasklist")
 local volume = require("widgets.volume")
@@ -101,6 +102,10 @@ return function(args)
 				list[#list + 1] = { name = "systray", widget = wibox.widget.systray() }
 			end
 
+			-- Both stay invisible on hardware with no tablet-mode switch, and the
+			-- launcher only appears while tablet mode is actually on.
+			list[#list + 1] = { name = "tablet_launcher", widget = tablet_mode.new_launcher() }
+			list[#list + 1] = { name = "tablet_mode", widget = tablet_mode.new() }
 			list[#list + 1] = { name = "caffeine", widget = caffeine.new() }
 			list[#list + 1] = { name = "mpris", widget = mpris.new() }
 			list[#list + 1] = { name = "volume", widget = volume.new() }

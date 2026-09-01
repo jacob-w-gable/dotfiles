@@ -35,6 +35,9 @@ M.wallpaper_popout_name = "Wallpaper Pop-out"
 M.image_viewer_class = "Nsxiv"
 M.centered_dialog_name = "Open Files"
 
+-- The on-screen keyboard, matched by rules.lua and pinned by signals.lua.
+M.osk_class = "Onboard"
+
 --- Build the i3lock invocation.
 --
 -- A function rather than a constant because it reads theme colours, so it can

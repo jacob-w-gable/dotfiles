@@ -39,6 +39,12 @@ return function(args)
 		awful.key({ modkey }, "c", function()
 			require("widgets.caffeine").toggle()
 		end, { description = "toggle caffeine", group = "hotkeys" }),
+		awful.key({ modkey, "Control" }, "t", function()
+			require("widgets.tablet_mode").toggle()
+		end, { description = "toggle tablet mode", group = "hotkeys" }),
+		awful.key({ modkey, "Control" }, "o", function()
+			require("widgets.onscreen_keyboard").toggle()
+		end, { description = "toggle on-screen keyboard", group = "hotkeys" }),
 		awful.key({ modkey }, "e", function()
 			redshift_enabled = not redshift_enabled
 			if not redshift_enabled then
