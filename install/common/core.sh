@@ -10,6 +10,8 @@ if [[ $EUID -eq 0 ]]; then
 fi
 sudo -v
 
+source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
+
 DEVEL=true
 
 while [[ $# -gt 0 ]]; do
@@ -38,14 +40,14 @@ if [[ ! -d ~/.tmux/plugins/tpm ]]; then
 fi
 
 # Install neovim
-curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
-sudo rm -rf /opt/nvim
-sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
-rm nvim-linux-x86_64.tar.gz
+curl -fsSLO "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-$ARCH_NVIM.tar.gz"
+sudo rm -rf "/opt/nvim-linux-$ARCH_NVIM"
+sudo tar -C /opt -xzf "nvim-linux-$ARCH_NVIM.tar.gz"
+rm "nvim-linux-$ARCH_NVIM.tar.gz"
 
 # Install lazygit
 LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+curl -fsSLo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_linux_${ARCH_LAZYGIT}.tar.gz"
 tar xf lazygit.tar.gz lazygit
 sudo install lazygit /usr/local/bin
 rm lazygit lazygit.tar.gz
