@@ -102,10 +102,16 @@ return function(args)
 				list[#list + 1] = { name = "systray", widget = wibox.widget.systray() }
 			end
 
-			-- Both stay invisible on hardware with no tablet-mode switch, and the
-			-- launcher only appears while tablet mode is actually on.
-			list[#list + 1] = { name = "tablet_launcher", widget = tablet_mode.new_launcher() }
-			list[#list + 1] = { name = "tablet_mode", widget = tablet_mode.new() }
+			-- Left out entirely on hardware with no tablet-mode switch, because
+			-- hiding them isn't enough. awesome 4.3's fixed layout still reserves
+			-- the spacing and draws a separator for an invisible child. Both are
+			-- added or skipped together, so the alternating powerline fills keep
+			-- their order. On a convertible, the launcher only appears while
+			-- tablet mode is on.
+			if tablet_mode.supported then
+				list[#list + 1] = { name = "tablet_launcher", widget = tablet_mode.new_launcher() }
+				list[#list + 1] = { name = "tablet_mode", widget = tablet_mode.new() }
+			end
 			list[#list + 1] = { name = "caffeine", widget = caffeine.new() }
 			list[#list + 1] = { name = "mpris", widget = mpris.new() }
 			list[#list + 1] = { name = "volume", widget = volume.new() }
