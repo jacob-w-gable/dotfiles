@@ -91,8 +91,27 @@ else
   bindkey "${terminfo[kRIT5]}" forward-word
 fi
 
-# Neovim path
-export PATH=/opt/nvim-linux-x86_64/bin:$PATH
+# Neovim, from whichever install this machine has: the system-wide tarball under
+# /opt, or the user-local one that `install.sh --user-only` unpacks into
+# ~/.local/opt. The release tarballs name the architecture differently from
+# uname, hence the mapping.
+#
+# The paths are spelled out rather than globbed on purpose. /opt may be mode 711
+# on hardened hosts, which allows traversal but not listing. A glob has to list
+# the directory and so matches nothing there, while testing a known path only
+# needs traversal.
+case $CPUTYPE in
+aarch64 | arm64) _nvim_arch=arm64 ;;
+*) _nvim_arch=x86_64 ;;
+esac
+for _nvim_bin in /opt/nvim-linux-$_nvim_arch/bin $HOME/.local/opt/nvim-linux-$_nvim_arch/bin; do
+  [[ -d $_nvim_bin ]] && export PATH="$_nvim_bin:$PATH"
+done
+unset _nvim_arch _nvim_bin
+
+# User-local binaries. Last, so a --user-only install wins over a stale
+# system-wide copy of the same tool.
+export PATH="$HOME/.local/bin:$PATH"
 
 # Node
 export NVM_DIR="$HOME/.nvm"
