@@ -63,8 +63,10 @@ git clone https://github.com/r0-zero/picom.git picom-source
 (cd picom-source && meson setup --buildtype=release build && ninja -C build install)
 rm -rf picom-source
 
-# Set up wal
+# Set up wal. The wallpaper script falls back to the colorthief backend for
+# images the default backend can't build a palette from.
 pipx install pywal16
+pipx inject pywal16 colorthief
 
 # Setup wallpapers
 mkdir -p ~/Pictures/Wallpapers

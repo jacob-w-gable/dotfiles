@@ -18,7 +18,17 @@ fi
 echo "Selected image: $IMAGE"
 
 # Generate pywal cache (colors.json, templates, etc.)
-wal -i "$IMAGE" --cols16 lighten
+#
+# The wal backend needs ImageMagick to reduce the image to at least 16 distinct
+# colors. On a tonally flat image, like a smooth gradient, ImageMagick merges
+# near-identical colors and returns fewer, so wal gives up. colorthief's median
+# cut handles those images. It's only the fallback, so every other wallpaper
+# keeps the palette the wal backend gives it. colorthief isn't a pywal
+# dependency and is added with `pipx inject pywal16 colorthief`.
+if ! wal -i "$IMAGE" --cols16 lighten; then
+  echo "wal backend failed; retrying with colorthief"
+  wal -i "$IMAGE" --cols16 lighten --backend colorthief
+fi
 
 # Colorize keyboard
 if command -v rgb_ctrl >/dev/null 2>&1; then
