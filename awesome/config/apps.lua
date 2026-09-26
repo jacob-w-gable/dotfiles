@@ -1,15 +1,33 @@
 -- The external programs the config launches, and the window names it matches
 -- on, in one place.
 
+local gfs = require("gears.filesystem")
 local settings = require("config")
 
 local M = {}
 
-M.terminal = "kitty --single-instance"
+--- Prefix a command so it runs in its own systemd scope under app.slice.
+--
+-- Started directly, a program joins the login session's scope, and systemd-oomd
+-- cannot close it without ending the whole session. In its own scope it is a
+-- candidate oomd can kill alone. Programs the launcher starts share the
+-- launcher's scope. Returns the command unchanged when no user manager runs.
+-- @tparam string name A short label, shown as the scope's description.
+-- @tparam string cmd The command to run.
+-- @treturn string The command to spawn.
+local function scoped(name, cmd)
+	local runtime = os.getenv("XDG_RUNTIME_DIR")
+	if runtime == nil or not gfs.dir_readable(runtime .. "/systemd") then
+		return cmd
+	end
+	return "systemd-run --user --scope --slice=app.slice --collect --quiet --description=" .. name .. " " .. cmd
+end
+
+M.terminal = scoped("terminal", "kitty --single-instance")
 M.editor = os.getenv("EDITOR") or "nvim"
 M.editor_cmd = M.terminal .. " -e " .. M.editor
 
-M.launcher = "rofi -show drun"
+M.launcher = scoped("launcher", "rofi -show drun")
 M.screenshot = "flameshot gui"
 
 -- brightnessctl where it exists, xbacklight otherwise. xbacklight is
