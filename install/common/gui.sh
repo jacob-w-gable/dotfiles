@@ -78,6 +78,18 @@ cp ./awesome/theme/lockscreen.png ~/Pictures/Wallpapers/wallpaper3.png
 sudo systemctl enable sddm --force
 sudo systemctl set-default graphical.target
 
+# systemd-oomd, configured the same on every distro. The distro scripts install
+# it where it is a separate package. Arch ships it inside systemd but enables
+# nothing. The user half of the configuration is linked by link_gui.sh.
+sudo install -D -m 644 ./systemd/system/user@.service.d/50-oomd.conf \
+  /etc/systemd/system/user@.service.d/50-oomd.conf
+sudo systemctl daemon-reload
+if systemctl cat systemd-oomd.service &>/dev/null; then
+  sudo systemctl enable --now systemd-oomd.service
+else
+  echo "systemd-oomd is not installed, so memory-pressure kills stay off" >&2
+fi
+
 # Configure xdg default applications
 xdg-mime default org.gnome.gThumb.desktop image/jpeg
 xdg-mime default org.gnome.gThumb.desktop image/png

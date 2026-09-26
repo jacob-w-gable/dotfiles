@@ -67,3 +67,13 @@ sudo ln -s $(pwd)/sddm/sddm.conf /etc/sddm.conf
 sudo rm -f /usr/share/sddm/themes/simple-sddm/theme.conf
 # For some reason symlinks don't work here
 sudo cp $(pwd)/sddm/simple-sddm/theme.conf /usr/share/sddm/themes/simple-sddm/theme.conf
+
+# The user half of the systemd-oomd setup, applied to every user service. See
+# the file for why. Kept last: on systemd 255 a user daemon-reload was seen to
+# empty oomd's watch list until the next system daemon-reload, so this ends with
+# one.
+mkdir -p "$HOME/.config/systemd/user"
+rm -rf "$HOME/.config/systemd/user/service.d"
+ln -s "$(pwd)/systemd/user/service.d" "$HOME/.config/systemd/user/service.d"
+systemctl --user daemon-reload
+sudo systemctl daemon-reload

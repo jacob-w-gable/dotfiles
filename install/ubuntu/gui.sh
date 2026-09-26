@@ -37,6 +37,7 @@ sudo apt install \
   kitty-terminfo \
   ncurses-term \
   imagemagick \
+  systemd-oomd \
   -y
 
 # For building i3loc-color:
