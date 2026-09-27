@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+#
+# The command tmux-resurrect types into each pane that was running Claude Code.
+#
+# Resumes the session this pane held at the last save, keeping any other flags
+# Claude was started with. A pane tag-session never tagged, such as one started
+# before the hook existed, is restarted with exactly the arguments resurrect
+# saved.
+#
+#   resume [ARG...]    ARG: the saved arguments, which resurrect passes through
+
+set -uo pipefail
+
+# shellcheck source-path=SCRIPTDIR source=lib.sh
+source "$(dirname "$(readlink -f "$0")")/lib.sh"
+
+pane="$(tmux display-message -p -t "${TMUX_PANE:?not running inside tmux}" \
+  '#{session_name}:#{window_index}.#{pane_index}')"
+map="$(resurrect_last_save).claude"
+
+session_id=""
+if [[ -r "$map" ]]; then
+  session_id="$(awk -F '\t' -v pane="$pane" '$1 == pane { print $2; exit }' "$map")"
+fi
+
+if [[ -z "$session_id" ]]; then
+  exec claude "$@"
+fi
+
+# Drop the saved session selection, which may name an older session than the
+# map does, and keep every other flag.
+args=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+  --continue | -c) shift ;;
+  --session-id) shift 2 ;;
+  # --resume's value is optional, so it consumes the next word only when that
+  # word is a session id.
+  --resume | -r)
+    shift
+    if [[ "${1:-}" =~ ^[0-9a-f-]{36}$ ]]; then
+      shift
+    fi
+    ;;
+  --resume=* | --session-id=*) shift ;;
+  *)
+    args+=("$1")
+    shift
+    ;;
+  esac
+done
+
+exec claude "${args[@]}" --resume "$session_id"

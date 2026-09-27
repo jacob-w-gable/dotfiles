@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# tmux-resurrect post-save hook: record the Claude session in each pane.
+#
+# Writes "<session>:<window>.<pane><TAB><session id>" for every pane tag-session
+# has tagged, as <save file>.claude beside the save `last` points to. It runs
+# after resurrect has updated `last`, so the map belongs to the save a restore
+# reads. Each save keeps its own map, so pointing `last` back at an older save
+# brings that save's sessions back with it.
+
+set -euo pipefail
+
+# shellcheck source-path=SCRIPTDIR source=lib.sh
+source "$(dirname "$(readlink -f "$0")")/lib.sh"
+
+save="$(resurrect_last_save)"
+[[ -f "$save" ]] || exit 0
+
+tmux list-panes -a -F "#{session_name}:#{window_index}.#{pane_index}"$'\t'"#{@claude_session}" |
+  awk -F '\t' '$2 != ""' >"$save.claude.tmp"
+mv -f "$save.claude.tmp" "$save.claude"

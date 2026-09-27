@@ -26,6 +26,7 @@ LINKS=(
   "zsh/.p10k-tty.zsh:$HOME/.p10k-tty.zsh"
   "tmux/.tmux.conf:$HOME/.tmux.conf"
   "tmux/tmux-power.tmux:$HOME/.tmux/tmux-power.tmux"
+  "tmux/claude:$HOME/.tmux/claude"
 )
 
 for link in "${LINKS[@]}"; do

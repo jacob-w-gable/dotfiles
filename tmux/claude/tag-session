@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# Claude Code SessionStart hook: tag the tmux pane with Claude's session id.
+#
+# Sets the pane option @claude_session, which save-sessions reads when
+# tmux-resurrect saves. SessionStart fires on startup, resume, /clear and
+# compaction, so the tag names the pane's current session, and a pane option
+# moves with its pane.
+#
+# Whatever a SessionStart hook prints becomes part of Claude's context, so this
+# prints nothing. It exits 0 whatever happens, so tagging never blocks a session.
+
+[[ -n "${TMUX_PANE:-}" ]] || exit 0
+
+session_id="$(grep -oE '"session_id"[[:space:]]*:[[:space:]]*"[0-9a-f-]{36}"' |
+  grep -oE '[0-9a-f-]{36}' | head -1)"
+
+if [[ -n "$session_id" ]]; then
+  tmux set-option -p -t "$TMUX_PANE" @claude_session "$session_id" >/dev/null 2>&1
+fi
+exit 0
