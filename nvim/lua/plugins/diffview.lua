@@ -4,6 +4,17 @@ return {
   "sindrets/diffview.nvim",
   cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory" },
   keys = {
-    { "<leader>gm", "<cmd>DiffviewOpen main...HEAD<cr>", desc = "Diff branch vs main (Diffview)" },
+    {
+      "<leader>gm",
+      function()
+        -- Toggle: close the view when this tab is one, otherwise open it.
+        if require("diffview.lib").get_current_view() then
+          vim.cmd("DiffviewClose")
+        else
+          vim.cmd("DiffviewOpen main...HEAD")
+        end
+      end,
+      desc = "Toggle branch vs main diff (Diffview)",
+    },
   },
 }
