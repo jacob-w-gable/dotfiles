@@ -1,5 +1,6 @@
--- Review the current branch against main: every changed file in a sidebar, hunks on the right.
--- Both keys diff from the merge base with main, the same range a merge request shows.
+-- Review the current branch against origin/main: every changed file in a sidebar, hunks on the
+-- right. Both keys diff from the merge base with origin/main, the same range a merge request
+-- shows, as of the last fetch.
 
 -- Close the view when this tab is one, otherwise open one from `args`.
 local function toggle(args)
@@ -17,22 +18,22 @@ return {
     {
       "<leader>gm",
       function()
-        toggle("main...HEAD")
+        toggle("origin/main...HEAD")
       end,
-      desc = "Toggle branch vs main diff, commits only (Diffview)",
+      desc = "Toggle branch vs origin/main diff, commits only (Diffview)",
     },
     {
       "<leader>gM",
       function()
         -- A single rev diffs against the working tree, so staged and unstaged edits show too.
-        local base = vim.trim(vim.fn.system({ "git", "merge-base", "main", "HEAD" }))
+        local base = vim.trim(vim.fn.system({ "git", "merge-base", "origin/main", "HEAD" }))
         if vim.v.shell_error ~= 0 then
-          vim.notify("git merge-base main HEAD failed: " .. base, vim.log.levels.ERROR)
+          vim.notify("git merge-base origin/main HEAD failed: " .. base, vim.log.levels.ERROR)
           return
         end
         toggle(base)
       end,
-      desc = "Toggle branch vs main diff, with uncommitted changes (Diffview)",
+      desc = "Toggle branch vs origin/main diff, with uncommitted changes (Diffview)",
     },
   },
 }
