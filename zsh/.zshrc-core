@@ -113,6 +113,8 @@ unset _nvim_arch _nvim_bin
 # system-wide copy of the same tool.
 export PATH="$HOME/.local/bin:$PATH"
 
+export PATH="$HOME/.dprint/bin:$PATH"
+
 # Node
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -144,11 +146,29 @@ alias lst='eza -l --group-directories-first --icons --time-style=long-iso --tota
 # names. Picking at startup means one rc file works on all of them, instead of
 # aliasing to a binary that is not installed and shadowing the one that is -
 # which is what `alias fd=fdfind` was doing on Arch, hiding the real fd.
+#
+# catp is the same tool with decoration and paging turned off, for piping the
+# output into something else.
 if (( $+commands[batcat] )); then
   alias cat="batcat"
+  alias catp="batcat -pP"
 elif (( $+commands[bat] )); then
   alias cat="bat"
+  alias catp="bat -pP"
 fi
+
+# Git diffstat, showing staged and unstaged changes relative to the merge base of the current branch and the specified base branch (default: main).
+gdstat() {
+  local base mb tmp
+  base=${1:-main}
+  mb=$(git merge-base "$base" HEAD) || return
+  tmp=$(mktemp)
+  cp "$(git rev-parse --git-path index)" "$tmp"
+  GIT_INDEX_FILE=$tmp git add -N .
+  GIT_INDEX_FILE=$tmp git diff --stat "$mb"
+  rm -f "$tmp"
+}
+
 
 # Find files
 (( $+commands[fdfind] )) && alias fd="fdfind"
