@@ -49,6 +49,8 @@ sudo pacman -S \
   lua-dkjson \
   nsxiv \
   ueberzug \
+  redshift \
+  noto-fonts-emoji \
   --noconfirm
 
 # Tablet mode (convertible/touchscreen laptops). Opt in with
