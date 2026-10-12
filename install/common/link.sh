@@ -14,7 +14,7 @@ fi
 
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
-mkdir -p "$HOME/.config" "$HOME/.tmux"
+mkdir -p "$HOME/.config" "$HOME/.config/opencode" "$HOME/.tmux"
 
 # "<path in the repository>:<target in $HOME>"
 LINKS=(
@@ -27,6 +27,9 @@ LINKS=(
   "tmux/.tmux.conf:$HOME/.tmux.conf"
   "tmux/tmux-power.tmux:$HOME/.tmux/tmux-power.tmux"
   "tmux/claude:$HOME/.tmux/claude"
+  "opencode/opencode.json:$HOME/.config/opencode/opencode.json"
+  "opencode/AGENTS.md:$HOME/.config/opencode/AGENTS.md"
+  "opencode/skills:$HOME/.config/opencode/skills"
 )
 
 for link in "${LINKS[@]}"; do
