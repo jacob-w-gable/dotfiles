@@ -44,6 +44,35 @@ if rustfmt_override and vim.fn.executable(rustfmt_override[1]) == 0 then
   rustfmt_override = nil
 end
 
+-- Lines of Cargo.lock read before giving up on finding the leptos entry. The
+-- largest lockfile here is around 9000 lines.
+local LOCKFILE_SCAN_LIMIT = 30000
+
+--- True when the workspace's Cargo.lock includes the leptos crate.
+local function uses_leptos(root)
+  if not root then
+    return false
+  end
+  local lock = io.open(vim.fs.normalize(root) .. "/Cargo.lock", "r")
+  if not lock then
+    return false
+  end
+  local found = false
+  local scanned = 0
+  for line in lock:lines() do
+    scanned = scanned + 1
+    if line == 'name = "leptos"' then
+      found = true
+      break
+    end
+    if scanned >= LOCKFILE_SCAN_LIMIT then
+      break
+    end
+  end
+  lock:close()
+  return found
+end
+
 -- Only configure servers whose binary is present. Neovim tries to spawn a
 -- server it has been given for every matching buffer, and logs "not installed,
 -- missing from PATH, or not executable" each time.
@@ -69,8 +98,18 @@ if vim.fn.executable(available.rust_analyzer) == 1 then
     -- spec. Edit the table in place rather than replacing it: the client kept a
     -- reference to it when it was created.
     before_init = function(_, config)
-      local cargo = config.settings["rust-analyzer"].cargo
-      cargo.extraEnv.CARGO_TARGET_DIR = target_dir_for(config.root_dir)
+      local settings = config.settings["rust-analyzer"]
+      settings.cargo.extraEnv.CARGO_TARGET_DIR = target_dir_for(config.root_dir)
+      -- leptosfmt only has something to do where the view! macro is, and it
+      -- breaks every other workspace: rust-analyzer sends the buffer to an
+      -- overrideCommand on stdin without the crate's edition, so the rustfmt
+      -- behind leptosfmt parses as edition 2015 and rejects `async fn`. Its
+      -- exit code is still 0 and its output is the unchanged input, so the
+      -- save looks like it formatted. rust-analyzer's own rustfmt passes
+      -- --edition from Cargo.toml and needs no such workaround.
+      if rustfmt_override and uses_leptos(config.root_dir) then
+        settings.rustfmt = { overrideCommand = rustfmt_override }
+      end
     end,
     settings = {
       ["rust-analyzer"] = {
@@ -90,10 +129,8 @@ if vim.fn.executable(available.rust_analyzer) == 1 then
             CARGO_TARGET_DIR = cargo_target_root,
           },
         },
-        -- Unset means rust-analyzer's own rustfmt. An override whose binary is
-        -- missing is worse than none: leptosfmt without a rustfmt component
-        -- echoes its input and exits 0, so formatting silently does nothing.
-        rustfmt = rustfmt_override and { overrideCommand = rustfmt_override } or nil,
+        -- Unset means rust-analyzer's own rustfmt. before_init adds an
+        -- overrideCommand for the workspaces that use leptos.
         procMacro = { enable = true },
         -- cargo check is manual, via <leader>rc - it is slow on a big workspace.
         checkOnSave = false,
