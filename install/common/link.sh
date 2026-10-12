@@ -42,3 +42,31 @@ for link in "${LINKS[@]}"; do
   ln -s "$source_path" "$target_path"
   echo "  linked $target_path"
 done
+
+# Register the Claude Code SessionStart hook that tags each tmux pane with its
+# session id, so tmux-resurrect can resume the right conversation (see
+# tmux/claude). Merged into the existing settings rather than linked, because
+# Claude Code writes to this file itself. Adding it again is a no-op.
+python3 - "$HOME/.claude/settings.json" <<'PY'
+import json, os, sys
+
+path = sys.argv[1]
+command = "~/.tmux/claude/tag-session"
+
+settings = {}
+if os.path.exists(path):
+    with open(path) as f:
+        settings = json.load(f)
+
+groups = settings.setdefault("hooks", {}).setdefault("SessionStart", [])
+if any(h.get("command") == command for g in groups for h in g.get("hooks", [])):
+    sys.exit(0)
+
+groups.append({"hooks": [{"type": "command", "command": command}]})
+os.makedirs(os.path.dirname(path), exist_ok=True)
+with open(path + ".tmp", "w") as f:
+    json.dump(settings, f, indent=2)
+    f.write("\n")
+os.replace(path + ".tmp", path)
+print(f"  registered Claude tag-session hook in {path}")
+PY
